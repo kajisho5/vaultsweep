@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="2144" viewBox="0 0 1520 2144"><rect width="1520" height="2144" fill="#2a2a2a"/><text x="40" y="58" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="600" fill="#FFFFFF" text-anchor="start">vaultsweep — 自動更新と寄付の案内（追加分のデザイン）</text>
-<text x="40" y="88" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#C8C8C8" text-anchor="start">A：アプリに新しい版が来たときの帯　B：設定の「更新」　C：紹介ページの「応援する」（パソコン幅とスマホ幅）</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="2884" viewBox="0 0 1520 2884"><rect width="1520" height="2884" fill="#2a2a2a"/><text x="40" y="58" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="600" fill="#FFFFFF" text-anchor="start">vaultsweep — 自動更新と寄付の案内（追加分のデザイン）</text>
+<text x="40" y="88" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#C8C8C8" text-anchor="start">A：新しい版の帯　B：設定の「更新」　C：紹介ページの「応援する」　D：サイトごとのパスワードの決まり</text>
 <text x="40" y="112" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" font-weight="400" fill="#8AB4F8" text-anchor="start">色の決まりは今のまま：琥珀＝その画面でいちばん押すもの（1つだけ）。更新と寄付は琥珀にしない。背景 #000・パネル #181818・線 #313131</text>
 <text x="40" y="132" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" font-weight="400" fill="#8AB4F8" text-anchor="start">A　概要画面の上に出る帯（新しい版があるときだけ。閉じると次の版まで出ない）</text>
 <rect x="40" y="140" width="1440" height="330" rx="0" fill="#000000"/>
@@ -129,4 +129,66 @@
 <text x="1126" y="1925.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start">What's new</text>
 <rect x="1030.5" y="1900.5" width="71" height="39" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
 <text x="1042" y="1925.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start">Later</text>
-<text x="526" y="2004" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">Settings: “Updates” · Check automatically · Current version · Last checked · Check now</text></svg>
+<text x="526" y="2004" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">Settings: “Updates” · Check automatically · Current version · Last checked · Check now</text>
+<text x="40" y="2136" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" font-weight="400" fill="#8AB4F8" text-anchor="start">D　パスワード変更画面：サイトごとの決まり（使える記号・長さ）に合わせて作る</text>
+<rect x="40" y="2144" width="1440" height="700" rx="0" fill="#000000"/>
+<text x="64" y="2188" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="24" font-weight="600" fill="#FFFFFF" text-anchor="start">Example Bank のパスワードを変える</text>
+<rect x="64.5" y="2216.5" width="680" height="600" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="88" y="2256" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF" text-anchor="start">1. 新しいパスワードを作る</text>
+<text x="88" y="2282" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">1Password の中で作って保存します。今のパスワードは履歴に残ります。</text>
+<rect x="88.5" y="2304.5" width="632" height="208" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="108" y="2336" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start">このサイトの決まり</text>
+<text x="700" y="2336" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#6EBCFC" text-anchor="end">Apple の公開データより</text>
+<text x="108" y="2368" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">長さ</text>
+<text x="264" y="2368" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start">8〜20文字</text>
+<text x="108" y="2394" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">使える記号</text>
+<text x="264" y="2394" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start">!  $  *  ?  @  |  だけ</text>
+<text x="108" y="2420" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">必ず入れる</text>
+<text x="264" y="2420" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start">大文字・小文字・数字</text>
+<text x="108" y="2446" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">同じ文字の連続</text>
+<text x="264" y="2446" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start">3文字まで</text>
+<line x1="108" y1="2468" x2="700" y2="2468" stroke="#313131"/>
+<text x="108" y="2494" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#61CB7C" text-anchor="start">→ 20文字・英字と数字で作ります（記号なし）</text>
+<text x="88" y="2540" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" font-weight="400" fill="#9B9B9B" text-anchor="start">1Password の記号は「! @ . - _ *」の6つで、選べません。このサイトは . - _ が使えないので記号を外します。</text>
+<rect x="88.5" y="2560.5" width="119" height="35" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
+<text x="100" y="2583.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start">決まりを変える</text>
+<text x="224" y="2583" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#9B9B9B" text-anchor="start">このサイトだけ覚えます</text>
+<rect x="88.5" y="2612.5" width="632" height="124" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="108" y="2642" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#C9C9C9" text-anchor="start">長さ</text>
+<rect x="184.5" y="2622.5" width="80" height="32" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
+<text x="224" y="2644" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="middle">20</text>
+<text x="108" y="2686" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#C9C9C9" text-anchor="start">使う文字</text>
+<rect x="184.5" y="2666.5" width="150" height="36" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="259.0" y="2689" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="middle">英字＋数字＋記号</text>
+<rect x="338.5" y="2666.5" width="110" height="36" rx="8" fill="#272727" stroke="#4A4A4A" stroke-width="1"/>
+<text x="393.0" y="2689" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="middle">英字＋数字</text>
+<rect x="452.5" y="2666.5" width="90" height="36" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="497.0" y="2689" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="middle">数字だけ</text>
+<text x="108" y="2722" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#9B9B9B" text-anchor="start">いちばん短い 4文字、いちばん長い 64文字（1Password の上限）</text>
+<rect x="88" y="2756" width="140" height="40" rx="8" fill="#F7B83D"/>
+<text x="158" y="2781" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#1C0E00" text-anchor="middle">作って保存する</text>
+<rect x="784.5" y="2216.5" width="680" height="600" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="808" y="2256" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF" text-anchor="start">2. サイトで変えてください</text>
+<text x="808" y="2282" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">新しいパスワードは 1Password に保存済みです。</text>
+<text x="808" y="2320" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" font-weight="400" fill="#6B6B6B" text-anchor="start">（今の手順・コピーのボタンはそのまま）</text>
+<rect x="808.5" y="2348.5" width="632" height="236" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="828" y="2380" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start">サイトに断られたら</text>
+<text x="828" y="2406" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start">作り直しても、元のパスワードはそのまま預かっています。</text>
+<rect x="828.5" y="2426.5" width="167" height="35" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
+<text x="840" y="2449.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start">記号なしで作り直す</text>
+<rect x="1004.5" y="2426.5" width="155" height="35" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
+<text x="1016" y="2449.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start">16文字で作り直す</text>
+<rect x="1168.5" y="2426.5" width="167" height="35" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
+<text x="1180" y="2449.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start">数字だけで作り直す</text>
+<text x="828" y="2500" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#C9C9C9" text-anchor="start">細かく決めたいとき</text>
+<rect x="1300.5" y="2478.5" width="119" height="35" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
+<text x="1312" y="2501.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start">決まりを変える</text>
+<text x="828" y="2556" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#9B9B9B" text-anchor="start">作り直した分は、このサイトの決まりとして覚えます。</text>
+<line x1="808" y1="2616" x2="1440" y2="2616" stroke="#313131"/>
+<rect x="808" y="2640" width="150" height="40" rx="8" fill="#F7B83D"/>
+<text x="883" y="2665" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#1C0E00" text-anchor="middle">サイトで保存した</text>
+<rect x="970.5" y="2640.5" width="179" height="39" rx="8" fill="#181818" stroke="#4A4A4A" stroke-width="1"/>
+<text x="982" y="2665.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start">元のパスワードに戻す</text>
+<text x="808" y="2716" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#9B9B9B" text-anchor="start">・作ったあと、決まりに合っているかをアプリの中で確かめ、合わなければ最大5回まで作り直す</text>
+<text x="808" y="2736" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#9B9B9B" text-anchor="start">  （確かめるときもパスワードは画面に出さず、保存もしない。確かめたらすぐ消す）</text>
+<text x="808" y="2756" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#9B9B9B" text-anchor="start">・5回で合わなければ：「このサイトの決まりには自動で合わせられません」と出し、決まりを変える欄を開く</text></svg>
