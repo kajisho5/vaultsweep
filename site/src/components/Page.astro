@@ -1,0 +1,223 @@
+---
+// 紹介ページの本体。英語・日本語とも同じ部品で作る（文言は i18n.ts）
+import Icon from "./Icon.astro";
+import Logo from "./Logo.astro";
+import { DICT, REPO, RELEASES, type Lang } from "../i18n";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = DICT[lang];
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const home = lang === "en" ? base : `${base}ja/`;
+const other = lang === "en" ? `${base}ja/` : base;
+const shot = (theme: "dark" | "light") => `${base}shots/overview-${lang}-${theme}.webp`;
+const wrap = "mx-auto w-full max-w-[1120px] px-4 md:px-6";
+const sec = "py-24";
+const h2 = "text-3xl md:text-4xl font-semibold tracking-tight";
+const lead = "mt-4 text-lg text-muted max-w-[680px]";
+const card = "rounded-2xl border border-line bg-card";
+const cmds = [
+  { os: t.cmdWin, icon: "windows", cmd: "winget install 1password-cli" },
+  { os: t.cmdMac, icon: "apple", cmd: "brew install 1password-cli" },
+];
+const half = Math.ceil(t.kinds.length / 2);
+---
+<header data-nav class="fixed inset-x-0 top-6 z-40 flex justify-center px-4">
+  <nav aria-label={t.menu} class="flex w-max items-center gap-2 rounded-full border border-line bg-card/80 py-2 pr-2 pl-4 backdrop-blur-xl">
+    <a href={home} class="press flex items-center gap-2 rounded-full px-2 py-1 text-base font-semibold" aria-label="vaultsweep">
+      <Logo size={20} />vaultsweep
+    </a>
+    <ul class="hidden items-center gap-1 md:flex">
+      {t.nav.map(([href, label]) => <li><a href={href} class="press rounded-full px-3 py-2 text-sm font-medium text-ink2 hover:bg-hover hover:text-ink">{label}</a></li>)}
+    </ul>
+    <a href={other} hreflang={lang === "en" ? "ja" : "en"} class="press hidden rounded-full px-3 py-2 text-sm font-medium text-muted hover:bg-hover hover:text-ink md:block">{t.other.label}</a>
+    <a href={REPO} class="press hidden rounded-full p-2 text-ink hover:bg-hover md:block" aria-label="GitHub"><Icon name="github" /></a>
+    <button type="button" data-burger data-menu={t.menu} data-close={t.close} aria-label={t.menu} aria-expanded="false" aria-controls="sheet" class="burger press relative ml-2 h-8 w-8 rounded-full text-ink md:hidden">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div id="sheet" class="sheet fixed inset-0 -z-10 flex flex-col justify-center gap-6 bg-bg/80 px-8 backdrop-blur-3xl md:hidden">
+    {t.nav.map(([href, label]) => <a href={href} class="text-3xl font-semibold">{label}</a>)}
+    <a href={other} class="text-3xl font-semibold text-muted">{t.other.label}</a>
+  </div>
+</header>
+
+<main id="main">
+  <!-- 最初の画面 -->
+  <section class={`${wrap} pt-40 pb-24`}>
+    <h1 class="grad max-w-[680px] text-4xl font-semibold tracking-tight md:text-6xl" data-rv>
+      {t.h1.map((l, i) => <>{l}{i < t.h1.length - 1 && <br />}</>)}
+    </h1>
+    <p class="mt-6 max-w-[680px] text-lg text-ink2" data-rv style="--d:80ms">{t.sub}</p>
+    <div class="mt-8 flex flex-wrap items-center gap-6" data-dl data-rv style="--d:160ms">
+      <a data-os="win" href={RELEASES} class="press inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-base font-semibold text-accent-ink hover:opacity-90">
+        <Icon name="windows" />{t.dlWin}
+      </a>
+      <a data-os="mac" hidden href={RELEASES} class="press inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-base font-semibold text-accent-ink hover:opacity-90">
+        <Icon name="apple" />{t.dlMac}
+      </a>
+      <a data-os="win" href={RELEASES} class="press inline-flex items-center gap-2 text-base font-medium text-ink underline decoration-line2 underline-offset-4 hover:decoration-ink"><Icon name="apple" />{t.altMac}</a>
+      <a data-os="mac" hidden href={RELEASES} class="press inline-flex items-center gap-2 text-base font-medium text-ink underline decoration-line2 underline-offset-4 hover:decoration-ink"><Icon name="windows" />{t.altWin}</a>
+    </div>
+    <p class="mt-6 text-sm text-muted" data-rv style="--d:240ms">{t.proof}</p>
+    <p class="mt-2 text-sm text-muted" data-rv style="--d:240ms">{t.unofficial}</p>
+    <div class={`${card} mt-16 p-4`} data-rv style="--d:320ms">
+      <picture>
+        <source srcset={shot("dark")} media="(prefers-color-scheme: dark)" />
+        <img src={shot("light")} width="1440" height="900" alt={t.shotAlt} class="w-full rounded-lg" fetchpriority="high" />
+      </picture>
+    </div>
+  </section>
+
+  <!-- よいこと -->
+  <section class={`${wrap} ${sec}`}>
+    <h2 class={h2} data-rv>{t.benefitsTitle}</h2>
+    <div class="mt-12 grid gap-6 md:grid-cols-2">
+      {t.benefits.map(([icon, title, body], i) => (
+        <div class={`${card} p-6`} data-rv style={`--d:${(i % 2) * 80}ms`}>
+          <Icon name={icon} size={24} />
+          <h3 class="mt-8 text-xl font-semibold">{title}</h3>
+          <p class="mt-2 text-base text-muted">{body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 大きな一言（1語ずつ色が付く） -->
+  <section class={`${wrap} ${sec}`} aria-label={t.tagline.map((l) => l.join(lang === "en" ? " " : "")).join(" ")}>
+    <p class="text-4xl font-semibold tracking-tight md:text-5xl" aria-hidden="true">
+      {t.tagline.map((line, li) => (
+        <span class="block">{line.map((w, wi) => <><span class="w">{w}</span>{lang === "en" && wi < line.length - 1 ? " " : ""}</>)}</span>
+      ))}
+    </p>
+  </section>
+
+  <!-- 見つけるもの -->
+  <section id="finds" class={`${wrap} ${sec}`}>
+    <h2 class={h2} data-rv>{t.findsTitle}</h2>
+    <p class={lead} data-rv>{t.findsLead}</p>
+    <dl class="mt-12 grid gap-x-12 md:grid-cols-2">
+      {[t.kinds.slice(0, half), t.kinds.slice(half)].map((col) => (
+        <div>
+          {col.map(([name, desc, bad]) => (
+            <div class="border-t border-line py-4" data-rv>
+              <dt class={`text-lg font-semibold ${bad ? "text-bad" : ""}`}>{name}</dt>
+              <dd class="mt-1 text-sm text-muted">{desc}</dd>
+            </div>
+          ))}
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <!-- 使い方 -->
+  <section id="how" class={`${wrap} ${sec}`}>
+    <h2 class={h2} data-rv>{t.howTitle}</h2>
+    <ol class="mt-12 grid gap-6 md:grid-cols-3">
+      {t.steps.map(([title, body], i) => (
+        <li class={`${card} p-6`} data-rv style={`--d:${i * 80}ms`}>
+          <span class="font-mono text-3xl text-muted">{i + 1}</span>
+          <h3 class="mt-8 text-lg font-semibold">{title}</h3>
+          <p class="mt-2 text-sm text-muted">{body}</p>
+        </li>
+      ))}
+    </ol>
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+      {cmds.map((c) => (
+        <div data-rv>
+          <p class="flex items-center gap-2 text-sm font-medium text-muted"><Icon name={c.icon} size={16} />{c.os}</p>
+          <div class="mt-2 flex items-center justify-between gap-4 rounded-lg border border-line bg-code py-2 pr-2 pl-4">
+            <code class="font-mono text-sm">{c.cmd}</code>
+            <button type="button" data-copy={c.cmd} data-done={t.copied} class="press inline-flex items-center gap-2 rounded-lg border border-line2 bg-card px-3 py-2 text-sm font-semibold hover:bg-hover">
+              <Icon name="copy" size={16} /><span data-label>{t.copy}</span>
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+    <p class="mt-4 text-sm" data-rv><a href="https://www.1password.dev/cli/get-started" class="press text-ink underline decoration-line2 underline-offset-4 hover:decoration-ink">{t.guide} ↗</a></p>
+    <div class={`${card} mt-8 flex gap-4 p-6`} data-rv>
+      <Icon name="warning" size={24} class="shrink-0 text-accent" />
+      <div>
+        <h3 class="text-base font-semibold">{t.macTitle}</h3>
+        <p class="mt-1 text-sm text-muted">{t.macBody}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 確かめられる安全 -->
+  <section id="safety" class={`${wrap} ${sec}`}>
+    <h2 class={h2} data-rv>{t.safetyTitle}</h2>
+    <p class={lead} data-rv>{t.safetyLead}</p>
+    <ul class="mt-12">
+      {t.safety.map((s) => (
+        <li class="flex items-start gap-4 border-t border-line py-4 text-base" data-rv>
+          <Icon name="shield" class="mt-0.5 shrink-0 text-ink2" />{s}
+        </li>
+      ))}
+    </ul>
+    <a href={REPO} class="press mt-6 inline-flex items-center gap-2 text-base font-medium underline decoration-line2 underline-offset-4 hover:decoration-ink" data-rv><Icon name="github" />{t.source}</a>
+  </section>
+
+  <!-- AI と使う -->
+  <section class={`${wrap} ${sec}`}>
+    <h2 class={h2} data-rv>{t.aiTitle}</h2>
+    <p class={lead} data-rv>{t.aiLead}</p>
+    <div class="mt-12 grid gap-12 md:grid-cols-2">
+      <pre class="overflow-x-auto rounded-2xl border border-line bg-code p-6 font-mono text-sm text-ink2" data-rv>{`{ "mcpServers": {
+    "vaultsweep": {
+      "command": ".../vaultsweep-mcp",
+      "args": ["--mcp"] } } }`}</pre>
+      <dl data-rv>
+        {t.aiRows.map(([k, v]) => (
+          <div class="flex flex-wrap justify-between gap-2 border-t border-line py-4">
+            <dt class="text-base font-semibold">{k}</dt><dd class="text-sm text-muted">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- よくある質問 -->
+  <section id="faq" class={`${wrap} ${sec}`}>
+    <h2 class={h2} data-rv>{t.faqTitle}</h2>
+    <dl class="mt-12 grid gap-x-12 md:grid-cols-2">
+      {t.faq.map(([q, a]) => (
+        <div class="border-t border-line py-6" data-rv>
+          <dt class="text-base font-semibold">{q}</dt>
+          <dd class="mt-2 text-sm text-muted">{a}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <!-- 最後の誘い（最初と同じボタン） -->
+  <section class={`${wrap} ${sec}`}>
+    <div class={`${card} flex flex-col items-center px-6 py-16 text-center`} data-rv>
+      <h2 class={h2}>{t.finalTitle}</h2>
+      <p class="mt-4 max-w-[680px] text-lg text-muted">{t.finalLead}</p>
+      <div class="mt-8 flex flex-col items-center gap-4" data-dl>
+        <a data-os="win" href={RELEASES} class="press inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-base font-semibold text-accent-ink hover:opacity-90"><Icon name="windows" />{t.dlWin}</a>
+        <a data-os="mac" hidden href={RELEASES} class="press inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-base font-semibold text-accent-ink hover:opacity-90"><Icon name="apple" />{t.dlMac}</a>
+        <a data-os="win" href={RELEASES} class="press text-sm underline decoration-line2 underline-offset-4 hover:decoration-ink">{t.altMac}</a>
+        <a data-os="mac" hidden href={RELEASES} class="press text-sm underline decoration-line2 underline-offset-4 hover:decoration-ink">{t.altWin}</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="border-t border-line">
+  <div class={`${wrap} flex flex-col gap-4 py-12`}>
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <a href={home} class="flex items-center gap-2 text-base font-semibold"><Logo size={20} />vaultsweep</a>
+      <p class="text-xs text-muted">{t.trademark}</p>
+    </div>
+    <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink2">
+      <li><a class="hover:text-ink" href={`${home}privacy/`}>{t.footer.privacy}</a></li>
+      <li><a class="hover:text-ink" href={`${REPO}/blob/main/LICENSE`}>{t.footer.license}</a></li>
+      <li><a class="hover:text-ink" href={REPO}>{t.footer.source}</a></li>
+      <li><a class="hover:text-ink" href={`${REPO}/releases`}>{t.footer.changelog}</a></li>
+      <li><a class="hover:text-ink" href={other} hreflang={lang === "en" ? "ja" : "en"}>{t.other.label}</a></li>
+    </ul>
+    <p class="text-xs text-muted">{t.data}</p>
+  </div>
+</footer>

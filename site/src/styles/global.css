@@ -1,0 +1,70 @@
+/* 紹介ページの見た目（landing-page-design スキルに合わせる）
+ * 色は OS の設定（ライト・ダーク）に合わせる。ダークの背景は #000・#181818・#1F1F1F・#272727・#313131 だけ */
+@import "tailwindcss";
+
+:root {
+  --bg: #fafafa; --card: #ffffff; --card2: #f4f4f4; --hover: #efefef; --line: #e4e4e4; --line2: #c8c8c8;
+  --ink: #000000; --ink2: #333333; --muted: #666666;
+  --h1a: #000000; --h1b: #666666;
+  --accent: #a15c00; --accent-ink: #ffffff; --bad: #b63132; --code: #f4f4f4;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000; --card: #181818; --card2: #1f1f1f; --hover: #272727; --line: #313131; --line2: #4a4a4a;
+    --ink: #ffffff; --ink2: #c9c9c9; --muted: #9b9b9b;
+    --h1a: #ffffff; --h1b: #9b9b9b;
+    --accent: #f7b83d; --accent-ink: #1c0e00; --bad: #f66d67; --code: #131209;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --font-sans: "Geist Variable", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", "Hiragino Sans", "Yu Gothic UI", ui-monospace, monospace;
+  --color-bg: var(--bg); --color-card: var(--card); --color-card2: var(--card2); --color-hover: var(--hover);
+  --color-line: var(--line); --color-line2: var(--line2);
+  --color-ink: var(--ink); --color-ink2: var(--ink2); --color-muted: var(--muted);
+  --color-accent: var(--accent); --color-accent-ink: var(--accent-ink); --color-bad: var(--bad); --color-code: var(--code);
+  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+html { background: var(--bg); color: var(--ink); scroll-padding-top: 96px; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font-sans); overflow-x: clip; }
+h1, h2, h3 { text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+:lang(ja) h1, :lang(ja) h2, :lang(ja) h3, :lang(ja) p, :lang(ja) li { word-break: auto-phrase; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* 最初の画面の見出し：左から右への字のグラデーション（背景には使わない） */
+.grad { background: linear-gradient(90deg, var(--h1a), var(--h1b)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* 画面に入るとき：下から浮かび上がる（0.8秒）。JS が動かないときや動きを減らす設定では、最初から見せる */
+.js [data-rv] { opacity: 0; transform: translateY(64px); filter: blur(12px); transition: opacity 800ms var(--ease-fluid), transform 800ms var(--ease-fluid), filter 800ms var(--ease-fluid); transition-delay: var(--d, 0ms); }
+.js [data-rv].in { opacity: 1; transform: none; filter: none; }
+
+/* 大きな一言：言葉が1つずつ本来の色になる */
+.js .w { opacity: 0.3; transition: opacity 700ms var(--ease-fluid); }
+.js .w.on { opacity: 1; }
+
+/* ナビの ≡ → × */
+.burger span { position: absolute; left: 4px; right: 4px; height: 2px; border-radius: 9999px; background: currentColor; transition: transform 700ms var(--ease-fluid), top 700ms var(--ease-fluid), opacity 700ms var(--ease-fluid); }
+.burger span:nth-child(1) { top: 9px; } .burger span:nth-child(2) { top: 15px; } .burger span:nth-child(3) { top: 21px; }
+[data-open] .burger span:nth-child(1) { top: 15px; transform: rotate(45deg); }
+[data-open] .burger span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+[data-open] .burger span:nth-child(3) { top: 15px; transform: rotate(-45deg); }
+.sheet { opacity: 0; pointer-events: none; transition: opacity 700ms var(--ease-fluid); }
+[data-open] .sheet { opacity: 1; pointer-events: auto; }
+.sheet a { transform: translateY(48px); opacity: 0; transition: transform 700ms var(--ease-fluid), opacity 700ms var(--ease-fluid); }
+[data-open] .sheet a { transform: none; opacity: 1; }
+.sheet a:nth-child(1) { transition-delay: 100ms; } .sheet a:nth-child(2) { transition-delay: 150ms; } .sheet a:nth-child(3) { transition-delay: 200ms; } .sheet a:nth-child(4) { transition-delay: 250ms; } .sheet a:nth-child(5) { transition-delay: 300ms; }
+
+/* 押したときに少し縮む */
+.press { transition: transform 300ms var(--ease-fluid), background-color 300ms var(--ease-fluid), border-color 300ms var(--ease-fluid), color 300ms var(--ease-fluid); }
+.press:active { transform: scale(0.98); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-rv], .js .w { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

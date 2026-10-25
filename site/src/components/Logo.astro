@@ -1,0 +1,11 @@
+---
+// アプリと同じ印
+interface Props { size?: number }
+const { size = 22 } = Astro.props;
+---
+<svg width={size} height={size} viewBox="0 0 26 26" aria-hidden="true">
+  <circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+  <circle cx="13" cy="13" r="6" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2" />
+  <path d="M13 13 L22 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <circle cx="13" cy="13" r="2" fill="currentColor" />
+</svg>

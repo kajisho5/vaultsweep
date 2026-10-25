@@ -1,0 +1,9 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Simple from "../../components/Simple.astro";
+import { DICT } from "../../i18n";
+const t = DICT.ja;
+---
+<Layout lang="ja" title={`${t.privacyTitle} · vaultsweep`} path="privacy/">
+  <Simple lang="ja" title={t.privacyTitle}>{t.privacy.map((p) => <p>{p}</p>)}</Simple>
+</Layout>

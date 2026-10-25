@@ -1,0 +1,8 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Page from "../../components/Page.astro";
+import { DICT } from "../../i18n";
+const t = DICT.ja;
+const faq = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: t.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) };
+---
+<Layout lang="ja" jsonLd={faq}><Page lang="ja" /></Layout>

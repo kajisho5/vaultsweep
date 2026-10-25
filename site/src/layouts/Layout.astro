@@ -1,0 +1,47 @@
+---
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import "../styles/global.css";
+import { DICT, type Lang } from "../i18n";
+interface Props { lang: Lang; title?: string; path?: string; jsonLd?: object; noindex?: boolean }
+const { lang, title, path = "", jsonLd, noindex } = Astro.props;
+const t = DICT[lang];
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const site = Astro.site!.origin;
+const enUrl = `${site}${base}${path}`;
+const jaUrl = `${site}${base}ja/${path}`;
+const url = lang === "en" ? enUrl : jaUrl;
+const og = `${site}${base}og-${lang}.png`;
+---
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title ?? t.title}</title>
+    <meta name="description" content={t.description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={url} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="ja" href={jaUrl} />
+    <link rel="alternate" hreflang="x-default" href={enUrl} />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title ?? t.title} />
+    <meta property="og:description" content={t.description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={og} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+    <script is:inline>document.documentElement.classList.add("js");</script>
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body class="bg-bg text-ink antialiased">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-card focus:px-3 focus:py-2 focus:text-sm focus:font-semibold">{t.skip}</a>
+    <slot />
+    <script>
+      import "../scripts/site.ts";
+    </script>
+  </body>
+</html>

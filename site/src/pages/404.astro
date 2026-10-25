@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Simple from "../components/Simple.astro";
+import { DICT } from "../i18n";
+---
+<Layout lang="en" title="404 · vaultsweep" noindex>
+  <Simple lang="en" title="404"><p>{DICT.en.notFound}</p><p lang="ja">{DICT.ja.notFound} <a class="underline" href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}ja/`}>{DICT.ja.back}</a></p></Simple>
+</Layout>
