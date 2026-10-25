@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../store";
-import { CountUp, Meter, Spark, Tag, fmtDate, isBad } from "../components/ui";
+import { CountUp, Meter, Skeleton, Spark, Tag, fmtDate, isBad } from "../components/ui";
 import { KINDS, PASSWORD_KINDS, mainKind, type Item, type Pending } from "../lib/types";
 import { issueText } from "../lib/i18n";
 import { siteUrl } from "../lib/api";
@@ -37,6 +37,17 @@ export function PendingBar() {
 
 function FirstRun() {
   const { t, scan, scanning } = useApp();
+  // 初めての診断中は、出来上がりの形をまねた灰色の板を見せる
+  if (scanning) return (
+    <div aria-busy="true" aria-label={t.scanning}>
+      <h1 className="title">{t.scanning}</h1>
+      <p className="lead">{t.firstLead}</p>
+      <div className="reading-row">
+        <div className="reading sk-card"><Skeleton w={80} /><Skeleton w={180} h={72} /><Skeleton w={220} /></div>
+        <div className="figs">{[0, 1, 2, 3].map((i) => <div className="fig sk-card" key={i}><Skeleton w={120} /><Skeleton w={72} h={32} /></div>)}</div>
+      </div>
+    </div>
+  );
   return (
     <>
       <h1 className="title">{t.firstTitle}</h1>

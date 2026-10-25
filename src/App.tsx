@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useApp, type View } from "./store";
-import { Logo, Meter, NavIcon, SearchIcon } from "./components/ui";
+import { Icon, Logo, Meter, NavIcon, SearchIcon } from "./components/ui";
 import { Overview } from "./views/Overview";
 import { Issues } from "./views/Issues";
 import { Change } from "./views/Change";
@@ -75,9 +75,9 @@ function Topbar() {
           }} />
         <kbd>{t.kbd}</kbd>
       </label>
-      <button type="button" className={`chipbtn${pend ? " alert" : ""}`} onClick={() => go("settings")}>{pend ? t.aiRequests(pend) : t.mcpChip}</button>
+      <button type="button" className={`chipbtn${pend ? " alert" : ""}`} onClick={() => go("settings")}><Icon name="robot" />{pend ? t.aiRequests(pend) : t.mcpChip}</button>
       <button type="button" className="btn" onClick={() => void scan()} disabled={scanning} aria-busy={scanning}>
-        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8 A5.5 5.5 0 1 1 11.8 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /><path d="M12.5 1.5 V4.5 H9.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        <Icon name="scan" />
         <span>{scanning ? t.scanning : t.scan}</span>
       </button>
     </header>
@@ -98,6 +98,23 @@ function ScanProgress() {
 }
 
 /** 押したボタンが消えたり画面が変わったりしたら、キーボードの位置を今の画面の見出しへ移す（ページの先頭へ戻らないように） */
+/** 画面に入るとき、カードや見出しを下から浮かび上がらせる（画面の中に入ったものから順に） */
+function useReveal(view: string) {
+  useEffect(() => {
+    const sel = ".view > h1, .view > .lead, .view > .pending, .view > .bulkbar, .view .reading, .view .fig, .view .card, .view .sec, .view .tbl-wrap, .view .col, .view .step, .view > section";
+    const els = Array.from(document.querySelectorAll<HTMLElement>(sel));
+    const io = new IntersectionObserver((ents) => {
+      for (const e of ents) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -40px 0px" });
+    els.forEach((el, i) => {
+      el.classList.add("rv");
+      el.style.setProperty("--rv-d", `${Math.min(i, 8) * 60}ms`);
+      io.observe(el);
+    });
+    return () => io.disconnect();
+  }, [view]);
+}
+
 function useFocusKeeper(view: string) {
   const last = useRef<Element | null>(null);
   const first = useRef(true);
@@ -131,6 +148,7 @@ function useFocusKeeper(view: string) {
 export function App() {
   const { view, api, t } = useApp();
   useFocusKeeper(view);
+  useReveal(view);
   return (
     <div className="app">
       <Sidebar />

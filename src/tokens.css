@@ -1,34 +1,40 @@
+/* 見た目の決まり（landing-page-design スキルに合わせる）
+ * 字の大きさ：Tailwind の段だけ ／ 余白：2・4・8・12・16・24・32・40・48・64・80・96px だけ
+ * ダークの背景：#000000・#181818・#1F1F1F・#272727・#313131 だけ ／ 背景にグラデーションは使わない
+ * 動き：cubic-bezier(0.32, 0.72, 0, 1)
+ * 色の意味：琥珀＝押すもの（1画面に1つ）、赤＝漏洩と事故だけ、青＝測った数字、緑＝よくなったこと */
 :root {
   color-scheme: dark;
-  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
-  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
-  --text-display-s: 1.44rem; --text-display: 1.728rem; --text-section: 1.2rem; --text-title: 1rem; --text-lead: 1rem;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
-  --color-error: oklch(72% 0.15 27); --color-success: oklch(76% 0.13 150);
-  --container: 1440px; --gutter: 64px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.125rem; --text-xl: 1.25rem; --text-2xl: 1.5rem; --text-3xl: 1.875rem; --text-4xl: 2.25rem; --text-7xl: 4.5rem; --text-8xl: 6rem;
+  --lh-xs: 1rem; --lh-sm: 1.25rem; --lh-md: 1.5rem; --lh-lg: 1.75rem; --lh-xl: 1.75rem; --lh-2xl: 2rem; --lh-3xl: 2.25rem; --lh-4xl: 2.5rem;
+  --text-display: var(--text-3xl); --text-section: var(--text-xl); --text-title: var(--text-md); --text-lead: var(--text-md);
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1); --ease-in: cubic-bezier(0.32, 0.72, 0, 1); --ease-in-out: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-micro: 200ms; --dur-short: 300ms; --dur-long: 700ms; --dur-reveal: 800ms;
+  --container: 1440px; --gutter: 64px; --gap-columns: 32px;
   --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
-  --color-paper: oklch(17% 0.008 250); --color-paper-2: oklch(21% 0.009 250); --color-paper-3: oklch(13.5% 0.007 250);
-  --color-ink: oklch(95% 0.005 250); --color-ink-2: oklch(83% 0.008 250); --color-muted: oklch(71% 0.01 250);
-  --color-rule: oklch(31% 0.01 250); --color-rule-2: oklch(42% 0.012 250);
-  --color-accent: oklch(82% 0.15 80); --color-accent-ink: oklch(18% 0.04 75); --color-accent-soft: oklch(29% 0.05 80); --color-focus: oklch(82% 0.15 80);
-  --color-cool: oklch(77% 0.12 245); --color-cool-soft: oklch(29% 0.05 245);
-  --color-ok: oklch(76% 0.15 150); --color-ok-soft: oklch(24.5% 0.03 150); --color-bad: oklch(70% 0.17 25); --color-bad-soft: oklch(24.5% 0.035 25);
-  --font-display: "Host Grotesk Variable", "Host Grotesk", "Yu Gothic UI", "Meiryo", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif; --font-body: var(--font-display);
-  --font-outlier: "Atkinson Hyperlegible Mono Variable", "Atkinson Hyperlegible Mono", "Yu Gothic UI", "Meiryo", "Hiragino Sans", ui-monospace, monospace;
-  --radius-card: 10px; --radius-pill: 6px; --rule-hair: 1px;
+  --color-paper: #000000; --color-paper-2: #181818; --color-paper-3: #1f1f1f; --color-hover: #272727;
+  --color-ink: #ffffff; --color-ink-2: #c9c9c9; --color-muted: #9b9b9b;
+  --color-rule: #313131; --color-rule-2: #4a4a4a;
+  --color-accent: #f7b83d; --color-accent-ink: #1c0e00; --color-accent-soft: #2e2410; --color-focus: #f7b83d;
+  --color-cool: #6ebcfc; --color-cool-soft: #12263a;
+  --color-ok: #61cb7c; --color-ok-soft: #13261a; --color-bad: #f66d67; --color-bad-soft: #2a1716;
+  --color-error: #f66d67; --color-success: #61cb7c;
+  --font-display: "Geist Variable", "Geist", "Yu Gothic UI", "Meiryo", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif; --font-body: var(--font-display);
+  --font-outlier: "Geist Mono Variable", "Geist Mono", "Yu Gothic UI", "Meiryo", "Hiragino Sans", ui-monospace, monospace;
+  --radius-card: 16px; --radius-pill: 8px; --radius-full: 9999px; --rule-hair: 1px;
   --shadow-card: none;
-  --tracking-display: -0.03em; --display-weight: 500;
+  --tracking-display: -0.02em; --display-weight: 600;
 }
 
-/* ライト（Console の paper の色組）。色の意味は同じ：琥珀＝人の操作、青＝機械が測ったもの */
+/* ライト。色の意味はダークと同じ */
 :root[data-theme="light"] {
   color-scheme: light;
-  --color-paper: oklch(96.5% 0.006 85); --color-paper-2: oklch(99.2% 0.004 85); --color-paper-3: oklch(93.5% 0.007 85);
-  --color-ink: oklch(19% 0.01 60); --color-ink-2: oklch(33% 0.01 60); --color-muted: oklch(46% 0.012 60);
-  --color-rule: oklch(88% 0.008 85); --color-rule-2: oklch(76% 0.01 85);
-  --color-accent: oklch(54% 0.14 70); --color-accent-ink: oklch(99% 0.008 85); --color-accent-soft: oklch(93% 0.045 80); --color-focus: oklch(54% 0.14 70);
-  --color-cool: oklch(52% 0.14 250); --color-cool-soft: oklch(93% 0.03 245);
-  --color-ok: oklch(50% 0.13 150); --color-ok-soft: oklch(94% 0.035 150); --color-bad: oklch(52% 0.17 25); --color-bad-soft: oklch(94% 0.03 25);
-  --color-error: oklch(52% 0.17 25); --color-success: oklch(50% 0.13 150);
+  --color-paper: #fafafa; --color-paper-2: #ffffff; --color-paper-3: #f4f4f4; --color-hover: #efefef;
+  --color-ink: #000000; --color-ink-2: #333333; --color-muted: #666666;
+  --color-rule: #e4e4e4; --color-rule-2: #c8c8c8;
+  --color-accent: #a15c00; --color-accent-ink: #ffffff; --color-accent-soft: #fbebd3; --color-focus: #a15c00;
+  --color-cool: #116bb5; --color-cool-soft: #e3eef9;
+  --color-ok: #137738; --color-ok-soft: #e6f4ea; --color-bad: #b63132; --color-bad-soft: #fde7e5;
+  --color-error: #b63132; --color-success: #137738;
 }

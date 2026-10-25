@@ -64,7 +64,7 @@ export function SettingsView() {
             </>
           )}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-            <button type="button" className="btn primary small" disabled={connBusy} onClick={testConn}>{connBusy ? "…" : t.sConnTest}</button>
+            <button type="button" className="btn primary small" disabled={connBusy} aria-busy={connBusy} onClick={testConn}>{connBusy ? t.checking : t.sConnTest}</button>
             <button type="button" className="btn small" onClick={() => api.openUrl("https://www.1password.dev/cli/get-started").catch(fail)}>{t.setupLink}</button>
           </div>
         </div>

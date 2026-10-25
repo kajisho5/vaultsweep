@@ -1,3 +1,4 @@
+import { ICON_PATHS } from "./icons";
 // 小さな部品
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Kind } from "../lib/types";
@@ -32,33 +33,22 @@ export function Logo({ size = 26 }: { size?: number }) {
   );
 }
 
-const NAV_ICON: Record<string, string> = {
-  overview: '<rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2"/>',
-  issues: '<path d="M8 1.8 L14.6 13.8 H1.4 Z"/><path d="M8 6.2 V9.4"/><circle cx="8" cy="11.6" r=".4"/>',
-  cancel: '<rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5.2 6 H10.8 M5.2 9.6 H9"/>',
-  history: '<circle cx="8" cy="8" r="6.3"/><path d="M8 4.6 V8 L10.4 9.6"/>',
-  settings: '<circle cx="8" cy="8" r="2.2"/><circle cx="8" cy="8" r="6" stroke-dasharray="2.6 1.8"/>',
-};
-export function NavIcon({ name }: { name: string }) {
-  return <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" dangerouslySetInnerHTML={{ __html: NAV_ICON[name] }} />;
-}
-
-export function SearchIcon() {
+/** Phosphor のアイコン（形は icons.ts） */
+export function Icon({ name, size = 18 }: { name: string; size?: number }) {
+  const d = ICON_PATHS[name] ?? "";
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: "none" }}>
-      <circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.6" />
+    <svg width={size} height={size} viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" style={{ flex: "none" }}>
+      {d.split("|").map((p, i) => <path key={i} d={p} />)}
     </svg>
   );
 }
+export const NavIcon = ({ name }: { name: string }) => <Icon name={name} />;
+export const SearchIcon = () => <Icon name="search" />;
+export const Lock = () => <Icon name="lock" size={16} />;
 
-export function Lock() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-      <rect x="2" y="5" width="8" height="6" rx="1.5" fill="currentColor" />
-      <path d="M4 5 V3.5 a2 2 0 0 1 4 0 V5" fill="none" stroke="currentColor" strokeWidth="1.4" />
-    </svg>
-  );
+/** 読み込み中の形（スケルトン）。丸い回転は使わない */
+export function Skeleton({ w = "100%", h = 12 }: { w?: number | string; h?: number }) {
+  return <span className="sk" style={{ width: w, height: h }} aria-hidden="true" />;
 }
 
 export function Switch({ on, onChange, label }: { on: boolean; onChange(v: boolean): void; label: string }) {

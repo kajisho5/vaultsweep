@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "@fontsource-variable/host-grotesk";
-import "@fontsource-variable/atkinson-hyperlegible-mono";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
 import "./app.css";
 import { App } from "./App";
 import { AppProvider, applyTheme } from "./store";

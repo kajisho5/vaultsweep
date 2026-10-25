@@ -70,7 +70,7 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(kept
       </ol>
       {it.passkey_site && !gen && <div className="warn">{t.passkeyWarn}</div>}
       {!gen ? (
-        <button type="button" className="btn primary" disabled={ch.phase === "busy"} onClick={async () => { if (await ch.generate()) toast(t.bGenerated); }}>{ch.phase === "busy" ? "…" : t.bGen}</button>
+        <button type="button" className="btn primary" disabled={ch.phase === "busy"} aria-busy={ch.phase === "busy"} onClick={async () => { if (await ch.generate()) toast(t.bGenerated); }}>{ch.phase === "busy" ? t.working : t.bGen}</button>
       ) : <SiteActions ch={ch} />}
       <div className="actions">
         <button type="button" className={`btn${gen ? " primary" : ""}`} disabled={!gen} onClick={done}>{t.bNext}</button>

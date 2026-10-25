@@ -66,7 +66,7 @@ export function Change() {
               <p className="cap">{t.genCap(settings.pw_length, settings.pw_symbols)}</p>
               <div className="tags" style={{ marginBottom: 12 }}>{it.issues.map((x) => <Tag key={x.kind} k={x.kind} />)}</div>
               {it.passkey_site && <div className="warn">{t.passkeyWarn}</div>}
-              <button type="button" className="btn primary" disabled={ch.phase === "busy"} onClick={() => void ch.generate()}>{ch.phase === "busy" ? "…" : t.genBtn}</button>
+              <button type="button" className="btn primary" disabled={ch.phase === "busy"} aria-busy={ch.phase === "busy"} onClick={() => void ch.generate()}>{ch.phase === "busy" ? t.working : t.genBtn}</button>
             </>
           ) : (
             <>
