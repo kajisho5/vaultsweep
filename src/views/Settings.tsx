@@ -14,10 +14,16 @@ function Seg<T extends string>({ value, options, onChange, label }: { value: T; 
 }
 
 export function SettingsView() {
-  const { t, settings, saveSettings, nextRun, boot, api, toast, fail, report } = useApp();
+  const { t, settings, saveSettings, nextRun, boot, api, toast, fail, report, errText } = useApp();
   const [schedErr, setSchedErr] = useState<string | null>(null);
   const [keyRef, setKeyRef] = useState(settings.hibp_key_ref ?? "");
   const [keyOk, setKeyOk] = useState<boolean | null>(null);
+  const [conn, setConn] = useState<{ version: string; vaults: number; account: string | null } | { error: string } | null>(null);
+  const [connBusy, setConnBusy] = useState(false);
+  const testConn = async () => {
+    setConnBusy(true);
+    try { setConn(await api.checkConnection()); } catch (e) { setConn({ error: errText(e) }); } finally { setConnBusy(false); }
+  };
   const up = async (patch: Partial<Settings>) => {
     const err = await saveSettings({ ...settings, ...patch });
     if ("auto_scan" in patch || "schedule" in patch || "schedule_time" in patch) setSchedErr(err);
@@ -40,6 +46,28 @@ export function SettingsView() {
       <p className="lead">{t.sLead}</p>
       <PendingBar />
       <div className="settings">
+        <div className="card">
+          <h2>{t.sConn}</h2><p className="cap">{t.sConnCap}</p>
+          {conn && "error" in conn && (
+            <>
+              <div className="warn">{conn.error}</div>
+              <ol className="how" style={{ marginTop: 0 }}>{t.firstSteps.slice(0, 2).map((s) => <li key={s}>{s}</li>)}<li>{t.sConnInstall}</li></ol>
+            </>
+          )}
+          {conn && !("error" in conn) && (
+            <>
+              <div className="okbox"><b>{t.sConnOk}</b></div>
+              <div className="set-row">{t.sConnVer}<small className="mono">{conn.version}</small></div>
+              <div className="set-row">{t.sConnVaults}<small>{conn.vaults}</small></div>
+              {conn.account && <div className="set-row">{t.sConnAcct}<small className="mono">{conn.account}</small></div>}
+            </>
+          )}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+            <button className="btn primary small" disabled={connBusy} onClick={testConn}>{connBusy ? "…" : t.sConnTest}</button>
+            <button className="btn ghost small" onClick={() => api.openUrl("https://www.1password.dev/cli/get-started").catch(fail)}>{t.setupLink}</button>
+          </div>
+        </div>
+
         <div className="card">
           <h2>{t.sView}</h2><p className="cap">{t.sViewCap}</p>
           <div className="set-row">{t.sLang}
