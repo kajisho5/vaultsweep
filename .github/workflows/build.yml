@@ -1,4 +1,5 @@
 # Windows 用のインストーラー（.exe）と Mac 用のアプリ（.dmg）を作る
+# - Mac 版：ふだんは仮の署名で作って確かめるだけ。リリースのときは runway で Developer ID 署名と Apple の公証をした .dmg を置く
 # - main に push したとき・手動で動かしたとき：成果物（Artifacts）に置く
 # - v から始まるタグ（例 v0.1.0）を push したとき、または GitHub の画面でリリースを公開したとき：リリースにも置く
 name: build
@@ -116,10 +117,43 @@ jobs:
           path: target/universal-apple-darwin/release/bundle/dmg/*.dmg
           if-no-files-found: error
 
-      - name: リリースに置く（タグのときだけ）
-        if: startsWith(github.ref, 'refs/tags/v')
+
+  # リリースのとき：runway の仕組みで Developer ID 署名 → 公証 → .dmg（kajisho5/runway の mac-notarize.yml）
+  mac-notarized:
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: kajisho5/runway/.github/workflows/mac-notarize.yml@main
+    with:
+      name: vaultsweep
+      package: dmg
+      app_link: true
+      build: >-
+        rustup toolchain install stable --profile minimal && rustup default stable
+        && rustup target add aarch64-apple-darwin x86_64-apple-darwin
+        && npm ci
+        && cargo build --release -p vaultsweep-core --bin vaultsweep-mcp --target aarch64-apple-darwin
+        && cargo build --release -p vaultsweep-core --bin vaultsweep-mcp --target x86_64-apple-darwin
+        && mkdir -p src-tauri/binaries
+        && lipo -create -output src-tauri/binaries/vaultsweep-mcp-universal-apple-darwin target/aarch64-apple-darwin/release/vaultsweep-mcp target/x86_64-apple-darwin/release/vaultsweep-mcp
+        && cp target/aarch64-apple-darwin/release/vaultsweep-mcp src-tauri/binaries/vaultsweep-mcp-aarch64-apple-darwin
+        && cp target/x86_64-apple-darwin/release/vaultsweep-mcp src-tauri/binaries/vaultsweep-mcp-x86_64-apple-darwin
+        && npx tauri build --target universal-apple-darwin --bundles app
+      products: |
+        target/universal-apple-darwin/release/bundle/macos/vaultsweep.app
+    secrets: inherit
+
+  mac-release:
+    needs: mac-notarized
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: vaultsweep-notarized
+          path: notarized
+      - name: 公証済みの Mac 版をリリースに置く
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
+          ls -la notarized
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
-          gh release upload "$GITHUB_REF_NAME" target/universal-apple-darwin/release/bundle/dmg/*.dmg --clobber
+          gh release upload "$GITHUB_REF_NAME" notarized/*.dmg --clobber
