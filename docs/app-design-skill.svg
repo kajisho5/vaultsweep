@@ -1,0 +1,353 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="2520" viewBox="0 0 1520 2520">
+<rect width="1520" height="2520" fill="#2a2a2a"/>
+<text x="40" y="58" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="22" font-weight="600" fill="#fff">vaultsweep アプリ — landing-page-design スキルに合わせた見た目（案）</text>
+<text x="40" y="88" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" fill="#c8c8c8">A：概要・ダーク（背景 #000、パネル #181818、線 #313131）　B：問題の一覧・ライト　C：部品と状態　／　字は Geist、数字は Geist Mono、アイコンは Phosphor</text>
+<text x="40" y="112" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" fill="#8ab4f8">変わらないもの：画面の並び・機能・色の意味（琥珀＝押すもの、赤＝漏洩と事故だけ、青＝測った数字、緑＝よくなったこと）</text>
+<text x="40" y="132" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" fill="#8ab4f8">A</text>
+<rect x="40" y="140" width="1440" height="900" rx="0" fill="#000000"/>
+<rect x="52" y="152" width="232" height="876" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<g transform="translate(72,172)"><circle cx="11" cy="11" r="10" fill="none" stroke="#FFFFFF" stroke-width="1.6"/><path d="M5 14 A7 7 0 0 1 17 14" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/><line x1="11" y1="13" x2="15.5" y2="7" stroke="#F7B83D" stroke-width="1.8" stroke-linecap="round"/><circle cx="11" cy="13" r="1.6" fill="#FFFFFF"/></g>
+<text x="102" y="189" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >vaultsweep</text>
+<rect x="64" y="228" width="208" height="40" rx="8" fill="#272727"/>
+<g transform="translate(76,239) scale(0.0703125)" fill="#FFFFFF"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48Z"/></g>
+<text x="104" y="253" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >概要</text>
+<g transform="translate(76,283) scale(0.0703125)" fill="#C9C9C9"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></g>
+<text x="104" y="297" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >問題の一覧</text>
+<text x="260" y="297" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="end" letter-spacing="0" >38</text>
+<g transform="translate(76,327) scale(0.0703125)" fill="#C9C9C9"><path d="M224,128a8,8,0,0,1-8,8H128a8,8,0,0,1,0-16h88A8,8,0,0,1,224,128ZM128,72h88a8,8,0,0,0,0-16H128a8,8,0,0,0,0,16Zm88,112H128a8,8,0,0,0,0,16h88a8,8,0,0,0,0-16ZM82.34,42.34,56,68.69,45.66,58.34A8,8,0,0,0,34.34,69.66l16,16a8,8,0,0,0,11.32,0l32-32A8,8,0,0,0,82.34,42.34Zm0,64L56,132.69,45.66,122.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Zm0,64L56,196.69,45.66,186.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Z"/></g>
+<text x="104" y="341" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >解約リスト</text>
+<text x="260" y="341" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="end" letter-spacing="0" >3</text>
+<g transform="translate(76,371) scale(0.0703125)" fill="#C9C9C9"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></g>
+<text x="104" y="385" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >履歴</text>
+<g transform="translate(76,415) scale(0.0703125)" fill="#C9C9C9"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm109.94-52.79a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A112.1,112.1,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.62a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21Zm-15,34.91-28.57,16.25a8,8,0,0,0-3,3c-.58,1-1.19,2.06-1.81,3.06a7.94,7.94,0,0,0-1.22,4.21l-.15,32.25a95.89,95.89,0,0,1-25.37,14.3L134,199.13a8,8,0,0,0-3.91-1h-.19c-1.21,0-2.43,0-3.64,0a8.08,8.08,0,0,0-4.1,1l-28.84,16.1A96,96,0,0,1,67.88,201l-.11-32.2a8,8,0,0,0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.09,8.09,0,0,0-3-3.06l-28.6-16.29a90.49,90.49,0,0,1,0-28.26L61.67,97.63a8,8,0,0,0,3-3c.58-1,1.19-2.06,1.81-3.06a7.94,7.94,0,0,0,1.22-4.21l.15-32.25a95.89,95.89,0,0,1,25.37-14.3L122,56.87a8,8,0,0,0,4.1,1c1.21,0,2.43,0,3.64,0a8.08,8.08,0,0,0,4.1-1l28.84-16.1A96,96,0,0,1,188.12,55l.11,32.2a8,8,0,0,0,1.22,4.22c.62,1,1.23,2,1.8,3.06a8.09,8.09,0,0,0,3,3.06l28.6,16.29A90.49,90.49,0,0,1,222.9,142.12Z"/></g>
+<text x="104" y="429" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >設定</text>
+<rect x="64" y="904" width="208" height="100" rx="8" fill="#1F1F1F"/>
+<text x="80" y="932" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >自動診断：毎週 月曜 09:00</text>
+<text x="80" y="954" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#6EBCFC" text-anchor="start" letter-spacing="0" >次回 10月26日（月）9:00</text>
+<text x="80" y="976" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >1Password・保管庫 3</text>
+<text x="308" y="184" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >概要</text>
+<rect x="884.5" y="160.5" width="299" height="39" rx="20" fill="#181818" stroke="#313131" stroke-width="1"/>
+<g transform="translate(900,171) scale(0.0703125)" fill="#9B9B9B"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></g>
+<text x="926" y="185" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >サイト名・URLで検索</text>
+<rect x="1134.5" y="170.5" width="38" height="19" rx="6" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="1153" y="184" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="middle" letter-spacing="0" >⌘K</text>
+<rect x="1196.5" y="160.5" width="120" height="39" rx="20" fill="#2E2410" stroke="#F7B83D" stroke-width="1"/>
+<g transform="translate(1210,171) scale(0.0703125)" fill="#FFFFFF"><path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16Zm-52-56H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Z"/></g>
+<text x="1234" y="185" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >AIの依頼 1</text>
+<rect x="1328.5" y="160.5" width="123" height="39" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<g transform="translate(1340,171.0) scale(0.0703125)" fill="#FFFFFF"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z"/></g>
+<text x="1364" y="185.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >今すぐ診断</text>
+<text x="308" y="266" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="30" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="-0.4" >143件のうち、38件に問題があります。</text>
+<text x="308" y="294" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >最終診断は10月25日（日）14:32。次は10月26日（月）9:00に自動で診断します。</text>
+<rect x="308" y="324" width="456" height="240" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="332" y="360" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >安全度</text>
+<text x="388" y="360" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" text-decoration="line-through">72</text>
+<text x="332" y="464" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="96" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="-3" >74</text>
+<text x="458" y="464" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="20" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >/ 100</text>
+<rect x="332" y="492" width="408" height="6" rx="2" fill="#272727"/>
+<rect x="332" y="492" width="301.92" height="6" rx="2" fill="#61CB7C"/>
+<text x="332" y="536" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#61CB7C" text-anchor="start" letter-spacing="0" >前回より +2</text>
+<text x="448" y="536" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#6EBCFC" text-anchor="start" letter-spacing="0" >10/25 14:32 の診断</text>
+<rect x="788" y="324" width="332" height="108" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="812" y="356" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >問題のある項目</text>
+<text x="812" y="408" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="36" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="-1" >38</text>
+<text x="872" y="406" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >/ 143</text>
+<rect x="1144" y="324" width="332" height="108" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="1168" y="356" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >この7日で片付けた</text>
+<text x="1168" y="408" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="36" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="-1" >4</text>
+<text x="1204" y="406" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >少しずつで大丈夫です</text>
+<rect x="788" y="456" width="332" height="108" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="812" y="488" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >解約リスト</text>
+<text x="812" y="540" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="36" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="-1" >3</text>
+<text x="848" y="538" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >退会済み 1</text>
+<rect x="1144" y="456" width="332" height="108" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="1168" y="488" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >使い回しと似ている</text>
+<text x="1168" y="540" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="36" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="-1" >11</text>
+<text x="308" y="608" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >片付けの進み具合</text>
+<text x="1452" y="608" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="20" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >73%</text>
+<rect x="308" y="624" width="1144" height="8" rx="2" fill="#272727"/>
+<rect x="308" y="624" width="835.12" height="8" rx="2" fill="#61CB7C"/>
+<text x="308" y="656" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >143件中 105件が問題なし。あと3件片付けると 75% です。</text>
+<rect x="308" y="684" width="640" height="344" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="332" y="724" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >まずこの3つ</text>
+<text x="332" y="748" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >危ない順。ボタン1つで次の作業に進みます。</text>
+<line x1="332" y1="772" x2="924" y2="772" stroke="#313131" stroke-width="1"/>
+<text x="332" y="816" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >01</text>
+<text x="372" y="802" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >サンプル通販A</text>
+<text x="372" y="824" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >過去の流出データに 1,532回 載っています</text>
+<rect x="372.5" y="830.5" width="39" height="23" rx="12" fill="#2A1716" stroke="#F66D67" stroke-width="1"/>
+<text x="380" y="846" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#F66D67" text-anchor="start" letter-spacing="0" >漏洩</text>
+<rect x="420.5" y="830.5" width="63" height="23" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="428" y="846" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >使い回し</text>
+<rect x="492.5" y="830.5" width="87" height="23" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="500" y="846" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >2段階未設定</text>
+<rect x="764" y="794" width="160" height="36" rx="8" fill="#F7B83D"/>
+<text x="776" y="817.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#1C0E00" text-anchor="start" letter-spacing="0" >パスワードを変える</text>
+<line x1="332" y1="852" x2="924" y2="852" stroke="#313131" stroke-width="1"/>
+<text x="332" y="896" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >02</text>
+<text x="372" y="882" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >練習用フォーラムE</text>
+<text x="372" y="904" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >過去の流出データに 88回 載っています</text>
+<rect x="372.5" y="910.5" width="39" height="23" rx="12" fill="#2A1716" stroke="#F66D67" stroke-width="1"/>
+<text x="380" y="926" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#F66D67" text-anchor="start" letter-spacing="0" >漏洩</text>
+<rect x="420.5" y="910.5" width="39" height="23" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="428" y="926" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >弱い</text>
+<rect x="468.5" y="910.5" width="99" height="23" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="476" y="926" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >使ってなさそう</text>
+<rect x="764.5" y="874.5" width="159" height="35" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="776" y="897.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >パスワードを変える</text>
+<line x1="332" y1="932" x2="924" y2="932" stroke="#313131" stroke-width="1"/>
+<text x="332" y="976" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >03</text>
+<text x="372" y="962" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >架空サイト075</text>
+<text x="372" y="984" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >過去の流出データに 210回 載っています</text>
+<rect x="372.5" y="990.5" width="39" height="23" rx="12" fill="#2A1716" stroke="#F66D67" stroke-width="1"/>
+<text x="380" y="1006" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#F66D67" text-anchor="start" letter-spacing="0" >漏洩</text>
+<rect x="420.5" y="990.5" width="63" height="23" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="428" y="1006" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >使い回し</text>
+<rect x="764.5" y="954.5" width="159" height="35" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="776" y="977.04" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >パスワードを変える</text>
+<rect x="972" y="684" width="480" height="344" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="996" y="724" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >問題の種類</text>
+<text x="996" y="748" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >押すと、その種類だけの一覧を開きます。</text>
+<text x="996" y="792" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#F66D67" text-anchor="start" letter-spacing="0" >漏洩</text>
+<text x="1216" y="792" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >5</text>
+<rect x="1232" y="784" width="196" height="4" rx="2" fill="#272727"/>
+<rect x="1232" y="784" width="75.38461538461539" height="4" rx="2" fill="#F66D67"/>
+<text x="996" y="824" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#F66D67" text-anchor="start" letter-spacing="0" >事故サイト</text>
+<text x="1216" y="824" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >2</text>
+<rect x="1232" y="816" width="196" height="4" rx="2" fill="#272727"/>
+<rect x="1232" y="816" width="30.153846153846157" height="4" rx="2" fill="#F66D67"/>
+<text x="996" y="856" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >使い回し</text>
+<text x="1216" y="856" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >8</text>
+<rect x="1232" y="848" width="196" height="4" rx="2" fill="#272727"/>
+<rect x="1232" y="848" width="120.61538461538463" height="4" rx="2" fill="#6EBCFC"/>
+<text x="996" y="888" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >似ている</text>
+<text x="1216" y="888" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >3</text>
+<rect x="1232" y="880" width="196" height="4" rx="2" fill="#272727"/>
+<rect x="1232" y="880" width="45.23076923076923" height="4" rx="2" fill="#6EBCFC"/>
+<text x="996" y="920" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >弱い</text>
+<text x="1216" y="920" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >9</text>
+<rect x="1232" y="912" width="196" height="4" rx="2" fill="#272727"/>
+<rect x="1232" y="912" width="135.69230769230768" height="4" rx="2" fill="#6EBCFC"/>
+<text x="996" y="952" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >2段階未設定</text>
+<text x="1216" y="952" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >7</text>
+<rect x="1232" y="944" width="196" height="4" rx="2" fill="#272727"/>
+<rect x="1232" y="944" width="105.53846153846153" height="4" rx="2" fill="#6EBCFC"/>
+<text x="996" y="984" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >使ってなさそう</text>
+<text x="1216" y="984" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="end" letter-spacing="0" >13</text>
+<rect x="1232" y="976" width="196" height="4" rx="2" fill="#272727"/>
+<rect x="1232" y="976" width="196.0" height="4" rx="2" fill="#6EBCFC"/>
+<text x="40" y="1112" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" fill="#8ab4f8">B</text>
+<rect x="40" y="1120" width="1440" height="900" rx="0" fill="#FAFAFA"/>
+<rect x="52" y="1132" width="232" height="876" rx="16" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<g transform="translate(72,1152)"><circle cx="11" cy="11" r="10" fill="none" stroke="#000000" stroke-width="1.6"/><path d="M5 14 A7 7 0 0 1 17 14" fill="none" stroke="#000000" stroke-width="1.6" stroke-linecap="round"/><line x1="11" y1="13" x2="15.5" y2="7" stroke="#A15C00" stroke-width="1.8" stroke-linecap="round"/><circle cx="11" cy="13" r="1.6" fill="#000000"/></g>
+<text x="102" y="1169" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >vaultsweep</text>
+<g transform="translate(76,1219) scale(0.0703125)" fill="#333333"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48Z"/></g>
+<text x="104" y="1233" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >概要</text>
+<rect x="64" y="1252" width="208" height="40" rx="8" fill="#EFEFEF"/>
+<g transform="translate(76,1263) scale(0.0703125)" fill="#000000"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></g>
+<text x="104" y="1277" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >問題の一覧</text>
+<text x="260" y="1277" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >38</text>
+<g transform="translate(76,1307) scale(0.0703125)" fill="#333333"><path d="M224,128a8,8,0,0,1-8,8H128a8,8,0,0,1,0-16h88A8,8,0,0,1,224,128ZM128,72h88a8,8,0,0,0,0-16H128a8,8,0,0,0,0,16Zm88,112H128a8,8,0,0,0,0,16h88a8,8,0,0,0,0-16ZM82.34,42.34,56,68.69,45.66,58.34A8,8,0,0,0,34.34,69.66l16,16a8,8,0,0,0,11.32,0l32-32A8,8,0,0,0,82.34,42.34Zm0,64L56,132.69,45.66,122.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Zm0,64L56,196.69,45.66,186.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Z"/></g>
+<text x="104" y="1321" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >解約リスト</text>
+<text x="260" y="1321" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >3</text>
+<g transform="translate(76,1351) scale(0.0703125)" fill="#333333"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></g>
+<text x="104" y="1365" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >履歴</text>
+<g transform="translate(76,1395) scale(0.0703125)" fill="#333333"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm109.94-52.79a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A112.1,112.1,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.62a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21Zm-15,34.91-28.57,16.25a8,8,0,0,0-3,3c-.58,1-1.19,2.06-1.81,3.06a7.94,7.94,0,0,0-1.22,4.21l-.15,32.25a95.89,95.89,0,0,1-25.37,14.3L134,199.13a8,8,0,0,0-3.91-1h-.19c-1.21,0-2.43,0-3.64,0a8.08,8.08,0,0,0-4.1,1l-28.84,16.1A96,96,0,0,1,67.88,201l-.11-32.2a8,8,0,0,0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.09,8.09,0,0,0-3-3.06l-28.6-16.29a90.49,90.49,0,0,1,0-28.26L61.67,97.63a8,8,0,0,0,3-3c.58-1,1.19-2.06,1.81-3.06a7.94,7.94,0,0,0,1.22-4.21l.15-32.25a95.89,95.89,0,0,1,25.37-14.3L122,56.87a8,8,0,0,0,4.1,1c1.21,0,2.43,0,3.64,0a8.08,8.08,0,0,0,4.1-1l28.84-16.1A96,96,0,0,1,188.12,55l.11,32.2a8,8,0,0,0,1.22,4.22c.62,1,1.23,2,1.8,3.06a8.09,8.09,0,0,0,3,3.06l28.6,16.29A90.49,90.49,0,0,1,222.9,142.12Z"/></g>
+<text x="104" y="1409" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >設定</text>
+<rect x="64" y="1884" width="208" height="100" rx="8" fill="#F4F4F4"/>
+<text x="80" y="1912" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#666666" text-anchor="start" letter-spacing="0" >自動診断：毎週 月曜 09:00</text>
+<text x="80" y="1934" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#116BB5" text-anchor="start" letter-spacing="0" >次回 10月26日（月）9:00</text>
+<text x="80" y="1956" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >1Password・保管庫 3</text>
+<text x="308" y="1164" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#666666" text-anchor="start" letter-spacing="0" >問題の一覧</text>
+<rect x="884.5" y="1140.5" width="299" height="39" rx="20" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<g transform="translate(900,1151) scale(0.0703125)" fill="#666666"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></g>
+<text x="926" y="1165" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >サイト名・URLで検索</text>
+<rect x="1134.5" y="1150.5" width="38" height="19" rx="6" fill="#F4F4F4" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1153" y="1164" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#666666" text-anchor="middle" letter-spacing="0" >⌘K</text>
+<rect x="1196.5" y="1140.5" width="120" height="39" rx="20" fill="#FBEBD3" stroke="#A15C00" stroke-width="1"/>
+<g transform="translate(1210,1151) scale(0.0703125)" fill="#000000"><path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16Zm-52-56H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Z"/></g>
+<text x="1234" y="1165" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >AIの依頼 1</text>
+<rect x="1328.5" y="1140.5" width="123" height="39" rx="8" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<g transform="translate(1340,1151.0) scale(0.0703125)" fill="#000000"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z"/></g>
+<text x="1364" y="1165.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >今すぐ診断</text>
+<text x="308" y="1246" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="30" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="-0.4" >問題のある項目</text>
+<text x="308" y="1274" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >行を押すと、右に詳しい内容が出ます。1つの項目に問題が複数あることもあります。</text>
+<rect x="308" y="1296" width="1144" height="64" rx="16" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1334" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >漏洩・事故・使い回し・似ているの 16件は、まとめて順番に変えられます。</text>
+<rect x="1264" y="1308" width="164" height="40" rx="8" fill="#A15C00"/>
+<g transform="translate(1276,1319.0) scale(0.0703125)" fill="#FFFFFF"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z"/></g>
+<text x="1300" y="1333.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >まとめて変える</text>
+<rect x="308.5" y="1384.5" width="239" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<g transform="translate(320,1393) scale(0.0703125)" fill="#666666"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></g>
+<text x="346" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >サイトを絞り込む</text>
+<rect x="564.5" y="1384.5" width="85" height="35" rx="18" fill="#E3EEF9" stroke="#116BB5" stroke-width="1"/>
+<text x="578" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >すべて</text>
+<text x="636" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >38</text>
+<rect x="658.5" y="1384.5" width="71" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="672" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >漏洩</text>
+<text x="716" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >5</text>
+<rect x="738.5" y="1384.5" width="113" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="752" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >事故サイト</text>
+<text x="838" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >2</text>
+<rect x="860.5" y="1384.5" width="99" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="874" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >使い回し</text>
+<text x="946" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >8</text>
+<rect x="968.5" y="1384.5" width="99" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="982" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >似ている</text>
+<text x="1054" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >3</text>
+<rect x="1076.5" y="1384.5" width="71" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1090" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >弱い</text>
+<text x="1134" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >9</text>
+<rect x="1156.5" y="1384.5" width="127" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1170" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >2段階未設定</text>
+<text x="1270" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >7</text>
+<rect x="1292.5" y="1384.5" width="141" height="35" rx="18" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1306" y="1407" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >使ってなさそう</text>
+<text x="1420" y="1407" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#666666" text-anchor="end" letter-spacing="0" >13</text>
+<rect x="308" y="1440" width="740" height="560" rx="16" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1476" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#666666" text-anchor="start" letter-spacing="0" >サイト</text>
+<text x="558" y="1476" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#666666" text-anchor="start" letter-spacing="0" >問題</text>
+<text x="788" y="1476" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#666666" text-anchor="start" letter-spacing="0" >最後にさわった日</text>
+<text x="948" y="1476" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#666666" text-anchor="start" letter-spacing="0" >危険度</text>
+<line x1="324" y1="1492" x2="1032" y2="1492" stroke="#E4E4E4" stroke-width="1"/>
+<rect x="316" y="1496" width="724" height="62" rx="8" fill="#EFEFEF"/>
+<text x="332" y="1522" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >サンプル通販A</text>
+<text x="332" y="1542" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >shop-a.example</text>
+<rect x="558.5" y="1514.5" width="39" height="23" rx="12" fill="#FDE7E5" stroke="#B63132" stroke-width="1"/>
+<text x="566" y="1530" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#B63132" text-anchor="start" letter-spacing="0" >漏洩</text>
+<rect x="604.5" y="1514.5" width="63" height="23" rx="12" fill="#F4F4F4" stroke="#E4E4E4" stroke-width="1"/>
+<text x="612" y="1530" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >使い回し</text>
+<text x="788" y="1532" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2024/04/02</text>
+<text x="948" y="1532" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >99</text>
+<rect x="980" y="1526" width="44" height="4" rx="2" fill="#EFEFEF"/>
+<rect x="980" y="1526" width="43.56" height="4" rx="2" fill="#B63132"/>
+<line x1="324" y1="1562" x2="1032" y2="1562" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1592" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >練習用フォーラムE</text>
+<text x="332" y="1612" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >forum-e.example</text>
+<rect x="558.5" y="1584.5" width="39" height="23" rx="12" fill="#FDE7E5" stroke="#B63132" stroke-width="1"/>
+<text x="566" y="1600" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#B63132" text-anchor="start" letter-spacing="0" >漏洩</text>
+<rect x="604.5" y="1584.5" width="39" height="23" rx="12" fill="#F4F4F4" stroke="#E4E4E4" stroke-width="1"/>
+<text x="612" y="1600" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >弱い</text>
+<text x="788" y="1602" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2024/03/28</text>
+<text x="948" y="1602" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >99</text>
+<rect x="980" y="1596" width="44" height="4" rx="2" fill="#EFEFEF"/>
+<rect x="980" y="1596" width="43.56" height="4" rx="2" fill="#B63132"/>
+<line x1="324" y1="1632" x2="1032" y2="1632" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1662" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >架空サイト075</text>
+<text x="332" y="1682" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >site-75.example</text>
+<rect x="558.5" y="1654.5" width="39" height="23" rx="12" fill="#FDE7E5" stroke="#B63132" stroke-width="1"/>
+<text x="566" y="1670" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#B63132" text-anchor="start" letter-spacing="0" >漏洩</text>
+<rect x="604.5" y="1654.5" width="63" height="23" rx="12" fill="#F4F4F4" stroke="#E4E4E4" stroke-width="1"/>
+<text x="612" y="1670" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >使い回し</text>
+<text x="788" y="1672" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2026/05/18</text>
+<text x="948" y="1672" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >96</text>
+<rect x="980" y="1666" width="44" height="4" rx="2" fill="#EFEFEF"/>
+<rect x="980" y="1666" width="42.239999999999995" height="4" rx="2" fill="#B63132"/>
+<line x1="324" y1="1702" x2="1032" y2="1702" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1732" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >テスト動画サブスク</text>
+<text x="332" y="1752" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >video-c.example</text>
+<rect x="558.5" y="1724.5" width="75" height="23" rx="12" fill="#FDE7E5" stroke="#B63132" stroke-width="1"/>
+<text x="566" y="1740" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#B63132" text-anchor="start" letter-spacing="0" >事故サイト</text>
+<text x="788" y="1742" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2022/09/29</text>
+<text x="948" y="1742" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >88</text>
+<rect x="980" y="1736" width="44" height="4" rx="2" fill="#EFEFEF"/>
+<rect x="980" y="1736" width="38.72" height="4" rx="2" fill="#B63132"/>
+<line x1="324" y1="1772" x2="1032" y2="1772" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1802" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >架空サイト114</text>
+<text x="332" y="1822" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >site-114.example</text>
+<rect x="558.5" y="1794.5" width="75" height="23" rx="12" fill="#FDE7E5" stroke="#B63132" stroke-width="1"/>
+<text x="566" y="1810" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#B63132" text-anchor="start" letter-spacing="0" >事故サイト</text>
+<text x="788" y="1812" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2026/01/13</text>
+<text x="948" y="1812" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >82</text>
+<rect x="980" y="1806" width="44" height="4" rx="2" fill="#EFEFEF"/>
+<rect x="980" y="1806" width="36.08" height="4" rx="2" fill="#B63132"/>
+<line x1="324" y1="1842" x2="1032" y2="1842" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1872" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >ダミー銀行（架空）</text>
+<text x="332" y="1892" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >bank-d.example</text>
+<rect x="558.5" y="1864.5" width="63" height="23" rx="12" fill="#F4F4F4" stroke="#E4E4E4" stroke-width="1"/>
+<text x="566" y="1880" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >似ている</text>
+<rect x="628.5" y="1864.5" width="39" height="23" rx="12" fill="#F4F4F4" stroke="#E4E4E4" stroke-width="1"/>
+<text x="636" y="1880" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >弱い</text>
+<text x="788" y="1882" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2026/02/11</text>
+<text x="948" y="1882" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >78</text>
+<rect x="980" y="1876" width="44" height="4" rx="2" fill="#EFEFEF"/>
+<rect x="980" y="1876" width="34.32" height="4" rx="2" fill="#116BB5"/>
+<line x1="324" y1="1912" x2="1032" y2="1912" stroke="#E4E4E4" stroke-width="1"/>
+<text x="332" y="1942" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >架空SNS-B</text>
+<text x="332" y="1962" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >sns-b.example</text>
+<rect x="558.5" y="1934.5" width="63" height="23" rx="12" fill="#F4F4F4" stroke="#E4E4E4" stroke-width="1"/>
+<text x="566" y="1950" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#333333" text-anchor="start" letter-spacing="0" >使い回し</text>
+<text x="788" y="1952" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2026/10/01</text>
+<text x="948" y="1952" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="500" fill="#000000" text-anchor="start" letter-spacing="0" >76</text>
+<rect x="980" y="1946" width="44" height="4" rx="2" fill="#EFEFEF"/>
+<rect x="980" y="1946" width="33.44" height="4" rx="2" fill="#116BB5"/>
+<rect x="1072" y="1440" width="380" height="560" rx="16" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1096" y="1480" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >サンプル通販A</text>
+<text x="1096" y="1502" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >shop-a.example</text>
+<text x="1096" y="1540" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >保管庫</text>
+<text x="1222" y="1540" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >Private</text>
+<text x="1096" y="1564" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >ユーザー名</text>
+<text x="1222" y="1564" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >ta••• （一部だけ）</text>
+<text x="1096" y="1588" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >最後にさわった日</text>
+<text x="1222" y="1588" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="14" font-weight="400" fill="#333333" text-anchor="start" letter-spacing="0" >2024/04/02（936日前）</text>
+<line x1="1096" y1="1610" x2="1428" y2="1610" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1096" y="1640" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#B63132" text-anchor="start" letter-spacing="0" >漏洩</text>
+<text x="1096" y="1662" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >過去の流出データに 1,532回 載っています</text>
+<text x="1096" y="1696" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >使い回し</text>
+<text x="1096" y="1718" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >サンプル旅行予約F・架空SNS-B と同じパスワード</text>
+<text x="1096" y="1752" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >2段階未設定</text>
+<text x="1096" y="1774" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >2段階認証が使えるのに、まだ設定していません</text>
+<line x1="1096" y1="1812" x2="1428" y2="1812" stroke="#E4E4E4" stroke-width="1"/>
+<rect x="1096.5" y="1832.5" width="331" height="39" rx="8" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<g transform="translate(1108,1843.0) scale(0.0703125)" fill="#000000"><path d="M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM224,98.1c-1.09,34.09-29.75,61.86-63.89,61.9H160a63.7,63.7,0,0,1-23.65-4.51,8,8,0,0,0-8.84,1.68L116.69,168H96a8,8,0,0,0-8,8v16H72a8,8,0,0,0-8,8v16H40V187.31l58.83-58.82a8,8,0,0,0,1.68-8.84A63.72,63.72,0,0,1,96,95.92c0-34.14,27.81-62.8,61.9-63.89A64,64,0,0,1,224,98.1ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"/></g>
+<text x="1132" y="1857.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >パスワードを変える</text>
+<rect x="1096.5" y="1884.5" width="159.0" height="39" rx="8" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1108" y="1909.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >2段階を設定</text>
+<rect x="1268.5" y="1884.5" width="159.0" height="39" rx="8" fill="#FFFFFF" stroke="#E4E4E4" stroke-width="1"/>
+<text x="1280.0" y="1909.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#000000" text-anchor="start" letter-spacing="0" >解約リストへ</text>
+<g transform="translate(1096,1952) scale(0.0625)" fill="#666666"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-68-56a12,12,0,1,1-12-12A12,12,0,0,1,140,152Z"/></g>
+<text x="1118" y="1965" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="400" fill="#666666" text-anchor="start" letter-spacing="0" >この画面にパスワードは出しません。</text>
+<text x="40" y="2092" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" fill="#8ab4f8">C</text>
+<rect x="40" y="2100" width="1440" height="360" rx="0" fill="#000000"/>
+<text x="80" y="2144" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >部品と状態（ダーク）</text>
+<text x="80" y="2186" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >ボタン（主は 1画面に1つ・余白 上下8 左右12・角 8・16px 太字）</text>
+<rect x="80" y="2196" width="184.79999999999998" height="40" rx="8" fill="#F7B83D"/>
+<g transform="translate(92,2207.0) scale(0.0703125)" fill="#1C0E00"><path d="M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM224,98.1c-1.09,34.09-29.75,61.86-63.89,61.9H160a63.7,63.7,0,0,1-23.65-4.51,8,8,0,0,0-8.84,1.68L116.69,168H96a8,8,0,0,0-8,8v16H72a8,8,0,0,0-8,8v16H40V187.31l58.83-58.82a8,8,0,0,0,1.68-8.84A63.72,63.72,0,0,1,96,95.92c0-34.14,27.81-62.8,61.9-63.89A64,64,0,0,1,224,98.1ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"/></g>
+<text x="116" y="2221.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#1C0E00" text-anchor="start" letter-spacing="0" >パスワードを変える</text>
+<rect x="277.29999999999995" y="2196.5" width="114.19999999999999" height="39" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="288.79999999999995" y="2221.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >2段階を設定</text>
+<rect x="404.49999999999994" y="2196.5" width="138.2" height="39" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<g transform="translate(415.99999999999994,2207.0) scale(0.0703125)" fill="#F66D67"><path d="M224,48H32A16,16,0,0,0,16,64V88a16,16,0,0,0,16,16v88a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V104a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48ZM208,192H48V104H208ZM224,88H32V64H224V88ZM96,136a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H104A8,8,0,0,1,96,136Z"/></g>
+<text x="439.99999999999994" y="2221.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#F66D67" text-anchor="start" letter-spacing="0" >保管庫へ移す</text>
+<rect x="555.6999999999999" y="2196.5" width="139" height="39" rx="8" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="567.1999999999999" y="2222" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >押せない状態</text>
+<rect x="704.1999999999999" y="2193" width="170" height="46" rx="11" fill="none" stroke="#F7B83D" stroke-width="2"/>
+<rect x="707.6999999999999" y="2196.5" width="163" height="39" rx="8" fill="#181818" stroke="#313131" stroke-width="1"/>
+<text x="719.1999999999999" y="2221.76" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >キーボードで選択</text>
+<text x="887.1999999999999" y="2222" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="400" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >指を置く：背景 #272727 ／ 押す：0.98倍に縮む</text>
+<text x="80" y="2274" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >札・絞り込み・量の棒</text>
+<rect x="80.5" y="2292.5" width="39" height="23" rx="12" fill="#2A1716" stroke="#F66D67" stroke-width="1"/>
+<text x="88" y="2308" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#F66D67" text-anchor="start" letter-spacing="0" >漏洩</text>
+<rect x="128.5" y="2292.5" width="75" height="23" rx="12" fill="#2A1716" stroke="#F66D67" stroke-width="1"/>
+<text x="136" y="2308" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#F66D67" text-anchor="start" letter-spacing="0" >事故サイト</text>
+<rect x="212.5" y="2292.5" width="63" height="23" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="220" y="2308" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >使い回し</text>
+<rect x="284.5" y="2292.5" width="39" height="23" rx="12" fill="#1F1F1F" stroke="#313131" stroke-width="1"/>
+<text x="292" y="2308" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#C9C9C9" text-anchor="start" letter-spacing="0" >弱い</text>
+<rect x="348.5" y="2284.5" width="95" height="35" rx="18" fill="#12263A" stroke="#6EBCFC" stroke-width="1"/>
+<text x="362" y="2307" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="start" letter-spacing="0" >すべて</text>
+<text x="430" y="2307" font-family="Geist Mono Variable, Noto Sans CJK JP, monospace" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="end" letter-spacing="0" >38</text>
+<rect x="468" y="2300" width="160" height="4" rx="2" fill="#272727"/>
+<rect x="468" y="2300" width="99.2" height="4" rx="2" fill="#6EBCFC"/>
+<rect x="644" y="2300" width="160" height="4" rx="2" fill="#272727"/>
+<rect x="644" y="2300" width="144.0" height="4" rx="2" fill="#F66D67"/>
+<text x="80" y="2358" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="12" font-weight="500" fill="#9B9B9B" text-anchor="start" letter-spacing="0" >読み込み中は丸い回転ではなく、形をまねた灰色の板（スケルトン）</text>
+<rect x="80" y="2368" width="300" height="72" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<rect x="104" y="2388" width="120" height="12" rx="6" fill="#272727"/>
+<rect x="104" y="2410" width="200" height="10" rx="5" fill="#272727"/>
+<rect x="396" y="2368" width="300" height="72" rx="16" fill="#181818" stroke="#313131" stroke-width="1"/>
+<rect x="420" y="2388" width="160" height="12" rx="6" fill="#272727"/>
+<rect x="420" y="2410" width="90" height="10" rx="5" fill="#272727"/>
+<text x="740" y="2384" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" font-weight="500" fill="#8ab4f8" text-anchor="start" letter-spacing="0" >画面に入るとき：下から浮かび上がる（ぼかし→くっきり、0.8秒）</text>
+<text x="740" y="2402" font-family="Geist Variable, Hiragino Sans, Noto Sans CJK JP, sans-serif" font-size="13" font-weight="500" fill="#8ab4f8" text-anchor="start" letter-spacing="0" >曲線は cubic-bezier(0.32, 0.72, 0, 1)。動きを減らす設定なら動かさない</text>
+</svg>
