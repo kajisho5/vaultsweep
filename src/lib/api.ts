@@ -1,5 +1,5 @@
 // 画面から中身を呼ぶ口。アプリの外（ブラウザ）ではデモ用の架空データで動く。
-import type { Boot, Item, PayMatch, Pending, Progress, Report, ScanResult, Settings, State } from "./types";
+import type { Boot, Item, Pending, Progress, Report, ScanResult, Settings, State } from "./types";
 import { demoApi } from "./demo";
 
 export interface Saved { settings: Settings; next_run: string | null; schedule_error: string | null }
@@ -25,7 +25,6 @@ export interface Api {
   openUrl(url: string): Promise<void>;
   pendingResolve(id: string, approve: boolean): Promise<{ pending: Pending | null; state: State }>;
   exportCsv(header: string[], rows: string[][]): Promise<string>;
-  freeeMatch(text: string): Promise<PayMatch[]>;
   testKeyRef(reference: string): Promise<boolean>;
 }
 
@@ -62,7 +61,6 @@ async function tauriApi(): Promise<Api> {
     openUrl: (url) => invoke("open_url", { url }),
     pendingResolve: (id, approve) => invoke("pending_resolve", { id, approve }),
     exportCsv: (header, rows) => invoke("export_csv", { header, rows }),
-    freeeMatch: (text) => invoke("freee_match", { text }),
     testKeyRef: (reference) => invoke("test_key_ref", { reference }),
   };
 }

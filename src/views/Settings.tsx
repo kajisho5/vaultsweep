@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useApp } from "../store";
 import { Switch } from "../components/ui";
 import { PendingBar } from "./Overview";
-import type { PayMatch, Settings } from "../lib/types";
+import type { Settings } from "../lib/types";
 import { issueText } from "../lib/i18n";
 
 function Seg<T extends string>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange(v: T): void; label: string }) {
@@ -13,17 +13,11 @@ function Seg<T extends string>({ value, options, onChange, label }: { value: T; 
   );
 }
 
-async function readText(f: File): Promise<string> {
-  const buf = await f.arrayBuffer();
-  try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch { return new TextDecoder("shift_jis").decode(buf); }
-}
-
 export function SettingsView() {
   const { t, settings, saveSettings, nextRun, boot, api, toast, fail, report } = useApp();
   const [schedErr, setSchedErr] = useState<string | null>(null);
   const [keyRef, setKeyRef] = useState(settings.hibp_key_ref ?? "");
   const [keyOk, setKeyOk] = useState<boolean | null>(null);
-  const [pay, setPay] = useState<PayMatch[] | null>(null);
   const up = async (patch: Partial<Settings>) => {
     const err = await saveSettings({ ...settings, ...patch });
     if ("auto_scan" in patch || "schedule" in patch || "schedule_time" in patch) setSchedErr(err);
@@ -111,7 +105,7 @@ export function SettingsView() {
 
         <div className="card">
           <h2>{t.sInt}</h2><p className="cap">{t.sIntCap}</p>
-          <div style={{ padding: "12px 0", borderBottom: "1px solid var(--line2)" }}>
+          <div style={{ padding: "12px 0" }}>
             <b style={{ fontSize: 14 }}>{t.sHibp}</b>
             <p className="cap" style={{ margin: "4px 0 8px" }}>{t.sHibpCap}</p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -124,26 +118,6 @@ export function SettingsView() {
               <button className="btn ghost small" onClick={() => api.openUrl("https://haveibeenpwned.com/API/Key").catch(fail)}>{t.sHibpGet}</button>
             </div>
             {keyOk != null && <p className="cap" style={{ margin: "6px 0 0", color: keyOk ? "var(--ok)" : "var(--coral)" }}>{keyOk ? t.sHibpOk : t.sHibpNg}</p>}
-          </div>
-          <div style={{ padding: "12px 0" }}>
-            <b style={{ fontSize: 14 }}>{t.sFreee}</b>
-            <p className="cap" style={{ margin: "4px 0 8px" }}>{t.sFreeeCap}</p>
-            <label className="btn ghost small" style={{ display: "inline-block" }}>
-              {t.sFreeePick}
-              <input type="file" accept=".csv,text/csv" hidden onChange={async (e) => {
-                const f = e.target.files?.[0]; e.target.value = "";
-                if (!f) return;
-                try { setPay(await api.freeeMatch(await readText(f))); } catch (err) { fail(err); }
-              }} />
-            </label>
-            {pay && (
-              <>
-                <p className="cap" style={{ margin: "10px 0 4px" }}>{t.sFreeeRes(pay.length)}</p>
-                {pay.map((p) => (
-                  <div className="src" key={p.id}>{p.title}{p.stale && <span className="tag" style={{ ["--c" as string]: "var(--c-stale)" }}>{t.sFreeeStale}</span>}<span>{t.yen(p.total)}</span></div>
-                ))}
-              </>
-            )}
           </div>
         </div>
 

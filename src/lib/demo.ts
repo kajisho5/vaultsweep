@@ -247,11 +247,6 @@ export function demoApi(): Api {
       return { pending: p, state: clone(db.state) };
     },
     async exportCsv() { return "（デモのため保存しません）"; },
-    async freeeMatch(text) {
-      const lines = text.split(/\r?\n/).slice(1).join("\n").toLowerCase();
-      return db.report.items.filter((i) => lines.includes((i.domain ?? "@@").split(".")[0]) || lines.includes(i.title.toLowerCase()))
-        .map((i) => ({ id: i.id, title: i.title, rows: 1, total: 980, last_date: null, stale: i.issues.some((x) => x.kind === "stale") }));
-    },
     async testKeyRef(r) { await sleep(300); return r.startsWith("op://"); },
   };
 }

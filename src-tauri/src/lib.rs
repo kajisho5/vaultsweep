@@ -12,7 +12,6 @@ use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_opener::OpenerExt;
-use vaultsweep_core::freee::{self, PayMatch};
 use vaultsweep_core::mcp::{Scanner, Server};
 use vaultsweep_core::model::Report;
 use vaultsweep_core::net::{Fetcher, HttpFetcher};
@@ -384,12 +383,6 @@ async fn export_csv(app: AppHandle, header: Vec<String>, rows: Vec<Vec<String>>)
     Ok(path.to_string_lossy().to_string())
 }
 
-#[tauri::command]
-fn freee_match(text: String) -> R<Vec<PayMatch>> {
-    let r = store().report().ok_or(OpError::Other("no_report".into()))?;
-    freee::match_csv(&text, &r).map_err(other)
-}
-
 /// HIBP のキーの場所を確かめる（キーそのものは画面に返さない）
 #[tauri::command]
 async fn test_key_ref(reference: String) -> R<bool> {
@@ -478,7 +471,6 @@ pub fn run() {
             open_url,
             pending_resolve,
             export_csv,
-            freee_match,
             test_key_ref
         ])
         .setup(move |app| {

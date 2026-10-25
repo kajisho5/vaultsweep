@@ -110,7 +110,6 @@ export type Progress =
 
 export interface ScanResult { report: Report; new_issues: number }
 
-export interface PayMatch { id: string; title: string; rows: number; total: number; last_date: string | null; stale: boolean }
 
 /** 中身から返るエラー */
 export type ApiError =

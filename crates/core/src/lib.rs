@@ -3,7 +3,6 @@
 
 pub mod audit;
 pub mod domain;
-pub mod freee;
 pub mod hibp;
 pub mod lists;
 pub mod mcp;
