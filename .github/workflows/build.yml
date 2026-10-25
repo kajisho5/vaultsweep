@@ -1,22 +1,43 @@
 # Windows 用のインストーラー（.exe）と Mac 用のアプリ（.dmg）を作る
-# - Mac 版：ふだんは仮の署名で作って確かめるだけ。リリースのときは runway で Developer ID 署名と Apple の公証をした .dmg を置く
-# - main に push したとき・手動で動かしたとき：成果物（Artifacts）に置く
-# - v から始まるタグ（例 v0.1.0）を push したとき、または GitHub の画面でリリースを公開したとき：リリースにも置く
+# - main に push したとき：両方作って確かめ、成果物（Artifacts）に置く
+# - 自動リリース：package.json の版番号（例 0.1.0）のリリース v0.1.0 がまだ無ければ、
+#   Mac 版を runway で Developer ID 署名・公証し、全部そろったらリリースを作って .exe と .dmg を置く
+#   → 新しい版を出すときは、版番号を上げて main に push するだけ
 name: build
 
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   pull_request:
   workflow_dispatch:
-  release:
-    types: [published]
 
 permissions:
   contents: write
 
 jobs:
+  # この push でリリースを出すかを決める
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.v.outputs.tag }}
+      release: ${{ steps.v.outputs.release }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="v$(jq -r .version package.json)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          elif gh release view "$tag" >/dev/null 2>&1; then
+            echo "$tag はもう出ている"; echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "$tag はまだ無いので出す"; echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
   windows:
     runs-on: windows-latest
     steps:
@@ -55,15 +76,6 @@ jobs:
             target/release/bundle/nsis/*.exe
           if-no-files-found: error
 
-      - name: リリースに置く（タグのときだけ）
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Mac 側が先にリリースを作っていることもあるので、なければ作ってから置く
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
-          gh release upload "$GITHUB_REF_NAME" target/release/bundle/nsis/*.exe --clobber
 
   mac:
     runs-on: macos-latest
@@ -120,12 +132,14 @@ jobs:
 
   # リリースのとき：runway の仕組みで Developer ID 署名 → 公証 → .dmg（kajisho5/runway の mac-notarize.yml）
   mac-notarized:
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: plan
+    if: needs.plan.outputs.release == 'true'
     uses: kajisho5/runway/.github/workflows/mac-notarize.yml@main
     with:
       name: vaultsweep
       package: dmg
       app_link: true
+      source_ref: ${{ github.sha }}
       build: >-
         rustup toolchain install stable --profile minimal && rustup default stable
         && rustup target add aarch64-apple-darwin x86_64-apple-darwin
@@ -141,19 +155,29 @@ jobs:
         target/universal-apple-darwin/release/bundle/macos/vaultsweep.app
     secrets: inherit
 
-  mac-release:
-    needs: mac-notarized
+  # 全部そろったらリリースを作って置く（どれか失敗したらリリースは作らない）
+  publish:
+    needs: [plan, windows, mac, mac-notarized]
+    if: needs.plan.outputs.release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v8
         with:
+          name: vaultsweep-windows
+          path: out
+      - uses: actions/download-artifact@v8
+        with:
           name: vaultsweep-notarized
-          path: notarized
-      - name: 公証済みの Mac 版をリリースに置く
+          path: out
+      - name: リリースを作る
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.plan.outputs.tag }}
         run: |
-          ls -la notarized
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
-          gh release upload "$GITHUB_REF_NAME" notarized/*.dmg --clobber
+          ls -la out
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" out/*.exe out/*.dmg --clobber
+          else
+            gh release create "$TAG" out/*.exe out/*.dmg --target "$GITHUB_SHA" --title "$TAG" --generate-notes
+          fi
