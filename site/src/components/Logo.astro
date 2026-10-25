@@ -1,11 +1,14 @@
 ---
-// アプリと同じ印
+// アプリと同じ印（レーダー）。見つけた点だけ琥珀
 interface Props { size?: number }
 const { size = 22 } = Astro.props;
 ---
-<svg width={size} height={size} viewBox="0 0 26 26" aria-hidden="true">
-  <circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="1.6" />
-  <circle cx="13" cy="13" r="6" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2" />
-  <path d="M13 13 L22 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-  <circle cx="13" cy="13" r="2" fill="currentColor" />
+<svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+  <circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="4"/>
+  <path d="M50 50 L39.74 21.81 A30 30 0 0 1 50.00 20.00 Z" fill="currentColor" opacity="0.12"/>
+  <path d="M50 50 L50.00 20.00 A30 30 0 0 1 60.26 21.81 Z" fill="currentColor" opacity="0.25"/>
+  <path d="M50 50 L60.26 21.81 A30 30 0 0 1 69.28 27.02 Z" fill="currentColor" opacity="0.45"/>
+  <path d="M50 50 L69.93 26.25" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="50" cy="50" r="4.5" fill="currentColor"/>
+  <circle cx="32.68" cy="40.00" r="4.5" fill="var(--accent)"/>
 </svg>
