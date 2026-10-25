@@ -1,4 +1,8 @@
 // デモ用の中身。名前・サイト・数字はすべて架空。1Password にはつながない。
+
+// 見ている人の言語が日本語なら日本語の架空の名前、それ以外は英語の架空の名前（英語の画面に日本語が混ざらないように）
+const DEMO_JA = typeof navigator !== "undefined" && (navigator.language || "en").toLowerCase().startsWith("ja");
+const L = (ja: string, en: string) => (DEMO_JA ? ja : en);
 import type { Api } from "./api";
 import type { Boot, CancelEntry, Issue, Item, Kind, Pending, Report, Settings, State } from "./types";
 import { KINDS, PASSWORD_KINDS, SEVERITY } from "./types";
@@ -45,16 +49,16 @@ const iso = (d: Date) => {
 
 type Known = [string, string, Kind[], { leak?: number; reuse?: number }?];
 const KNOWN: Record<number, Known> = {
-  17: ["サンプル通販A", "shop-a.example", ["leak", "reuse", "nofa"], { leak: 1532, reuse: 1 }],
-  42: ["練習用フォーラムE", "forum-e.example", ["leak", "weak", "stale"], { leak: 88 }],
-  8: ["テスト動画サブスク", "video-c.example", ["breach", "stale"]],
-  63: ["ダミー銀行（架空）", "bank-d.example", ["similar", "weak", "nofa"]],
-  29: ["架空SNS-B", "sns-b.example", ["reuse", "nofa"], { reuse: 1 }],
-  91: ["サンプル旅行予約F", "travel-f.example", ["reuse"], { reuse: 1 }],
-  105: ["架空クラウドG", "cloud-g.example", ["stale", "dup"]],
-  120: ["テスト求人H", "jobs-h.example", ["dup"]],
-  77: ["サンプル学習塾K", "juku-k.example", ["similar", "stale"]],
-  130: ["架空ポイントL", "point-l.example", ["similar"]],
+  17: [L("サンプル通販A", "Sample Shop A"), "shop-a.example", ["leak", "reuse", "nofa"], { leak: 1532, reuse: 1 }],
+  42: [L("練習用フォーラムE", "Practice Forum E"), "forum-e.example", ["leak", "weak", "stale"], { leak: 88 }],
+  8: [L("テスト動画サブスク", "Test Video Club C"), "video-c.example", ["breach", "stale"]],
+  63: [L("ダミー銀行（架空）", "Dummy Bank D"), "bank-d.example", ["similar", "weak", "nofa"]],
+  29: [L("架空SNS-B", "Fictional Social B"), "sns-b.example", ["reuse", "nofa"], { reuse: 1 }],
+  91: [L("サンプル旅行予約F", "Sample Travel F"), "travel-f.example", ["reuse"], { reuse: 1 }],
+  105: [L("架空クラウドG", "Fictional Cloud G"), "cloud-g.example", ["stale", "dup"]],
+  120: [L("テスト求人H", "Test Jobs H"), "jobs-h.example", ["dup"]],
+  77: [L("サンプル学習塾K", "Sample Tutoring K"), "juku-k.example", ["similar", "stale"]],
+  130: [L("架空ポイントL", "Fictional Points L"), "point-l.example", ["similar"]],
 };
 
 function build(now: Date): { report: Report; state: State } {
@@ -70,7 +74,7 @@ function build(now: Date): { report: Report; state: State } {
     let title: string, dom: string, kinds: Kind[] = [], leak: number | undefined, group: number | undefined;
     if (KNOWN[i]) { const k = KNOWN[i]; [title, dom, kinds] = k; leak = k[3]?.leak; group = k[3]?.reuse; }
     else {
-      title = `架空サイト${pad(i, 3)}`; dom = `site-${i}.example`;
+      title = L(`架空サイト${pad(i, 3)}`, `Fictional Site ${pad(i, 3)}`); dom = `site-${i}.example`;
       if (flagged.has(i)) {
         kinds.push(pick[Math.floor(R() * pick.length)]);
         if (R() < 0.3) { const k = pick[Math.floor(R() * pick.length)]; if (!kinds.includes(k)) kinds.push(k); }
@@ -98,12 +102,12 @@ function build(now: Date): { report: Report; state: State } {
         case "weak": return { kind: "weak", strength: x.n % 2 ? "weak" : "terrible" };
         case "nofa": return { kind: "nofa", doc: `https://help.${x.dom}/2fa` };
         case "stale": return { kind: "stale", days: x.days };
-        case "dup": { const other = x.n === 105 ? 120 : x.n === 120 ? 105 : x.n + 1; return { kind: "dup", other: raw[other - 1]?.title ?? "架空サイト", other_id: id(other) }; }
+        case "dup": { const other = x.n === 105 ? 120 : x.n === 120 ? 105 : x.n + 1; return { kind: "dup", other: raw[other - 1]?.title ?? L("架空サイト", "Fictional Site"), other_id: id(other) }; }
       }
     });
     const del = x.n === 105
-      ? { url: null, difficulty: "hard", email: "support@cloud-g.example", email_subject: "Account deletion request", email_body: "I want my account to be deleted. My user name is XXXXXX.", notes: null }
-      : x.n % 3 === 0 || x.n === 8 || x.n === 42 ? { url: `https://${x.dom}/account/delete`, difficulty: x.n % 2 ? "easy" : "medium", email: null, email_subject: null, email_body: null, notes: "Settings → Account → Delete account" } : null;
+      ? { url: null, difficulty: "hard", email: "support@cloud-g.example", email_subject: L("アカウント削除のお願い", "Account deletion request"), email_body: L("アカウントを削除してください。ユーザー名は XXXXXX です。", "I want my account to be deleted. My user name is XXXXXX."), notes: null }
+      : x.n % 3 === 0 || x.n === 8 || x.n === 42 ? { url: `https://${x.dom}/account/delete`, difficulty: x.n % 2 ? "easy" : "medium", email: null, email_subject: null, email_body: null, notes: L("設定 → アカウント → アカウントを削除", "Settings → Account → Delete account") } : null;
     return {
       id: id(x.n), title: x.title, vault: x.n % 7 === 0 ? "Shared" : x.n % 5 === 0 ? "Work" : "Private",
       domain: x.dom, url: `https://${x.dom}/login`, updated_at: iso(upd), days_since_update: x.days, issues, risk: 0,
@@ -132,13 +136,13 @@ function build(now: Date): { report: Report; state: State } {
   history[11].at = report.scanned_at;
   const ago = (d: number) => iso(new Date(now.getTime() - d * 86400000));
   const cancel: Record<string, CancelEntry> = {
-    [id(8)]: { state: "todo", title: "テスト動画サブスク", domain: "video-c.example", added_at: ago(3), left_at: null, archived_at: null, receipt: null },
-    [id(105)]: { state: "todo", title: "架空クラウドG", domain: "cloud-g.example", added_at: ago(2), left_at: null, archived_at: null, receipt: null },
-    [id(42)]: { state: "left", title: "練習用フォーラムE", domain: "forum-e.example", added_at: ago(6), left_at: ago(0), archived_at: null, receipt: null },
-    demo900xxxxxxxxxxxxxxxxxxx: { state: "archived", title: "サンプル写真共有J", domain: "photo-j.example", added_at: ago(9), left_at: ago(2), archived_at: ago(1), receipt: null },
+    [id(8)]: { state: "todo", title: L("テスト動画サブスク", "Test Video Club C"), domain: "video-c.example", added_at: ago(3), left_at: null, archived_at: null, receipt: null },
+    [id(105)]: { state: "todo", title: L("架空クラウドG", "Fictional Cloud G"), domain: "cloud-g.example", added_at: ago(2), left_at: null, archived_at: null, receipt: null },
+    [id(42)]: { state: "left", title: L("練習用フォーラムE", "Practice Forum E"), domain: "forum-e.example", added_at: ago(6), left_at: ago(0), archived_at: null, receipt: null },
+    demo900xxxxxxxxxxxxxxxxxxx: { state: "archived", title: L("サンプル写真共有J", "Sample Photo Share J"), domain: "photo-j.example", added_at: ago(9), left_at: ago(2), archived_at: ago(1), receipt: null },
   };
-  const fixed = [1, 2, 3, 5].map((d, i) => ({ at: ago(d), id: `demo8${i}0xxxxxxxxxxxxxxxxxxxx`, title: `架空サイト${pad(130 + i, 3)}` }));
-  const pending: Pending[] = [{ id: "demo-req-1", kind: "archive", item_id: id(120), title: "テスト求人H", at: ago(0), from: "mcp" }];
+  const fixed = [1, 2, 3, 5].map((d, i) => ({ at: ago(d), id: `demo8${i}0xxxxxxxxxxxxxxxxxxxx`, title: L(`架空サイト${pad(130 + i, 3)}`, `Fictional Site ${pad(130 + i, 3)}`) }));
+  const pending: Pending[] = [{ id: "demo-req-1", kind: "archive", item_id: id(120), title: L("テスト求人H", "Test Jobs H"), at: ago(0), from: "mcp" }];
   return { report, state: { in_use: [], cancel, history, fixed, pending } };
 }
 
