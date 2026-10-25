@@ -12,6 +12,7 @@ use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_opener::OpenerExt;
+use tauri_plugin_updater::UpdaterExt;
 use vaultsweep_core::mcp::{Scanner, Server};
 use vaultsweep_core::model::Report;
 use vaultsweep_core::net::{Fetcher, HttpFetcher};
@@ -397,6 +398,56 @@ async fn change_generate(app: AppHandle, id: String, site: Option<rules::SiteRul
     Ok(())
 }
 
+#[derive(Serialize)]
+struct UpdateInfo {
+    version: String,
+    current: String,
+}
+
+/// 新しい版があるか（GitHub のリリースの一覧表 latest.json を見る）。オフラインの設定なら見ない
+#[tauri::command]
+async fn update_check(app: AppHandle) -> R<Option<UpdateInfo>> {
+    if store().settings().offline {
+        return Err(OpError::Other("offline".into()));
+    }
+    let up = app
+        .updater()
+        .map_err(|e| OpError::Other(format!("update: {e}")))?
+        .check()
+        .await
+        .map_err(|e| OpError::Other(format!("update: {e}")))?;
+    Ok(up.map(|u| UpdateInfo { version: u.version.clone(), current: u.current_version.clone() }))
+}
+
+/// 新しい版を入れて開き直す。パスワード変更の途中（元のパスワードを預かっている間）は断る。
+/// 進み具合は "update-progress"（0〜100、分からなければ null）で知らせる。
+#[tauri::command]
+async fn update_install(app: AppHandle) -> R<()> {
+    if app.state::<AppState>().sessions.lock().unwrap().values().any(|s| s.dirty) {
+        return Err(OpError::Other("change_unfinished".into()));
+    }
+    let u = app
+        .updater()
+        .map_err(|e| OpError::Other(format!("update: {e}")))?
+        .check()
+        .await
+        .map_err(|e| OpError::Other(format!("update: {e}")))?
+        .ok_or(OpError::Other("no_update".into()))?;
+    let a2 = app.clone();
+    let mut got: u64 = 0;
+    u.download_and_install(
+        move |chunk, total| {
+            got += chunk as u64;
+            let pct = total.filter(|t| *t > 0).map(|t| (got * 100 / t).min(100));
+            let _ = a2.emit("update-progress", pct);
+        },
+        || {},
+    )
+    .await
+    .map_err(|e| OpError::Other(format!("update: {e}")))?;
+    app.restart();
+}
+
 /// このサイトの決まりを忘れる（公開データか設定どおりに戻す）
 #[tauri::command]
 async fn site_rule_clear(domain: String) -> R<()> {
@@ -666,6 +717,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(AppState::default())
         .invoke_handler(tauri::generate_handler![
             bootstrap,
@@ -679,6 +731,8 @@ pub fn run() {
             change_generate,
             change_plan,
             site_rule_clear,
+            update_check,
+            update_install,
             copy_secret,
             copy_plain,
             change_confirm,

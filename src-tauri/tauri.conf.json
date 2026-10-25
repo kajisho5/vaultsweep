@@ -49,5 +49,16 @@
       "minimumSystemVersion": "11.0"
     },
     "category": "Utility"
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDlEMTk1OThFQzM5NUNGRDEKUldUUno1WERqbGtablYvWWVveUZ4M1p2VTRDM3ZyVjFFeFRHRDMrNW5QMzlZNThpQ3JnSlNjY3MK",
+      "endpoints": [
+        "https://github.com/kajisho5/vaultsweep/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

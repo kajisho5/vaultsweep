@@ -4,6 +4,7 @@ import { Seg, Switch, fmtDate } from "../components/ui";
 import { PendingBar } from "./Overview";
 import type { Settings } from "../lib/types";
 import { issueText } from "../lib/i18n";
+import { checkUpdate, useUpdate } from "../lib/updater";
 
 export function SettingsView() {
   const { t, settings, saveSettings, nextRun, boot, api, toast, fail, report, errText } = useApp();
@@ -16,6 +17,9 @@ export function SettingsView() {
     setConnBusy(true);
     try { setConn(await api.checkConnection()); } catch (e) { setConn({ error: errText(e) }); } finally { setConnBusy(false); }
   };
+  const upd = useUpdate();
+  const updMsg = upd.status === "checking" ? t.upChecking : upd.status === "latest" ? t.upLatest(boot.version) : upd.status === "found" && upd.info ? t.upFound(upd.info.version)
+    : upd.status === "failed" ? t.upFailed : upd.status === "offline" ? t.upOffline : null;
   const up = async (patch: Partial<Settings>) => {
     const err = await saveSettings({ ...settings, ...patch });
     if ("auto_scan" in patch || "schedule" in patch || "schedule_time" in patch) setSchedErr(err);
@@ -155,10 +159,17 @@ export function SettingsView() {
             <div className="src" key={name}><button type="button" className="linkbtn" onClick={() => api.openUrl(url).catch(fail)}>{name}</button><span>{what}</span></div>
           ))}
           <p className="cap" style={{ marginTop: 10 }}>{t.attribution}</p>
+          <h2 style={{ marginTop: 18 }}>{t.sUpd}</h2><p className="cap">{t.sUpdCap}</p>
+          <div className="set-row">{t.sUpdAuto}<Switch label={t.sUpdAuto} on={settings.auto_update} onChange={(v) => up({ auto_update: v })} /></div>
+          <div className="set-row">{t.sUpdCur}<small className="m">{boot.version}</small></div>
+          <div className="set-row">{t.sUpdLast}<small className="m">{upd.last ? fmtDate(upd.last, t.dateTime) : t.sUpdNever}</small></div>
+          <div className="set-row">{t.sUpdManual}
+            <button type="button" className="btn small" disabled={upd.status === "checking" || upd.status === "downloading" || upd.status === "restarting"} aria-busy={upd.status === "checking"} onClick={() => void checkUpdate(api, settings.offline)}>{t.sUpdNow}</button>
+          </div>
+          {updMsg && <p className="cap" role="status" style={{ margin: "var(--space-xs) 0 0" }}><span className={`updot ${upd.status}`} aria-hidden="true" />{updMsg}</p>}
           <h2 style={{ marginTop: 18 }}>{t.sOther}</h2>
           <div className="set-row">{t.sExport}<button type="button" className="btn small" disabled={!report} onClick={exportCsv}>CSV</button></div>
           <div className="set-row">{t.sDataDir}<small className="m" style={{ overflowWrap: "anywhere", textAlign: "right" }}>{api.demo ? t.demoDir : boot.data_dir}</small></div>
-          <div className="set-row">{t.sVersion}<small>{boot.version}</small></div>
         </div>
       </div>
     </>

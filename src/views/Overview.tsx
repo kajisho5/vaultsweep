@@ -1,3 +1,4 @@
+import { UpdateBar } from "../components/UpdateBar";
 import { useEffect, useState } from "react";
 import { useApp } from "../store";
 import { CountUp, Meter, Skeleton, Spark, Tag, fmtDate, isBad } from "../components/ui";
@@ -77,7 +78,7 @@ export function Overview() {
   const act = useAct();
   const [shown, setShown] = useState(false);
   useEffect(() => { const id = requestAnimationFrame(() => setShown(true)); return () => cancelAnimationFrame(id); }, []);
-  if (!report) return <><PendingBar /><FirstRun /></>;
+  if (!report) return <><UpdateBar /><PendingBar /><FirstRun /></>;
 
   const total = report.total;
   const flaggedItems = report.items.filter((i) => i.issues.length);
@@ -107,6 +108,7 @@ export function Overview() {
 
   return (
     <>
+      <UpdateBar />
       <PendingBar />
       <h1 className="title">{t.ovTitle(total, flagged)}</h1>
       <p className="lead">{t.ovLead(fmtDate(report.scanned_at, t.dateTime), nextRun ? t.dateTime(new Date(nextRun)) : null)}</p>

@@ -254,6 +254,12 @@ export function demoApi(): Api {
       const plan: Plan = site ? { length: site.length, chars: site.chars, source: "site", manual: false } : r ? { ...r.plan, chars: r.plan.chars === "all" && !settings.pw_symbols ? "alnum" : r.plan.chars } : def;
       return { domain: dom, rule: r?.info ?? null, plan, site };
     },
+    // デモ：新しい版の帯の見本を出す。押しても実際には更新しない
+    async updateCheck() { await sleep(400); return { version: "0.2.0", current: "0.1.0" }; },
+    async updateInstall(onProgress) {
+      for (const p of [8, 27, 51, 76, 100]) { await sleep(260); onProgress(p); }
+      throw { code: "other", detail: "demo_update" };
+    },
     async siteRuleClear(domain) { const { [domain]: _, ...rest } = settings.site_rules; settings.site_rules = rest; },
     async copySecret(id, which) {
       const s = sessions.get(id); if (!s || (which === "new" && !s.generated)) throw { code: "other", detail: "no_value" };

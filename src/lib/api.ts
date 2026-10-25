@@ -36,6 +36,10 @@ export interface Api {
   pendingResolve(id: string, approve: boolean): Promise<{ pending: Pending | null; state: State }>;
   exportCsv(header: string[], rows: string[][]): Promise<string>;
   testKeyRef(reference: string): Promise<boolean>;
+  /** 新しい版があるか。なければ null */
+  updateCheck(): Promise<{ version: string; current: string } | null>;
+  /** 新しい版を入れて開き直す（進み具合 0〜100、分からなければ null） */
+  updateInstall(onProgress: (pct: number | null) => void): Promise<void>;
 }
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -77,6 +81,11 @@ async function tauriApi(): Promise<Api> {
     pendingResolve: (id, approve) => invoke("pending_resolve", { id, approve }),
     exportCsv: (header, rows) => invoke("export_csv", { header, rows }),
     testKeyRef: (reference) => invoke("test_key_ref", { reference }),
+    updateCheck: () => invoke("update_check"),
+    async updateInstall(onProgress) {
+      const un = await listen<number | null>("update-progress", (e) => onProgress(e.payload));
+      try { await invoke("update_install"); } finally { un(); }
+    },
   };
 }
 

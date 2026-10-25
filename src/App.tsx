@@ -9,6 +9,7 @@ import { CancelBoard } from "./views/CancelBoard";
 import { CancelFlow } from "./views/CancelFlow";
 import { History } from "./views/History";
 import { SettingsView } from "./views/Settings";
+import { useAutoUpdate } from "./lib/updater";
 
 const NAV: { v: View; key: "overview" | "issues" | "cancel" | "history" | "settings" }[] = [
   { v: "overview", key: "overview" }, { v: "issues", key: "issues" }, { v: "cancel", key: "cancel" }, { v: "history", key: "history" }, { v: "settings", key: "settings" },
@@ -149,7 +150,8 @@ function useFocusKeeper(view: string) {
 }
 
 export function App() {
-  const { view, api, t } = useApp();
+  const { view, api, t, settings } = useApp();
+  useAutoUpdate(api, settings);
   useFocusKeeper(view);
   useReveal(view);
   return (
