@@ -1,6 +1,6 @@
 # Windows 用のインストーラー（.exe）と Mac 用のアプリ（.dmg）を作る
 # - main に push したとき・手動で動かしたとき：成果物（Artifacts）に置く
-# - v から始まるタグ（例 v0.1.0）を push したとき：リリースにも置く
+# - v から始まるタグ（例 v0.1.0）を push したとき、または GitHub の画面でリリースを公開したとき：リリースにも置く
 name: build
 
 on:
@@ -9,6 +9,8 @@ on:
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+  release:
+    types: [published]
 
 permissions:
   contents: write
