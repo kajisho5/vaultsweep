@@ -12,7 +12,7 @@
   --warnw: #FFFBEB; --warn-line: #FDE68A; --warn-ink: #92400E;
   --topbar: rgba(255, 255, 255, .92); --hover: #F8FAFC; --kanban: #F3F4F6; --shadow: 0 1px 2px rgba(16, 24, 40, .04);
   --overlay: rgba(17, 24, 39, .45); --code-bg: #111827; --code-ink: #E3EEEA;
-  --c-leak: #C53A28; --c-breach: #7B4FA3; --c-reuse: #A65A10; --c-weak: #7F6410; --c-nofa: #2F6FA8; --c-stale: #546E7E; --c-dup: #6B6B63;
+  --c-leak: #C53A28; --c-breach: #7B4FA3; --c-reuse: #A65A10; --c-similar: #B0306E; --c-weak: #7F6410; --c-nofa: #2F6FA8; --c-stale: #546E7E; --c-dup: #6B6B63;
   --coral-btn: #C8343A;
   --font: "Inter", "Noto Sans JP", "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
 }
@@ -26,7 +26,7 @@
   --topbar: rgba(21, 25, 34, .9); --hover: #1C212C; --kanban: #11141B; --shadow: 0 1px 2px rgba(0, 0, 0, .3);
   --overlay: rgba(0, 0, 0, .6); --code-bg: #0A0C11; --code-ink: #D7E3DE;
   --coral-btn: #C8343A;
-  --c-leak: #F47A6B; --c-breach: #B990E0; --c-reuse: #F0A25A; --c-weak: #E2C04F; --c-nofa: #6FA8DD; --c-stale: #98AFBE; --c-dup: #B3B2AA;
+  --c-leak: #F47A6B; --c-breach: #B990E0; --c-reuse: #F0A25A; --c-similar: #EE7AB4; --c-weak: #E2C04F; --c-nofa: #6FA8DD; --c-stale: #98AFBE; --c-dup: #B3B2AA;
 }
 
 @layer base {

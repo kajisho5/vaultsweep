@@ -11,5 +11,6 @@ pub mod net;
 pub mod op;
 pub mod scan;
 pub mod schedule;
+pub mod similar;
 pub mod store;
 pub mod strength;

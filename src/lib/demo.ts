@@ -48,12 +48,13 @@ const KNOWN: Record<number, Known> = {
   17: ["サンプル通販A", "shop-a.example", ["leak", "reuse", "nofa"], { leak: 1532, reuse: 1 }],
   42: ["練習用フォーラムE", "forum-e.example", ["leak", "weak", "stale"], { leak: 88 }],
   8: ["テスト動画サブスク", "video-c.example", ["breach", "stale"]],
-  63: ["ダミー銀行（架空）", "bank-d.example", ["weak", "nofa"]],
+  63: ["ダミー銀行（架空）", "bank-d.example", ["similar", "weak", "nofa"]],
   29: ["架空SNS-B", "sns-b.example", ["reuse", "nofa"], { reuse: 1 }],
   91: ["サンプル旅行予約F", "travel-f.example", ["reuse"], { reuse: 1 }],
   105: ["架空クラウドG", "cloud-g.example", ["stale", "dup"]],
   120: ["テスト求人H", "jobs-h.example", ["dup"]],
-  77: ["サンプル学習塾K", "juku-k.example", ["stale"]],
+  77: ["サンプル学習塾K", "juku-k.example", ["similar", "stale"]],
+  130: ["架空ポイントL", "point-l.example", ["similar"]],
 };
 
 function build(now: Date): { report: Report; state: State } {
@@ -93,6 +94,7 @@ function build(now: Date): { report: Report; state: State } {
         case "leak": return { kind: "leak", count: x.leak ?? 10 };
         case "breach": return { kind: "breach", breach: "Sample Video Service", date: "2024-03-12" };
         case "reuse": { const others = (byGroup.get(x.group!) ?? []).filter((o) => o.n !== x.n); return { kind: "reuse", group: x.group!, others: others.slice(0, 3).map((o) => o.title), total: others.length }; }
+        case "similar": { const others = raw.filter((o) => o.n !== x.n && o.kinds.includes("similar")); return { kind: "similar", group: 1, others: others.slice(0, 3).map((o) => o.title), total: others.length }; }
         case "weak": return { kind: "weak", strength: x.n % 2 ? "weak" : "terrible" };
         case "nofa": return { kind: "nofa", doc: `https://help.${x.dom}/2fa` };
         case "stale": return { kind: "stale", days: x.days };
@@ -212,14 +214,15 @@ export function demoApi(): Api {
     async changeConfirm(id) {
       sessions.delete(id);
       const it = find(id); if (!it) return clone(db.report);
-      const reuse = it.issues.find((x) => x.kind === "reuse");
+      const grouped = it.issues.filter((x) => x.kind === "reuse" || x.kind === "similar");
       it.issues = it.issues.filter((x) => !PASSWORD_KINDS.includes(x.kind));
-      if (reuse && reuse.kind === "reuse") {
-        const mates = db.report.items.filter((i) => i.issues.some((x) => x.kind === "reuse" && x.group === reuse.group));
+      for (const gi of grouped) {
+        if (gi.kind !== "reuse" && gi.kind !== "similar") continue;
+        const mates = db.report.items.filter((i) => i.issues.some((x) => x.kind === gi.kind && x.group === gi.group));
         for (const m of mates) {
           const others = mates.filter((o) => o !== m).map((o) => o.title);
-          if (!others.length) m.issues = m.issues.filter((x) => x.kind !== "reuse");
-          else for (const x of m.issues) if (x.kind === "reuse") { x.others = others.slice(0, 3); x.total = others.length; }
+          if (!others.length) m.issues = m.issues.filter((x) => x.kind !== gi.kind);
+          else for (const x of m.issues) if ((x.kind === "reuse" || x.kind === "similar") && x.kind === gi.kind) { x.others = others.slice(0, 3); x.total = others.length; }
         }
       }
       recompute(db.report);

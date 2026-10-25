@@ -21,9 +21,9 @@ const ja = {
   autoOffSub: "設定でオンにできます",
   nextRun: (d: string) => `次回 ${d}`,
   demoNote: "デモ表示です。名前・サイト・数字はすべて架空で、1Password にはつながっていません。",
-  kind: { leak: "漏洩", breach: "事故サイト", reuse: "使い回し", weak: "弱い", nofa: "2段階未設定", stale: "使ってなさそう", dup: "重複" } as Record<Kind, string>,
+  kind: { leak: "漏洩", breach: "事故サイト", reuse: "使い回し", similar: "似ている", weak: "弱い", nofa: "2段階未設定", stale: "使ってなさそう", dup: "重複" } as Record<Kind, string>,
   kindDesc: {
-    leak: "過去の流出データに載っている", breach: "事故のあとパスワードを変えていない", reuse: "ほかの項目と同じパスワード",
+    leak: "過去の流出データに載っている", breach: "事故のあとパスワードを変えていない", similar: "ほかの項目と1〜2文字しか違わない", reuse: "ほかの項目と同じパスワード",
     weak: "推測されやすいパスワード", nofa: "2段階認証が使えるのに未設定", stale: "長い間さわっていない", dup: "同じ項目が2つある",
   } as Record<Kind, string>,
   action: { change: "パスワードを変える", twofa: "2段階を設定する", stale: "解約するか決める", dup: "重複を片付ける" },
@@ -31,6 +31,7 @@ const ja = {
     leak: (c: number) => `過去の流出データに${n(c, "ja")}回載っています`,
     breach: (b: string, d: string) => `${b} の事故（${d}）のあと、パスワードを変えていません`,
     reuse: (o: string[], t: number) => `${o.join("・")}${t > o.length ? ` ほか${t - o.length}件` : ""} と同じパスワードです`,
+    similar: (o: string[], t: number) => `${o.join("・")}${t > o.length ? ` ほか${t - o.length}件` : ""} と似たパスワードです（1〜2文字や数字・記号だけの違い）。1つ漏れると、ほかも当てられやすくなります`,
     weak: (s: string) => `推測されやすいパスワードです（強さ：${({ terrible: "とても弱い", weak: "弱い", fair: "ふつう" } as Record<string, string>)[s] ?? s}）`,
     nofa: "2段階認証が使えるのに、設定していません",
     stale: (d: number) => `${n(d, "ja")}日さわっていません`,
@@ -60,7 +61,7 @@ const ja = {
   approve: "承認する", deny: "断る",
   // 一覧
   isTitle: "問題のある項目", isLead: "押すと右に中身が出ます。1件に複数の問題があることもあります。",
-  bulk: (k: number) => `漏洩・事故・使い回しの ${k}件は、まとめて順番に変えられます。`,
+  bulk: (k: number) => `漏洩・事故・使い回し・似ているの ${k}件は、まとめて順番に変えられます。`,
   bulkBtn: "まとめて変える",
   all: "すべて", searchSite: "サイト名で探す",
   thSite: "サイト", thIssues: "問題", thUpdated: "最後にさわった日", thRisk: "危険度",
@@ -273,9 +274,9 @@ const en: Dict = {
   autoOffSub: "Turn it on in Settings",
   nextRun: (d) => `Next ${d}`,
   demoNote: "Demo mode. All names, sites and numbers are fictional; not connected to 1Password.",
-  kind: { leak: "Leaked", breach: "Breached site", reuse: "Reused", weak: "Weak", nofa: "No 2FA", stale: "Likely unused", dup: "Duplicate" },
+  kind: { leak: "Leaked", breach: "Breached site", reuse: "Reused", similar: "Similar", weak: "Weak", nofa: "No 2FA", stale: "Likely unused", dup: "Duplicate" },
   kindDesc: {
-    leak: "Found in past data breaches", breach: "Not changed since the site's breach", reuse: "Same password as other logins",
+    leak: "Found in past data breaches", breach: "Not changed since the site's breach", reuse: "Same password as other logins", similar: "Only 1–2 characters differ from others",
     weak: "Easy to guess", nofa: "2FA available but off", stale: "Not touched for a long time", dup: "Saved twice",
   },
   action: { change: "Change password", twofa: "Turn on 2FA", stale: "Decide to cancel", dup: "Clean up duplicate" },
@@ -283,6 +284,7 @@ const en: Dict = {
     leak: (c) => `Seen ${n(c, "en")} times in past data breaches`,
     breach: (b, d) => `Not changed since the ${b} breach (${d})`,
     reuse: (o, t) => `Same password as ${o.join(", ")}${t > o.length ? ` and ${t - o.length} more` : ""}`,
+    similar: (o, t) => `Similar to the password of ${o.join(", ")}${t > o.length ? ` and ${t - o.length} more` : ""} (only a few characters, digits or symbols differ). If one leaks, the others are easy to guess`,
     weak: (s) => `Easy to guess (strength: ${({ terrible: "very weak", weak: "weak", fair: "fair" } as Record<string, string>)[s] ?? s})`,
     nofa: "Two-factor authentication is available but not set up",
     stale: (d) => `Not touched for ${n(d, "en")} days`,
@@ -310,7 +312,7 @@ const en: Dict = {
   pendingArchive: (t) => `Move “${t}” to the Archive`,
   approve: "Approve", deny: "Decline",
   isTitle: "Logins with issues", isLead: "Tap a row to see details. One login can have several issues.",
-  bulk: (k) => `${k} leaked, breached or reused logins can be changed one after another.`,
+  bulk: (k) => `${k} leaked, breached, reused or similar logins can be changed one after another.`,
   bulkBtn: "Change in bulk",
   all: "All", searchSite: "Search site",
   thSite: "Site", thIssues: "Issues", thUpdated: "Last touched", thRisk: "Risk",
@@ -505,6 +507,7 @@ export function issueText(i: Issue, t: Dict): string {
     case "leak": return t.issue.leak(i.count);
     case "breach": return t.issue.breach(i.breach, i.date);
     case "reuse": return t.issue.reuse(i.others, i.total);
+    case "similar": return t.issue.similar(i.others, i.total);
     case "weak": return t.issue.weak(i.strength);
     case "nofa": return t.issue.nofa;
     case "stale": return t.issue.stale(i.days);

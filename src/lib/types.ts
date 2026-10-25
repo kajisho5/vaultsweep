@@ -1,14 +1,15 @@
 // 中身（Rust）とやりとりするデータの形。パスワードは含まない。
 
-export type Kind = "leak" | "breach" | "reuse" | "weak" | "nofa" | "stale" | "dup";
-export const KINDS: Kind[] = ["leak", "breach", "reuse", "weak", "nofa", "stale", "dup"];
-export const SEVERITY: Record<Kind, number> = { leak: 0.9, breach: 0.82, reuse: 0.7, weak: 0.62, nofa: 0.5, stale: 0.42, dup: 0.36 };
-export const PASSWORD_KINDS: Kind[] = ["leak", "breach", "reuse", "weak"];
+export type Kind = "leak" | "breach" | "reuse" | "similar" | "weak" | "nofa" | "stale" | "dup";
+export const KINDS: Kind[] = ["leak", "breach", "reuse", "similar", "weak", "nofa", "stale", "dup"];
+export const SEVERITY: Record<Kind, number> = { leak: 0.9, breach: 0.82, reuse: 0.7, similar: 0.66, weak: 0.62, nofa: 0.5, stale: 0.42, dup: 0.36 };
+export const PASSWORD_KINDS: Kind[] = ["leak", "breach", "reuse", "similar", "weak"];
 
 export type Issue =
   | { kind: "leak"; count: number }
   | { kind: "breach"; breach: string; date: string }
   | { kind: "reuse"; group: number; others: string[]; total: number }
+  | { kind: "similar"; group: number; others: string[]; total: number }
   | { kind: "weak"; strength: string }
   | { kind: "nofa"; doc: string | null }
   | { kind: "stale"; days: number }

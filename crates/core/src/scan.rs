@@ -90,7 +90,9 @@ pub fn run(
         report.warnings.push("hibp_partial".into());
     }
     if prepared.len() < listed {
-        report.warnings.push(format!("skipped:{}", listed - prepared.len()));
+        report
+            .warnings
+            .push(format!("skipped:{}", listed - prepared.len()));
     }
     if let (Some(key), Some(f)) = (&hibp_key, fetch) {
         let emails: Vec<String> = prepared

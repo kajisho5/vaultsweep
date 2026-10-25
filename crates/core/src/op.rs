@@ -117,8 +117,14 @@ impl OpRunner for RealOp {
             }
             _ => None,
         };
-        let mut so = child.stdout.take().ok_or_else(|| OpError::Other("stdout".into()))?;
-        let mut se = child.stderr.take().ok_or_else(|| OpError::Other("stderr".into()))?;
+        let mut so = child
+            .stdout
+            .take()
+            .ok_or_else(|| OpError::Other("stdout".into()))?;
+        let mut se = child
+            .stderr
+            .take()
+            .ok_or_else(|| OpError::Other("stderr".into()))?;
         let rd_out = std::thread::spawn(move || {
             use std::io::Read;
             let mut b = Zeroizing::new(Vec::new());

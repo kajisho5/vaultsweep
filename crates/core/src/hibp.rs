@@ -66,14 +66,14 @@ pub fn check_hashes(
                     let p = &prefixes[i];
                     let url = format!("https://api.pwnedpasswords.com/range/{p}");
                     let mut res = f.get(&url, &[("Add-Padding", "true")]);
-                for _ in 0..2 {
-                    if matches!(res, Ok((200, _))) {
-                        break;
+                    for _ in 0..2 {
+                        if matches!(res, Ok((200, _))) {
+                            break;
+                        }
+                        std::thread::sleep(std::time::Duration::from_millis(600));
+                        res = f.get(&url, &[("Add-Padding", "true")]);
                     }
-                    std::thread::sleep(std::time::Duration::from_millis(600));
-                    res = f.get(&url, &[("Add-Padding", "true")]);
-                }
-                match res {
+                    match res {
                         Ok((200, body)) => {
                             let m = parse_range(&String::from_utf8_lossy(&body));
                             let mut r = result.lock().unwrap();

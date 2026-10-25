@@ -23,6 +23,8 @@ pub struct Prepared {
     pub has_totp: bool,
     pub pw_sha256: Option<Zeroizing<[u8; 32]>>,
     pub pw_sha1: Option<Zeroizing<String>>,
+    /// 似ているかを比べるため（メモリだけ・小文字）
+    pub pw_norm: Option<Zeroizing<String>>,
     pub strength: Option<&'static str>,
     pub user_key: Option<[u8; 32]>,
     pub username_hint: Option<String>,
@@ -37,6 +39,7 @@ pub fn prepare(l: LoginFull, keep_email: bool) -> Prepared {
         .iter()
         .find_map(|u| host_of(u).map(|h| (Some(h), clean_url(u))))
         .unwrap_or((None, None));
+    let pw_norm = l.password.as_ref().map(|p| crate::similar::norm(p));
     let (pw_sha256, pw_sha1, strength) = match &l.password {
         Some(p) => {
             let mut h = Sha256::new();
@@ -77,6 +80,7 @@ pub fn prepare(l: LoginFull, keep_email: bool) -> Prepared {
         has_totp: l.has_totp,
         pw_sha256,
         pw_sha1,
+        pw_norm,
         strength,
         user_key,
         username_hint,
@@ -88,7 +92,11 @@ pub fn prepare(l: LoginFull, keep_email: bool) -> Prepared {
 /// "https://user:pw@a.example/x?token=1#y" → "https://a.example/x"
 pub fn clean_url(raw: &str) -> Option<String> {
     let t = raw.trim();
-    let with = if t.contains("://") { t.to_string() } else { format!("https://{t}") };
+    let with = if t.contains("://") {
+        t.to_string()
+    } else {
+        format!("https://{t}")
+    };
     let mut u = url::Url::parse(&with).ok()?;
     if !matches!(u.scheme(), "http" | "https") {
         return None;
@@ -159,6 +167,25 @@ pub fn audit(inp: AuditInput) -> Report {
             reuse_group.insert(i, (gid, v.iter().copied().filter(|&j| j != i).collect()));
         }
     }
+    // 似ている：1〜2文字違い・数字や記号だけ違い（同じものは除く）
+    let norms: Vec<Option<Zeroizing<String>>> = items.iter().map(|p| p.pw_norm.clone()).collect();
+    let mut similar_group: HashMap<usize, (u32, Vec<usize>)> = HashMap::new();
+    for (k, v) in crate::similar::groups(&norms).into_iter().enumerate() {
+        for &i in &v {
+            // 自分と同じパスワードの相手は「使い回し」で出すので、ここでは外す
+            let others: Vec<usize> = v
+                .iter()
+                .copied()
+                .filter(|&j| {
+                    j != i && items[j].pw_sha256.as_deref() != items[i].pw_sha256.as_deref()
+                })
+                .collect();
+            if !others.is_empty() {
+                similar_group.insert(i, (k as u32 + 1, others));
+            }
+        }
+    }
+    drop(norms);
     // 重複：同じサイト＋同じユーザー名
     let mut dups: HashMap<(String, [u8; 32]), Vec<usize>> = HashMap::new();
     for (i, p) in items.iter().enumerate() {
@@ -212,6 +239,17 @@ pub fn audit(inp: AuditInput) -> Report {
         }
         if let Some((g, others)) = reuse_group.get(&i) {
             iss.push(Issue::Reuse {
+                group: *g,
+                others: others
+                    .iter()
+                    .take(3)
+                    .map(|&j| items[j].title.clone())
+                    .collect(),
+                total: others.len() as u32,
+            });
+        }
+        if let Some((g, others)) = similar_group.get(&i) {
+            iss.push(Issue::Similar {
                 group: *g,
                 others: others
                     .iter()

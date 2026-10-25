@@ -534,18 +534,32 @@ fn broken_state_file_is_kept_aside() {
     let store = tmp_store("broken");
     std::fs::write(store.dir.join("state.json"), b"{not json").unwrap();
     store.update_state(|s| s.in_use.insert("x".into())).unwrap();
-    let kept = std::fs::read_dir(&store.dir).unwrap().filter_map(|e| e.ok()).any(|e| e.file_name().to_string_lossy().starts_with("state.json.broken-"));
+    let kept = std::fs::read_dir(&store.dir)
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .any(|e| {
+            e.file_name()
+                .to_string_lossy()
+                .starts_with("state.json.broken-")
+        });
     assert!(kept, "壊れたファイルは消さずに取っておく");
     std::fs::write(store.dir.join("settings.json"), b"{oops").unwrap();
-    assert!(store.settings().offline, "設定が読めないときは外へ問い合わせない");
+    assert!(
+        store.settings().offline,
+        "設定が読めないときは外へ問い合わせない"
+    );
 }
 
 #[test]
 fn url_secrets_are_removed() {
     use vaultsweep_core::audit::clean_url;
-    assert_eq!(clean_url("https://admin:secret@192.168.1.1/x?token=abc#f").as_deref(), Some("https://192.168.1.1/x"));
+    assert_eq!(
+        clean_url("https://admin:secret@192.168.1.1/x?token=abc#f").as_deref(),
+        Some("https://192.168.1.1/x")
+    );
     let op = FakeOp::new();
-    op.items.lock().unwrap()[1]["urls"] = json!([{"primary":true,"href":"https://sample_b:hunter2@sns-b.example/home?session=zzz"}]);
+    op.items.lock().unwrap()[1]["urls"] =
+        json!([{"primary":true,"href":"https://sample_b:hunter2@sns-b.example/home?session=zzz"}]);
     let store = tmp_store("urlsecret");
     scan::run(&op, Some(&FakeNet), &store, &|_| {}).unwrap();
     let saved = std::fs::read_to_string(store.dir.join("report.json")).unwrap();
@@ -564,7 +578,30 @@ fn one_unreadable_item_does_not_stop_scan() {
         }
     }
     let store = tmp_store("flaky");
-    let r = scan::run(&Flaky(FakeOp::new()), Some(&FakeNet), &store, &|_| {}).unwrap().report;
+    let r = scan::run(&Flaky(FakeOp::new()), Some(&FakeNet), &store, &|_| {})
+        .unwrap()
+        .report;
     assert_eq!(r.total, 4);
     assert!(r.warnings.contains(&"skipped:1".to_string()));
+}
+
+#[test]
+fn similar_passwords_detected_and_cleared() {
+    let op = FakeOp::new();
+    {
+        let mut it = op.items.lock().unwrap();
+        it[3]["fields"][1]["value"] = json!("Sample-Kumo2023!");
+        it[4]["fields"][1]["value"] = json!("Sample-Kumo2024!");
+    }
+    let store = tmp_store("similar");
+    let r = scan::run(&op, Some(&FakeNet), &store, &|_| {}).unwrap().report;
+    assert!(kinds(&r, "dddddddddddddddddddddddddd").contains(&Kind::Similar));
+    assert!(kinds(&r, "eeeeeeeeeeeeeeeeeeeeeeeeee").contains(&Kind::Similar));
+    // 同じパスワード（A と B）は「使い回し」で、「似ている」には入れない
+    assert!(!kinds(&r, "aaaaaaaaaaaaaaaaaaaaaaaaaa").contains(&Kind::Similar));
+    let saved = std::fs::read_to_string(store.dir.join("report.json")).unwrap();
+    assert!(!saved.contains("Kumo") && !saved.to_lowercase().contains("kumo"), "パスワードの一部も残さない");
+    let r2 = store.mark_changed("dddddddddddddddddddddddddd").unwrap().unwrap();
+    assert!(!kinds(&r2, "dddddddddddddddddddddddddd").contains(&Kind::Similar));
+    assert!(!kinds(&r2, "eeeeeeeeeeeeeeeeeeeeeeeeee").contains(&Kind::Similar), "相手が1件だけになったら外す");
 }

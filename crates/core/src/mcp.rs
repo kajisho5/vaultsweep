@@ -99,6 +99,9 @@ fn issue_json(i: &Issue) -> Value {
         Issue::Reuse { others, total, .. } => {
             json!({ "kind": "reuse", "same_as": others, "same_count": total })
         }
+        Issue::Similar { others, total, .. } => {
+            json!({ "kind": "similar", "similar_to": others, "similar_count": total })
+        }
         Issue::Weak { strength } => json!({ "kind": "weak", "strength": strength }),
         Issue::Nofa { doc } => json!({ "kind": "nofa", "doc": doc }),
         Issue::Stale { days } => json!({ "kind": "stale", "days_since_update": days }),

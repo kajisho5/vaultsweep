@@ -10,6 +10,7 @@ pub enum Kind {
     Leak,
     Breach,
     Reuse,
+    Similar,
     Weak,
     Nofa,
     Stale,
@@ -17,10 +18,11 @@ pub enum Kind {
 }
 
 impl Kind {
-    pub const ALL: [Kind; 7] = [
+    pub const ALL: [Kind; 8] = [
         Kind::Leak,
         Kind::Breach,
         Kind::Reuse,
+        Kind::Similar,
         Kind::Weak,
         Kind::Nofa,
         Kind::Stale,
@@ -33,6 +35,7 @@ impl Kind {
             Kind::Leak => 0.9,
             Kind::Breach => 0.82,
             Kind::Reuse => 0.7,
+            Kind::Similar => 0.66,
             Kind::Weak => 0.62,
             Kind::Nofa => 0.5,
             Kind::Stale => 0.42,
@@ -42,7 +45,10 @@ impl Kind {
 
     /// パスワードを変えれば消える種類か
     pub fn fixed_by_password_change(self) -> bool {
-        matches!(self, Kind::Leak | Kind::Breach | Kind::Reuse | Kind::Weak)
+        matches!(
+            self,
+            Kind::Leak | Kind::Breach | Kind::Reuse | Kind::Similar | Kind::Weak
+        )
     }
 
     pub fn as_str(self) -> &'static str {
@@ -50,6 +56,7 @@ impl Kind {
             Kind::Leak => "leak",
             Kind::Breach => "breach",
             Kind::Reuse => "reuse",
+            Kind::Similar => "similar",
             Kind::Weak => "weak",
             Kind::Nofa => "nofa",
             Kind::Stale => "stale",
@@ -76,6 +83,12 @@ pub enum Issue {
         others: Vec<String>,
         total: u32,
     },
+    /// 1〜2文字だけ違う・数字や記号だけ違うパスワードの他の項目（同じ形）
+    Similar {
+        group: u32,
+        others: Vec<String>,
+        total: u32,
+    },
     /// 強さ（terrible / weak / fair）
     Weak { strength: String },
     /// 2段階認証の説明ページ
@@ -87,11 +100,19 @@ pub enum Issue {
 }
 
 impl Issue {
+    /// 使い回し・似ているのまとまり番号
+    pub fn group(&self) -> Option<u32> {
+        match self {
+            Issue::Reuse { group, .. } | Issue::Similar { group, .. } => Some(*group),
+            _ => None,
+        }
+    }
     pub fn kind(&self) -> Kind {
         match self {
             Issue::Leak { .. } => Kind::Leak,
             Issue::Breach { .. } => Kind::Breach,
             Issue::Reuse { .. } => Kind::Reuse,
+            Issue::Similar { .. } => Kind::Similar,
             Issue::Weak { .. } => Kind::Weak,
             Issue::Nofa { .. } => Kind::Nofa,
             Issue::Stale { .. } => Kind::Stale,

@@ -61,7 +61,7 @@ export function Issues() {
     const base = q ? report?.items ?? [] : flagged;
     return base.filter((i) => (!listFilter || has(i, listFilter)) && (!q || i.title.toLowerCase().includes(q) || (i.domain ?? "").includes(q) || (i.url ?? "").toLowerCase().includes(q)));
   }, [flagged, report, listFilter, q]);
-  const bulk = flagged.filter((i) => i.issues.some((x) => x.kind === "leak" || x.kind === "breach" || x.kind === "reuse"));
+  const bulk = flagged.filter((i) => i.issues.some((x) => x.kind === "leak" || x.kind === "breach" || x.kind === "reuse" || x.kind === "similar"));
   if (!report) return <><h1 className="title">{t.isTitle}</h1><p className="lead">{t.firstTitle}</p></>;
   const sel = rows.find((r) => r.id === selId) ?? rows[0];
   const chip = (k: (typeof KINDS)[number] | null, label: string, n: number) => (

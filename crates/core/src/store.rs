@@ -188,7 +188,10 @@ impl Store {
                         Ok(v) => Ok(Some(v)),
                         Err(e) => {
                             let ts = chrono::Local::now().format("%Y%m%d-%H%M%S");
-                            let _ = std::fs::rename(&path, self.dir.join(format!("{name}.broken-{ts}")));
+                            let _ = std::fs::rename(
+                                &path,
+                                self.dir.join(format!("{name}.broken-{ts}")),
+                            );
                             Err(format!("broken:{e}"))
                         }
                     };
@@ -242,7 +245,10 @@ impl Store {
             Ok(Some(s)) => s.sanitized(),
             Ok(None) => Settings::default(),
             // 読めないときは外へ問い合わせない側に倒す
-            Err(_) => Settings { offline: true, ..Settings::default() },
+            Err(_) => Settings {
+                offline: true,
+                ..Settings::default()
+            },
         }
     }
     pub fn save_settings(&self, s: Settings) -> Result<Settings, String> {
@@ -276,154 +282,127 @@ impl Store {
     /// 診断結果を保存し、履歴を足す。新しく見つかった問題の数を返す。
     pub fn record_scan(&self, r: &Report) -> Result<usize, String> {
         self.locked(|| {
-        self.save_report(r)?;
-        self.update_state(|s| {
-            let keys: BTreeSet<String> = r
-                .items
-                .iter()
-                .flat_map(|i| {
-                    i.issues
-                        .iter()
-                        .map(move |x| format!("{}:{}", i.id, x.kind().as_str()))
-                })
-                .collect();
-            let first = s.history.is_empty() && s.known.is_empty();
-            let new_issues = if first {
-                0
-            } else {
-                keys.difference(&s.known).count()
-            };
-            s.known = keys;
-            s.history.push(HistoryEntry {
-                at: r.scanned_at.clone(),
-                score: r.score,
-                flagged: r.flagged_count(),
-                new_issues,
-            });
-            if s.history.len() > 200 {
-                let cut = s.history.len() - 200;
-                s.history.drain(..cut);
-            }
-            new_issues
-        })
+            self.save_report(r)?;
+            self.update_state(|s| {
+                let keys: BTreeSet<String> = r
+                    .items
+                    .iter()
+                    .flat_map(|i| {
+                        i.issues
+                            .iter()
+                            .map(move |x| format!("{}:{}", i.id, x.kind().as_str()))
+                    })
+                    .collect();
+                let first = s.history.is_empty() && s.known.is_empty();
+                let new_issues = if first {
+                    0
+                } else {
+                    keys.difference(&s.known).count()
+                };
+                s.known = keys;
+                s.history.push(HistoryEntry {
+                    at: r.scanned_at.clone(),
+                    score: r.score,
+                    flagged: r.flagged_count(),
+                    new_issues,
+                });
+                if s.history.len() > 200 {
+                    let cut = s.history.len() - 200;
+                    s.history.drain(..cut);
+                }
+                new_issues
             })
+        })
     }
 
     /// パスワードを変えた項目の札を外し、記録する
     pub fn mark_changed(&self, id: &str) -> Result<Option<Report>, String> {
         self.locked(|| {
-        let Some(mut r) = self.report() else {
-            return Ok(None);
-        };
-        let mut title = String::new();
-        let mut group = None;
-        let mut changed = false;
-        if let Some(it) = r.items.iter_mut().find(|i| i.id == id) {
-            title = it.title.clone();
-            changed = it.issues.iter().any(|x| x.kind().fixed_by_password_change());
-            group = it.issues.iter().find_map(|x| match x {
-                crate::model::Issue::Reuse { group, .. } => Some(*group),
-                _ => None,
-            });
-            it.issues.retain(|x| !x.kind().fixed_by_password_change());
-        }
-        if let Some(g) = group {
-            // 同じパスワードの仲間が1件だけになったら、その札も外す
-            let mates: Vec<usize> = r
-                .items
-                .iter()
-                .enumerate()
-                .filter(|(_, i)| {
-                    i.issues.iter().any(
-                        |x| matches!(x, crate::model::Issue::Reuse { group, .. } if *group == g),
-                    )
-                })
-                .map(|(n, _)| n)
-                .collect();
-            for &n in &mates {
-                let others: Vec<String> = mates
+            let Some(mut r) = self.report() else {
+                return Ok(None);
+            };
+            let mut title = String::new();
+            let mut groups: Vec<(Kind, u32)> = vec![];
+            let mut changed = false;
+            if let Some(it) = r.items.iter_mut().find(|i| i.id == id) {
+                title = it.title.clone();
+                changed = it
+                    .issues
                     .iter()
-                    .filter(|&&m| m != n)
-                    .map(|&m| r.items[m].title.clone())
+                    .any(|x| x.kind().fixed_by_password_change());
+                groups = it
+                    .issues
+                    .iter()
+                    .filter_map(|x| x.group().map(|g| (x.kind(), g)))
                     .collect();
-                let it = &mut r.items[n];
-                if others.is_empty() {
-                    it.issues.retain(|x| x.kind() != Kind::Reuse);
-                } else {
-                    for x in it.issues.iter_mut() {
-                        if let crate::model::Issue::Reuse {
-                            others: o, total, ..
-                        } = x
-                        {
-                            *total = others.len() as u32;
-                            *o = others.iter().take(3).cloned().collect();
-                        }
-                    }
+                it.issues.retain(|x| !x.kind().fixed_by_password_change());
+            }
+            // 同じ（似た）パスワードの仲間が1件だけになったら、その札も外す
+            for (kind, g) in groups {
+                regroup(&mut r, kind, g);
+            }
+            r.recompute();
+            self.save_report(&r)?;
+            if !changed {
+                return Ok(Some(r));
+            }
+            self.update_state(|s| {
+                s.fixed.push(FixedEntry {
+                    at: now(),
+                    id: id.to_string(),
+                    title,
+                });
+                if s.fixed.len() > 1000 {
+                    s.fixed.remove(0);
                 }
-            }
-        }
-        r.recompute();
-        self.save_report(&r)?;
-        if !changed {
-            return Ok(Some(r));
-        }
-        self.update_state(|s| {
-            s.fixed.push(FixedEntry {
-                at: now(),
-                id: id.to_string(),
-                title,
-            });
-            if s.fixed.len() > 1000 {
-                s.fixed.remove(0);
-            }
-        })?;
-        Ok(Some(r))
-            })
+            })?;
+            Ok(Some(r))
+        })
     }
 
     pub fn set_in_use(&self, id: &str, on: bool) -> Result<Option<Report>, String> {
         self.locked(|| {
-        self.update_state(|s| {
+            self.update_state(|s| {
+                if on {
+                    s.in_use.insert(id.to_string());
+                } else {
+                    s.in_use.remove(id);
+                }
+            })?;
+            let Some(mut r) = self.report() else {
+                return Ok(None);
+            };
             if on {
-                s.in_use.insert(id.to_string());
-            } else {
-                s.in_use.remove(id);
+                if let Some(it) = r.items.iter_mut().find(|i| i.id == id) {
+                    it.issues.retain(|x| x.kind() != Kind::Stale);
+                }
+                r.recompute();
+                self.save_report(&r)?;
             }
-        })?;
-        let Some(mut r) = self.report() else {
-            return Ok(None);
-        };
-        if on {
-            if let Some(it) = r.items.iter_mut().find(|i| i.id == id) {
-                it.issues.retain(|x| x.kind() != Kind::Stale);
-            }
-            r.recompute();
-            self.save_report(&r)?;
-        }
-        Ok(Some(r))
-            })
+            Ok(Some(r))
+        })
     }
 
     pub fn cancel_add(&self, id: &str) -> Result<(), String> {
         self.locked(|| {
-        let r = self.report();
-        let it = r.as_ref().and_then(|r| r.items.iter().find(|i| i.id == id));
-        let title = it
-            .map(|i| i.title.clone())
-            .unwrap_or_else(|| id.to_string());
-        let domain = it.and_then(|i| i.domain.clone());
-        self.update_state(|s| {
-            s.cancel.entry(id.to_string()).or_insert(CancelEntry {
-                state: "todo".into(),
-                title,
-                domain,
-                added_at: now(),
-                left_at: None,
-                archived_at: None,
-                receipt: None,
-            });
-        })
+            let r = self.report();
+            let it = r.as_ref().and_then(|r| r.items.iter().find(|i| i.id == id));
+            let title = it
+                .map(|i| i.title.clone())
+                .unwrap_or_else(|| id.to_string());
+            let domain = it.and_then(|i| i.domain.clone());
+            self.update_state(|s| {
+                s.cancel.entry(id.to_string()).or_insert(CancelEntry {
+                    state: "todo".into(),
+                    title,
+                    domain,
+                    added_at: now(),
+                    left_at: None,
+                    archived_at: None,
+                    receipt: None,
+                });
             })
+        })
     }
 
     pub fn cancel_set(&self, id: &str, state: &str, receipt: Option<String>) -> Result<(), String> {
@@ -452,13 +431,13 @@ impl Store {
     /// 保管庫へ移した項目を結果から外す
     pub fn remove_item(&self, id: &str) -> Result<(), String> {
         self.locked(|| {
-        if let Some(mut r) = self.report() {
-            r.items.retain(|i| i.id != id);
-            r.recompute();
-            self.save_report(&r)?;
-        }
-        Ok(())
-            })
+            if let Some(mut r) = self.report() {
+                r.items.retain(|i| i.id != id);
+                r.recompute();
+                self.save_report(&r)?;
+            }
+            Ok(())
+        })
     }
 
     pub fn add_pending(
@@ -497,6 +476,51 @@ impl Store {
             let pos = s.pending.iter().position(|p| p.id == id)?;
             Some(s.pending.remove(pos))
         })
+    }
+}
+
+/// まとまり g の残りの仲間を数え直す
+fn regroup(r: &mut Report, kind: Kind, g: u32) {
+    let mates: Vec<usize> = r
+        .items
+        .iter()
+        .enumerate()
+        .filter(|(_, i)| {
+            i.issues
+                .iter()
+                .any(|x| x.kind() == kind && x.group() == Some(g))
+        })
+        .map(|(n, _)| n)
+        .collect();
+    for &n in &mates {
+        let names: Vec<String> = mates
+            .iter()
+            .filter(|&&m| m != n)
+            .map(|&m| r.items[m].title.clone())
+            .collect();
+        let it = &mut r.items[n];
+        if names.is_empty() {
+            it.issues
+                .retain(|x| !(x.kind() == kind && x.group() == Some(g)));
+            continue;
+        }
+        for x in it.issues.iter_mut().filter(|x| x.kind() == kind) {
+            if let crate::model::Issue::Reuse {
+                group,
+                others,
+                total,
+            }
+            | crate::model::Issue::Similar {
+                group,
+                others,
+                total,
+            } = x
+                && *group == g
+            {
+                *total = names.len() as u32;
+                *others = names.iter().take(3).cloned().collect();
+            }
+        }
     }
 }
 
