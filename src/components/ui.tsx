@@ -3,11 +3,22 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Kind } from "../lib/types";
 import { useApp } from "../store";
 
-export const kc = (k: Kind) => ({ "--c": `var(--c-${k})` }) as CSSProperties;
+/** 危険な種類（赤で見せるのはこの2つだけ） */
+export const isBad = (k: Kind) => k === "leak" || k === "breach";
 
 export function Tag({ k }: { k: Kind }) {
   const { t } = useApp();
-  return <span className="tag" style={kc(k)}>{t.kind[k]}</span>;
+  return <span className={`tag${isBad(k) ? " bad" : ""}`}>{t.kind[k]}</span>;
+}
+
+/** 0〜1 の量を、伸び縮み（transform）で見せる棒 */
+export function Meter({ value, tone, thin, label }: { value: number; tone?: "cool"; thin?: boolean; label?: string }) {
+  const v = Math.max(0, Math.min(1, value));
+  return (
+    <div className={`meter${tone ? " " + tone : ""}${thin ? " thin" : ""}`} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+      <i style={{ transform: `scaleX(${v})` } as CSSProperties} />
+    </div>
+  );
 }
 
 export function Logo({ size = 26 }: { size?: number }) {
@@ -15,7 +26,7 @@ export function Logo({ size = 26 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 26 26" aria-hidden="true">
       <circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
       <circle cx="13" cy="13" r="6" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
-      <path d="M13 13 L22 7" stroke="var(--coral)" strokeWidth="2" strokeLinecap="round" />
+      <path d="M13 13 L22 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <circle cx="13" cy="13" r="2" fill="currentColor" />
     </svg>
   );
@@ -35,8 +46,8 @@ export function NavIcon({ name }: { name: string }) {
 export function SearchIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" style={{ flex: "none" }}>
-      <circle cx="6" cy="6" r="4.5" fill="none" stroke="var(--ink3)" strokeWidth="1.6" />
-      <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="var(--ink3)" strokeWidth="1.6" />
+      <circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.6" />
     </svg>
   );
 }
@@ -44,8 +55,8 @@ export function SearchIcon() {
 export function Lock() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-      <rect x="2" y="5" width="8" height="6" rx="1.5" fill="var(--ink3)" />
-      <path d="M4 5 V3.5 a2 2 0 0 1 4 0 V5" fill="none" stroke="var(--ink3)" strokeWidth="1.4" />
+      <rect x="2" y="5" width="8" height="6" rx="1.5" fill="currentColor" />
+      <path d="M4 5 V3.5 a2 2 0 0 1 4 0 V5" fill="none" stroke="currentColor" strokeWidth="1.4" />
     </svg>
   );
 }
@@ -117,15 +128,14 @@ export function CopyTimer({ what, seconds, stamp }: { what: string | null; secon
   if (!what) return <div className="timer" />;
   return (
     <div className="timer" aria-live="polite">
-      <span>{left > 0 ? t.copied(what, left) : t.cleared}</span>
-      <i><b style={{ width: `${(left / seconds) * 100}%` }} /></i>
+      <span>{left > 0 ? t.copiedWhat(what) : t.cleared}</span>
+      {left > 0 && <span className="left">{t.leftSec(left)}</span>}
+      <Meter value={left / seconds} tone="cool" thin />
     </div>
   );
 }
 
-export function riskColor(r: number) {
-  return r >= 0.8 ? "var(--c-leak)" : r >= 0.55 ? "var(--c-reuse)" : "var(--ink3)";
-}
+
 
 export function fmtDate(s: string | null | undefined, f: (d: Date) => string) {
   if (!s) return "—";

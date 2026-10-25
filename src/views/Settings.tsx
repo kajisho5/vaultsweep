@@ -58,14 +58,14 @@ export function SettingsView() {
           {conn && !("error" in conn) && (
             <>
               <div className="okbox"><b>{t.sConnOk}</b></div>
-              <div className="set-row">{t.sConnVer}<small className="mono">{conn.version}</small></div>
+              <div className="set-row">{t.sConnVer}<small className="m">{conn.version}</small></div>
               <div className="set-row">{t.sConnVaults}<small>{conn.vaults}</small></div>
-              {conn.account && <div className="set-row">{t.sConnAcct}<small className="mono">{conn.account}</small></div>}
+              {conn.account && <div className="set-row">{t.sConnAcct}<small className="m">{conn.account}</small></div>}
             </>
           )}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-            <button className="btn primary small" disabled={connBusy} onClick={testConn}>{connBusy ? "…" : t.sConnTest}</button>
-            <button className="btn ghost small" onClick={() => api.openUrl("https://www.1password.dev/cli/get-started").catch(fail)}>{t.setupLink}</button>
+            <button type="button" className="btn primary small" disabled={connBusy} onClick={testConn}>{connBusy ? "…" : t.sConnTest}</button>
+            <button type="button" className="btn small" onClick={() => api.openUrl("https://www.1password.dev/cli/get-started").catch(fail)}>{t.setupLink}</button>
           </div>
         </div>
 
@@ -127,8 +127,8 @@ export function SettingsView() {
 
         <div className="card">
           <h2>{t.sMcp}</h2><p className="cap">{t.sMcpCap}</p>
-          <div className="codebox mono">{config}</div>
-          <button className="btn ghost small" onClick={() => api.copyPlain(config).then(() => toast(t.configCopied)).catch(fail)}>{t.copyConfig}</button>
+          <div className="codebox m">{config}</div>
+          <button type="button" className="btn small" onClick={() => api.copyPlain(config).then(() => toast(t.configCopied)).catch(fail)}>{t.copyConfig}</button>
           <div className="set-row">{t.sMcpGive}<small>{t.sMcpGiveV}</small></div>
           <div className="set-row">{t.sMcpNot}<small>{t.sMcpNotV}</small></div>
           <div className="set-row">{t.sMcpAsk}<small>{t.sMcpAskV}</small></div>
@@ -140,27 +140,27 @@ export function SettingsView() {
             <b style={{ fontSize: 14 }}>{t.sHibp}</b>
             <p className="cap" style={{ margin: "4px 0 8px" }}>{t.sHibpCap}</p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <input className="inp mono" style={{ flex: 1, minWidth: 200 }} placeholder={t.sHibpPh} value={keyRef} aria-label={t.sHibp}
+              <input className="inp m" style={{ flex: 1, minWidth: 200 }} placeholder={t.sHibpPh} value={keyRef} aria-label={t.sHibp}
                 onChange={(e) => { setKeyRef(e.target.value); setKeyOk(null); }}
                 onBlur={() => up({ hibp_key_ref: keyRef.trim().startsWith("op://") ? keyRef.trim() : null })} />
-              <button className="btn ghost small" disabled={!keyRef.trim().startsWith("op://")} onClick={async () => {
+              <button type="button" className="btn small" disabled={!keyRef.trim().startsWith("op://")} onClick={async () => {
                 try { setKeyOk(await api.testKeyRef(keyRef.trim())); await up({ hibp_key_ref: keyRef.trim() }); } catch { setKeyOk(false); }
               }}>{t.sHibpTest}</button>
-              <button className="btn ghost small" onClick={() => api.openUrl("https://haveibeenpwned.com/API/Key").catch(fail)}>{t.sHibpGet}</button>
+              <button type="button" className="btn small" onClick={() => api.openUrl("https://haveibeenpwned.com/API/Key").catch(fail)}>{t.sHibpGet}</button>
             </div>
-            {keyOk != null && <p className="cap" style={{ margin: "6px 0 0", color: keyOk ? "var(--ok)" : "var(--coral)" }}>{keyOk ? t.sHibpOk : t.sHibpNg}</p>}
+            {keyOk != null && <p className="cap" style={{ margin: "6px 0 0", color: keyOk ? "var(--color-ok)" : "var(--color-bad)" }}>{keyOk ? t.sHibpOk : t.sHibpNg}</p>}
           </div>
         </div>
 
         <div className="card">
           <h2>{t.sData}</h2><p className="cap">{t.sDataCap}</p>
           {t.src.map(([name, what, url]) => (
-            <div className="src" key={name}><button className="linkbtn" onClick={() => api.openUrl(url).catch(fail)}>{name}</button><span>{what}</span></div>
+            <div className="src" key={name}><button type="button" className="linkbtn" onClick={() => api.openUrl(url).catch(fail)}>{name}</button><span>{what}</span></div>
           ))}
           <p className="cap" style={{ marginTop: 10 }}>{t.attribution}</p>
           <h2 style={{ marginTop: 18 }}>{t.sOther}</h2>
-          <div className="set-row">{t.sExport}<button className="btn ghost small" disabled={!report} onClick={exportCsv}>CSV</button></div>
-          <div className="set-row">{t.sDataDir}<small className="mono" style={{ overflowWrap: "anywhere", textAlign: "right" }}>{api.demo ? t.demoDir : boot.data_dir}</small></div>
+          <div className="set-row">{t.sExport}<button type="button" className="btn small" disabled={!report} onClick={exportCsv}>CSV</button></div>
+          <div className="set-row">{t.sDataDir}<small className="m" style={{ overflowWrap: "anywhere", textAlign: "right" }}>{api.demo ? t.demoDir : boot.data_dir}</small></div>
           <div className="set-row">{t.sVersion}<small>{boot.version}</small></div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useApp, type View } from "./store";
-import { Logo, NavIcon, SearchIcon } from "./components/ui";
+import { Logo, Meter, NavIcon, SearchIcon } from "./components/ui";
 import { Overview } from "./views/Overview";
 import { Issues } from "./views/Issues";
 import { Change } from "./views/Change";
@@ -27,10 +27,9 @@ function Sidebar() {
   return (
     <aside className="side">
       <div className="logo"><Logo />vaultsweep</div>
-      <div className="acct"><i>1P</i><div><b>1Password</b><small>{report ? t.vaults(vaults) : boot.version && `v${boot.version}`}</small></div></div>
       <nav className="nav" aria-label={t.menu}>
         {NAV.map((n) => (
-          <button key={n.v} aria-current={parent(view) === n.v ? "page" : undefined} onClick={() => go(n.v)}>
+          <button type="button" key={n.v} aria-current={parent(view) === n.v ? "page" : undefined} onClick={() => go(n.v)}>
             <NavIcon name={n.key} />{t.nav[n.key]}
             {n.v === "issues" && report && <span className="badge">{flagged}</span>}
             {n.v === "cancel" && cancelN > 0 && <span className="badge">{cancelN}</span>}
@@ -39,10 +38,11 @@ function Sidebar() {
       </nav>
       <div className="side-foot">
         {settings.auto_scan ? (
-          <div className="auto"><b>{t.autoOn(`${t.sched[settings.schedule]} ${settings.schedule_time}`)}</b><span>{nr ? t.nextRun(t.dateTime(nr)) : ""}</span></div>
+          <><span className="label">{t.autoOn(`${t.sched[settings.schedule]} ${settings.schedule_time}`)}</span>{nr && <span className="value">{t.nextRun(t.dateTime(nr))}</span>}</>
         ) : (
-          <div className="auto off"><b>{t.autoOff}</b><span>{t.autoOffSub}</span></div>
+          <><span className="label">{t.autoOff}</span><span className="sub">{t.autoOffSub}</span></>
         )}
+        <span className="sub">{report ? t.vaults(vaults) : boot.version ? `1Password · v${boot.version}` : "—"}</span>
       </div>
     </aside>
   );
@@ -70,9 +70,9 @@ function Topbar() {
           onChange={(e) => { setQuery(e.target.value); setListFilter(null); if (view !== "issues") void go("issues"); }} />
         <kbd>Ctrl K</kbd>
       </label>
-      <button className={`chipbtn${pend ? " alert" : ""}`} onClick={() => go("settings")}>{pend ? t.aiRequests(pend) : t.mcpChip}</button>
-      <button className={`scan${scanning ? " busy" : ""}`} onClick={() => void scan()} disabled={scanning}>
-        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8 A5.5 5.5 0 1 1 11.8 4" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" /><path d="M12.5 1.5 V4.5 H9.5" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      <button type="button" className={`chipbtn${pend ? " alert" : ""}`} onClick={() => go("settings")}>{pend ? t.aiRequests(pend) : t.mcpChip}</button>
+      <button type="button" className="btn" onClick={() => void scan()} disabled={scanning} aria-busy={scanning}>
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8 A5.5 5.5 0 1 1 11.8 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /><path d="M12.5 1.5 V4.5 H9.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
         <span>{scanning ? t.scanning : t.scan}</span>
       </button>
     </header>
@@ -86,8 +86,8 @@ function ScanProgress() {
   const pct = cnt && cnt.total ? Math.round((cnt.done / cnt.total) * 100) : null;
   return (
     <div className="overlay-scan" role="status" aria-live="polite">
-      <b>{t.stage[progress.stage]}</b>{cnt && pct != null && <span style={{ color: "var(--ink3)" }}> {cnt.done} / {cnt.total}</span>}
-      <div className="bar" style={{ margin: "8px 0 0" }}><b style={{ width: `${pct ?? (progress.stage === "lists" ? 90 : 15)}%` }} /></div>
+      <b>{t.stage[progress.stage]}</b>{cnt && pct != null && <span className="m cool"> {cnt.done} / {cnt.total}</span>}
+      <Meter value={(pct ?? (progress.stage === "lists" ? 90 : 15)) / 100} tone="cool" thin />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "../store";
-import { Tag } from "../components/ui";
+import { Tag, Meter } from "../components/ui";
 import { mainKind, type Item } from "../lib/types";
 import { SiteActions, useChanger, useLeaveGuard } from "./changeKit";
 
@@ -53,21 +53,21 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): v
   return (
     <div className="card">
       <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-        <div><h2 style={{ fontSize: 19 }}>{it.title}</h2><div style={{ color: "var(--ink2)", fontSize: 13 }}>{it.domain}</div></div>
+        <div><h2>{it.title}</h2><div className="mutedc" style={{ fontSize: "var(--text-sm)" }}>{it.domain}</div></div>
         <div className="tags">{it.issues.map((x) => <Tag key={x.kind} k={x.kind} />)}</div>
       </div>
       <ol className="how">
-        <li style={gen ? { color: "var(--ok)" } : undefined}>{t.bStep1} {gen ? "✓" : ""}</li>
+        <li style={gen ? { color: "var(--color-ok)" } : undefined}>{t.bStep1} {gen ? "✓" : ""}</li>
         <li>{t.bStep2}</li>
       </ol>
       {it.passkey_site && !gen && <div className="warn">{t.passkeyWarn}</div>}
       {!gen ? (
-        <button className="btn primary" disabled={ch.phase === "busy"} onClick={async () => { if (await ch.generate()) toast(t.bGenerated); }}>{ch.phase === "busy" ? "…" : t.bGen}</button>
+        <button type="button" className="btn primary" disabled={ch.phase === "busy"} onClick={async () => { if (await ch.generate()) toast(t.bGenerated); }}>{ch.phase === "busy" ? "…" : t.bGen}</button>
       ) : <SiteActions ch={ch} />}
       <div className="actions">
-        <button className="btn primary" disabled={!gen} onClick={done}>{t.bNext}</button>
-        <button className="btn ghost" disabled={ch.phase === "busy"} onClick={skip}>{t.bSkip}</button>
-        {gen && <button className="btn ghost" onClick={() => void ch.restore()}>{t.bUndo}</button>}
+        <button type="button" className={`btn${gen ? " primary" : ""}`} disabled={!gen} onClick={done}>{t.bNext}</button>
+        <button type="button" className="btn" disabled={ch.phase === "busy"} onClick={skip}>{t.bSkip}</button>
+        {gen && <button type="button" className="btn" onClick={() => void ch.restore()}>{t.bUndo}</button>}
       </div>
       <p className="cap" style={{ marginTop: 12 }}>{t.bKeys}</p>
     </div>
@@ -88,21 +88,21 @@ export function Batch() {
   useEffect(() => { if (finished && changed > 0) celebrate(); }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
-      <button className="btn ghost" onClick={() => go("issues")} style={{ marginBottom: 14 }}>{t.back}</button>
+      <button type="button" className="btn" onClick={() => go("issues")} style={{ marginBottom: "var(--space-md)" }}>{t.back}</button>
       <h1 className="title">{finished ? t.bTitleDone(snap.length) : t.bTitle(snap.length)}</h1>
       <p className="lead">{t.bLead}</p>
       <div className="grid2" style={{ gridTemplateColumns: "minmax(280px,.8fr) minmax(0,1.4fr)" }}>
         <div className="card">
           <h2>{t.bQueue}</h2>
           <p className="cap">{t.bProg(nDone, snap.length, changed, skipped)}</p>
-          <div className="bar"><b style={{ width: `${snap.length ? (nDone / snap.length) * 100 : 0}%` }} /></div>
+          <Meter value={snap.length ? nDone / snap.length : 0} tone="cool" />
           <ul className="queue">
             {snap.map((p, i) => {
               const st = q[i];
               const k = mainKind(p);
               return (
                 <li key={p.id} className={st === "todo" ? (i === idx ? "now" : "") : st}>
-                  <span className="st">{st === "done" ? "✓" : st === "skip" ? "–" : i + 1}</span>{p.title}<small>{k ? t.kind[k] : ""}</small>
+                  <span className="st">{st === "done" ? "✓" : st === "skip" ? "–" : String(i + 1).padStart(2, "0")}</span>{p.title}<small>{k ? t.kind[k] : ""}</small>
                 </li>
               );
             })}
@@ -113,7 +113,7 @@ export function Batch() {
             <h2>{t.bEndTitle}</h2>
             <p className="cap">{t.bEndCap(changed)}</p>
             <div className="okbox"><b>{t.scoreUp(startScore, report?.score ?? startScore)}</b><p>{t.doneNext}</p></div>
-            <button className="btn primary" style={{ marginTop: 8 }} onClick={() => go("issues")}>{t.toList}</button>
+            <button type="button" className="btn primary" style={{ marginTop: 8 }} onClick={() => go("issues")}>{t.toList}</button>
           </div>
         ) : (
           <Current key={snap[idx].id} it={item(snap[idx].id) ?? snap[idx]} onDone={() => set(idx, "done")} onSkip={() => set(idx, "skip")} />

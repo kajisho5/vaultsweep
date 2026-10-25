@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../store";
-import { CountUp, Spark, Tag, fmtDate, kc } from "../components/ui";
+import { CountUp, Meter, Spark, Tag, fmtDate, isBad } from "../components/ui";
 import { KINDS, PASSWORD_KINDS, mainKind, type Item, type Pending } from "../lib/types";
 import { issueText } from "../lib/i18n";
 import { siteUrl } from "../lib/api";
@@ -26,8 +26,8 @@ export function PendingBar() {
         <div className="pending" key={p.id}>
           <span><b>{t.pendingTitle}</b>{t.colon}{p.kind === "archive" ? t.pendingArchive(p.title) : t.pendingChange(p.title)}</span>
           <span style={{ display: "flex", gap: 8 }}>
-            <button className="btn ghost small" disabled={!!busy} onClick={() => resolve(p, false)}>{t.deny}</button>
-            <button className={`btn small ${p.kind === "archive" ? "coral" : "primary"}`} disabled={!!busy} onClick={() => resolve(p, true)}>{t.approve}</button>
+            <button type="button" className="btn small" disabled={!!busy} onClick={() => resolve(p, false)}>{t.deny}</button>
+            <button type="button" className="btn small" disabled={!!busy} onClick={() => resolve(p, true)}>{t.approve}</button>
           </span>
         </div>
       ))}
@@ -43,7 +43,7 @@ function FirstRun() {
       <p className="lead">{t.firstLead}</p>
       <div className="card" style={{ maxWidth: 640 }}>
         <ol className="how">{t.firstSteps.map((s) => <li key={s}>{s}</li>)}</ol>
-        <button className="btn coral" onClick={() => void scan()} disabled={scanning}>{scanning ? t.scanning : t.scan}</button>
+        <button type="button" className="btn primary" onClick={() => void scan()} disabled={scanning}>{scanning ? t.scanning : t.scan}</button>
       </div>
     </>
   );
@@ -78,7 +78,6 @@ export function Overview() {
   const hist = state.history;
   const prev = hist.length >= 2 ? hist[hist.length - 2].score : null;
   const delta = prev == null ? null : report.score - prev;
-  const lastNew = hist.length ? hist[hist.length - 1].new_issues : 0;
   const week = Date.now() - 7 * 86400000;
   const fixedWeek = state.fixed.filter((f) => new Date(f.at).getTime() >= week).length;
   let streak = 0;
@@ -89,9 +88,10 @@ export function Overview() {
   const cancel = Object.values(state.cancel);
   const cancelOpen = cancel.filter((c) => c.state !== "archived").length;
   const cancelLeft = cancel.filter((c) => c.state === "left").length;
+  const simReuse = flaggedItems.filter((i) => i.issues.some((x) => x.kind === "reuse" || x.kind === "similar")).length;
   const max = Math.max(1, ...KINDS.map((k) => report.counts[k] ?? 0));
-  const byMain = (k: (typeof KINDS)[number]) => flaggedItems.filter((i) => mainKind(i) === k).length;
   const todos = todoIds.map((e) => ({ ...e, it: item(e.id) }));
+  const scanned = fmtDate(report.scanned_at, (d) => `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`);
 
   return (
     <>
@@ -102,72 +102,83 @@ export function Overview() {
       {report.warnings.includes("hibp_failed") && <div className="warn">{t.warnHibp}</div>}
       {report.warnings.includes("hibp_partial") && <div className="warn">{t.warnPartial}</div>}
       {report.warnings.filter((w) => w.startsWith("skipped:")).map((w) => <div className="warn" key={w}>{t.warnSkipped(Number(w.slice(8)) || 0)}</div>)}
-      <div className="kpis">
-        <div className="kpi"><span>{t.k1}</span><strong><CountUp value={report.score} /></strong><small>{t.k1d(delta)}</small></div>
-        <div className="kpi"><span>{t.k2}</span><strong><CountUp value={flagged} /></strong><small>{t.k2d(lastNew)}</small></div>
-        <div className="kpi"><span>{t.k4}</span><strong><CountUp value={fixedWeek} /></strong><small>{t.k4d(streak)}</small></div>
-        <div className="kpi"><span>{t.k3}</span><strong><CountUp value={cancelOpen} /></strong><small>{t.k3d(cancelLeft)}</small></div>
-      </div>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="prog-head"><h2>{t.progTitle}</h2><span>{pct}%</span></div>
-        <div className="prog-bar" role="img" aria-label={`${pct}%`}>
-          <i className="clean" style={{ width: shown ? `${(clean / Math.max(1, total)) * 100}%` : 0 }} />
-          {KINDS.map((k) => <i key={k} className="pseg" style={{ ...kc(k), width: shown ? `${(byMain(k) / Math.max(1, total)) * 100}%` : 0 }} />)}
+
+      <div className="reading-row">
+        <section className="reading" aria-label={t.k1}>
+          <div className="head"><span>{t.rdLabel}</span>{prev != null && <span className="was" aria-label={String(prev)}>{prev}</span>}</div>
+          <div className="value"><span className="big"><CountUp value={report.score} /></span><span className="of">/ 100</span></div>
+          <div className="meta">
+            {delta != null && <span className={delta >= 0 ? "okc" : "badc"}>{t.k1d(delta)}</span>}
+            <span className="cool">{t.rdAt(scanned)}</span>
+          </div>
+        </section>
+        <div className="figs">
+          <div className="fig"><span>{t.k2}</span><div><strong><CountUp value={flagged} /></strong><small className="m">/ {total}</small></div></div>
+          <div className="fig"><span>{t.k4}</span><div><strong><CountUp value={fixedWeek} /></strong><small>{t.k4d(streak)}</small></div></div>
+          <div className="fig"><span>{t.k3}</span><div><strong><CountUp value={cancelOpen} /></strong><small>{t.k3d(cancelLeft)}</small></div></div>
+          <div className="fig"><span>{t.kSim}</span><div><strong><CountUp value={simReuse} /></strong></div></div>
         </div>
-        <p className="cap" style={{ margin: "10px 0 0" }}>{flagged ? t.progMsg(clean, total, more, goal) : t.progAll}</p>
       </div>
-      <div className="grid2" style={{ gridTemplateColumns: "minmax(0,1.1fr) minmax(320px,1fr)" }}>
-        <div className="card">
+
+      <section style={{ marginBottom: "var(--space-xl)" }}>
+        <div className="prog-head"><h2>{t.progTitle}</h2><span>{pct}%</span></div>
+        <Meter value={shown ? clean / Math.max(1, total) : 0} label={`${pct}%`} />
+        <p className="cap" style={{ margin: "var(--space-xs) 0 0" }}>{flagged ? t.progMsg(clean, total, more, goal) : t.progAll}</p>
+      </section>
+
+      <div className="grid2" style={{ gridTemplateColumns: "minmax(0,1.5fr) minmax(320px,1fr)" }}>
+        <section className="sec">
           <h2>{t.todoTitle}</h2>
           <p className="cap">{t.todoCap}</p>
           <div className="todo">
-            {todos.length === 0 && <p className="cap">{t.todoEmpty}</p>}
+            {todos.length === 0 && <p className="cap" style={{ marginTop: "var(--space-md)" }}>{t.todoEmpty}</p>}
             {todos.map(({ id, kind, it }, i) => {
               const fixed = !it || !it.issues.some((x) => x.kind === kind);
               const k = it ? mainKind(it) : null;
               const a = it ? act(it) : null;
+              const firstOpen = todos.findIndex((x) => x.it && x.it.issues.some((y) => y.kind === x.kind));
               return (
-                <div key={id} className={`todo-item${fixed ? " is-fixed" : ""}`} style={{ animationDelay: `${i * 120}ms` }}>
-                  <div className="num">{fixed ? "✓" : i + 1}</div>
+                <div key={id} className={`todo-item${fixed ? " is-fixed" : ""}`}>
+                  <div className="num">{fixed ? "✓" : String(i + 1).padStart(2, "0")}</div>
                   <div>
                     <h3>{it?.title ?? "—"}</h3>
                     {it && k && !fixed && <p>{issueText(it.issues.find((x) => x.kind === k)!, t)}</p>}
                     {it && <div className="tags">{it.issues.map((x) => <Tag key={x.kind} k={x.kind} />)}</div>}
                   </div>
-                  {fixed || !a ? <span className="done-label" style={{ color: "var(--ok)", fontWeight: 700, fontSize: 13 }}>{t.todoDone}</span>
-                    : <button className={`btn ${i === 0 ? "coral" : "primary"}`} onClick={a.run}>{a.label}</button>}
+                  {fixed || !a ? <span className="done-label">{t.todoDone}</span>
+                    : <button type="button" className={`btn${i === firstOpen ? " primary" : ""}`} onClick={a.run}>{a.label}</button>}
                 </div>
               );
             })}
           </div>
-        </div>
-        <div>
-          <div className="card" style={{ marginBottom: 16 }}>
+        </section>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xl)" }}>
+          <section className="sec">
             <h2>{t.brTitle}</h2>
             <p className="cap">{t.brCap}</p>
             <div className="brk">
               {KINDS.map((k) => (
-                <button key={k} style={kc(k)} onClick={() => { setListFilter(k); setQuery(""); void go("issues"); }}>
-                  <i /><span>{t.kind[k]}<small>{t.kindDesc[k]}</small></span><b>{report.counts[k] ?? 0}</b>
-                  <span className="mini"><span style={{ width: `${((report.counts[k] ?? 0) / max) * 100}%` }} /></span><span className="chev">›</span>
+                <button type="button" key={k} className={isBad(k) ? "bad" : ""} onClick={() => { setListFilter(k); setQuery(""); void go("issues"); }}>
+                  <span className="name">{t.kind[k]}<small>{t.kindDesc[k]}</small></span>
+                  <span className="n">{report.counts[k] ?? 0}</span>
+                  <Meter value={(report.counts[k] ?? 0) / max} tone="cool" thin />
                 </button>
               ))}
             </div>
-          </div>
-          <div className="card">
+          </section>
+          <section className="sec">
             <h2>{t.trendTitle}</h2>
             <p className="cap">{hist.length >= 2 ? t.trendCap : t.trendFew}</p>
             <Spark values={hist.slice(-12).map((h) => h.score)} label={t.trendTitle} />
-          </div>
+          </section>
           {report.email_breaches.length > 0 && (
-            <div className="card" style={{ marginTop: 16 }}>
+            <section className="sec">
               <h2>{t.emailTitle}</h2>
-              {report.email_breaches.map((e) => <div className="src" key={e.masked}>{e.masked}<span>{e.breaches.join(", ")}</span></div>)}
-            </div>
+              {report.email_breaches.map((e) => <div className="src" key={e.masked}><span className="m">{e.masked}</span><span>{e.breaches.join(", ")}</span></div>)}
+            </section>
           )}
         </div>
       </div>
     </>
   );
 }
-

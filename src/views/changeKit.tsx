@@ -103,10 +103,16 @@ export function SiteActions({ ch }: { ch: ReturnType<typeof useChanger> }) {
   const { t } = useApp();
   return (
     <>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button className="btn coral" onClick={ch.openPage}>{t.openChange}</button>
-        <button className="btn ghost" onClick={() => ch.doCopy("old")}>{t.copyOld}</button>
-        <button className="btn ghost" onClick={() => ch.doCopy("new")}>{t.copyNew}</button>
+      <div style={{ marginBottom: "var(--space-sm)" }}>
+        <button type="button" className="btn" onClick={ch.openPage}>{t.openChange}</button>
+      </div>
+      <div className="secret">
+        <div><div className="k">{t.oldPw}</div><span className="v" aria-hidden="true">{t.masked8}</span></div>
+        <button type="button" className="btn small" aria-label={t.copyOld} onClick={() => ch.doCopy("old")}>{t.copy}</button>
+      </div>
+      <div className="secret">
+        <div><div className="k">{t.newPw}</div><span className="v" aria-hidden="true">{t.masked8}</span><span className="note">{t.savedNote}</span></div>
+        <button type="button" className="btn small" aria-label={t.copyNew} onClick={() => ch.doCopy("new")}>{t.copy}</button>
       </div>
       <CopyTimer what={ch.copy.what} seconds={ch.copy.seconds} stamp={ch.copy.stamp} />
     </>

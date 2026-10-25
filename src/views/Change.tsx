@@ -15,7 +15,7 @@ export function Change() {
 
   useLeaveGuard(ch);
 
-  if (!it) return <><button className="btn ghost" onClick={() => go("issues")}>{t.back}</button></>;
+  if (!it) return <><button type="button" className="btn" onClick={() => go("issues")}>{t.back}</button></>;
   const step = done ? 4 : ch.phase === "generated" ? 2 : 1;
 
   const confirm = async () => {
@@ -34,17 +34,20 @@ export function Change() {
 
   return (
     <>
-      <button className="btn ghost" onClick={() => go("issues")} style={{ marginBottom: 14 }}>{t.back}</button>
+      <button type="button" className="btn" onClick={() => go("issues")} style={{ marginBottom: "var(--space-md)" }}>{t.back}</button>
       <h1 className="title">{t.chTitle(it.title)}</h1>
       <p className="lead">{t.chLead}</p>
-      <div className="steps">
-        {t.chSteps.map((l, i) => (
-          <span key={l} style={{ display: "contents" }}>
-            {i > 0 && <span className="step-line" />}
-            <span className={`step ${i + 1 < step ? "done" : i + 1 === step ? "now" : ""}`}><span className="dot">{i + 1 < step ? "✓" : i + 1}</span>{l}</span>
-          </span>
-        ))}
-      </div>
+      <ol className="steps" style={{ listStyle: "none", padding: 0 }}>
+        {t.chSteps.map((l, i) => {
+          const s = i + 1 < step ? "done" : i + 1 === step ? "now" : "";
+          return (
+            <li key={l} className={`step ${s}`} aria-current={s === "now" ? "step" : undefined}>
+              <span className="dot">{String(i + 1).padStart(2, "0")}</span><span>{l}</span>
+              {s && <span className="st">{t.stStatus[s]}</span>}
+            </li>
+          );
+        })}
+      </ol>
       <div className="grid2">
         <div className="card">
           {done ? (
@@ -53,8 +56,8 @@ export function Change() {
               <p className="cap">{t.doneCap}</p>
               <div className="okbox"><b>{t.scoreUp(done.before, done.after)}</b><p>{done.nofa ? t.doneNext2fa : t.doneNext}</p></div>
               <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                <button className="btn primary" onClick={() => go("issues")}>{t.toList}</button>
-                {done.nofa && <button className="btn ghost" onClick={() => { const u = it.twofa_doc ?? siteUrl(it); if (u) api.openUrl(u).catch(fail); }}>{t.action.twofa}</button>}
+                <button type="button" className="btn primary" onClick={() => go("issues")}>{t.toList}</button>
+                {done.nofa && <button type="button" className="btn" onClick={() => { const u = it.twofa_doc ?? siteUrl(it); if (u) api.openUrl(u).catch(fail); }}>{t.action.twofa}</button>}
               </div>
             </>
           ) : ch.phase !== "generated" ? (
@@ -63,7 +66,7 @@ export function Change() {
               <p className="cap">{t.genCap(settings.pw_length, settings.pw_symbols)}</p>
               <div className="tags" style={{ marginBottom: 12 }}>{it.issues.map((x) => <Tag key={x.kind} k={x.kind} />)}</div>
               {it.passkey_site && <div className="warn">{t.passkeyWarn}</div>}
-              <button className="btn coral" disabled={ch.phase === "busy"} onClick={() => void ch.generate()}>{ch.phase === "busy" ? "…" : t.genBtn}</button>
+              <button type="button" className="btn primary" disabled={ch.phase === "busy"} onClick={() => void ch.generate()}>{ch.phase === "busy" ? "…" : t.genBtn}</button>
             </>
           ) : (
             <>
@@ -72,8 +75,8 @@ export function Change() {
               <ol className="how">{t.siteHow.map((s) => <li key={s}>{s}</li>)}</ol>
               <SiteActions ch={ch} />
               <div className="actions">
-                <button className="btn primary" disabled={saving} onClick={confirm}>{t.saved}</button>
-                <button className="btn ghost" onClick={() => void ch.restore()}>{t.undo}</button>
+                <button type="button" className="btn primary" disabled={saving} onClick={confirm}>{t.saved}</button>
+                <button type="button" className="btn" onClick={() => void ch.restore()}>{t.undo}</button>
               </div>
             </>
           )}

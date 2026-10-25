@@ -3,7 +3,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Api } from "./lib/api";
 import { DICTS, type Dict, type Lang } from "./lib/i18n";
 import { mainKind, type ApiError, type Boot, type Item, type Kind, type Progress, type Report, type Settings, type State } from "./lib/types";
-import { confetti } from "./lib/confetti";
 
 export type View = "overview" | "issues" | "change" | "batch" | "cancel" | "cflow" | "history" | "settings";
 
@@ -61,6 +60,8 @@ function resolveTheme(t: Settings["theme"]) {
   if (t === "system") return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   return t;
 }
+const noop = () => {};
+
 export function applyTheme(t: Settings["theme"]) {
   const r = resolveTheme(t);
   document.documentElement.dataset.theme = r;
@@ -240,7 +241,7 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
     changeId, startChange: (id: string) => { setChangeId(id); void go("change"); },
     batchIds, startBatch: (ids: string[]) => { setBatchIds(ids); void go("batch"); },
     flowId, startFlow: (id: string) => { setFlowId(id); void go("cflow"); },
-    todoIds, item, confirmArchive, celebrate: confetti, leaveGuard,
+    todoIds, item, confirmArchive, celebrate: noop, leaveGuard,
   }), [api, boot, t, lang, report, state, settings, nextRun, view, go, saveSettings, toast, ask, errText, fail, scan, scanning, progress, listFilter, query, selId, changeId, batchIds, flowId, todoIds, item, confirmArchive]);
 
   return (
@@ -248,7 +249,6 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
       {children}
       {modal && <Modal spec={modal} close={closeModal} />}
       <div className={`toast${toastMsg.on ? " on" : ""}`} role="status" aria-live="polite">{toastMsg.m}</div>
-      <canvas id="confetti" aria-hidden="true" />
     </C.Provider>
   );
 }
@@ -276,10 +276,10 @@ function Modal({ spec, close }: { spec: ModalSpec; close(v: string): void }) {
       <div className="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" ref={box}>
         <h2 id="mTitle">{spec.title}</h2>
         <p style={{ whiteSpace: "pre-line" }}>{spec.body}</p>
-        {spec.cmd && <div className="cmd mono">{spec.cmd}</div>}
+        {spec.cmd && <div className="cmd m">{spec.cmd}</div>}
         <div className="btns">
           {spec.buttons.map((b) => (
-            <button key={b.value} className={`btn ${b.kind ?? "ghost"}`} onClick={() => close(b.value)}>{b.label}</button>
+            <button key={b.value} type="button" className={`btn${b.kind && b.kind !== "ghost" ? ` ${b.kind}` : ""}`} onClick={() => close(b.value)}>{b.label}</button>
           ))}
         </div>
       </div>

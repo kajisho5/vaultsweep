@@ -17,30 +17,30 @@ export function CancelBoard() {
       <p className="lead">{t.cLead}</p>
       {staleNot > 0 && (
         <div className="bulkbar"><span>{t.cSuggest(staleNot)}</span>
-          <button className="btn ghost" onClick={() => { setListFilter("stale"); setQuery(""); void go("issues"); }}>{t.cSuggestBtn}</button></div>
+          <button type="button" className="btn" onClick={() => { setListFilter("stale"); setQuery(""); void go("issues"); }}>{t.cSuggestBtn}</button></div>
       )}
       <div className="kanban">
         {cols.map((c) => {
           const list = entries.filter(([, e]) => e.state === c).sort((a, b) => b[1].added_at.localeCompare(a[1].added_at));
           return (
             <div className="col" key={c}>
-              <h3>{t.cCols[c]} <span>{list.length}</span></h3>
-              {list.length === 0 && <p className="cap" style={{ margin: "0 4px" }}>{t.cEmpty}</p>}
+              <div className="colhead"><h3>{t.cCols[c]}</h3><span>{list.length}</span></div>
+              {list.length === 0 && <p className="cap" style={{ padding: "var(--space-md) var(--space-lg)", margin: 0 }}>{t.cEmpty}</p>}
               {list.map(([id, e]) => {
                 const it = item(id);
                 const diff = it?.deletion ? t.difficulty[it.deletion.difficulty] ?? it.deletion.difficulty : t.difficulty.none;
                 const sub = c === "todo" ? diff : c === "left" ? t.cLeftAt(fmtDate(e.left_at, t.date)) : t.cArchivedAt(fmtDate(e.archived_at, t.date));
                 return (
-                  <div className="kcard" key={id} style={c === "archived" ? { opacity: 0.85 } : undefined}>
+                  <div className={`kcard${c === "archived" ? " archived" : ""}`} key={id}>
                     <h4>{e.title}</h4>
                     <small>{e.domain ?? "—"}{t.dot}{sub}</small>
                     <div className="btns">
                       {c === "todo" && <>
-                        <button className="btn primary small" disabled={!it} onClick={() => startFlow(id)}>{t.cStart}</button>
-                        <button className="btn ghost small" onClick={() => set(id, "left")}>{t.cLeft}</button>
-                        <button className="linkbtn" style={{ fontSize: 12, color: "var(--ink3)" }} onClick={() => set(id, "remove")}>{t.cRemove}</button>
+                        <button type="button" className="btn small" disabled={!it} onClick={() => startFlow(id)}>{t.cStart}</button>
+                        <button type="button" className="btn small" onClick={() => set(id, "left")}>{t.cLeft}</button>
+                        <button type="button" className="linkbtn" style={{ fontSize: "var(--text-xs)", color: "var(--color-muted)" }} onClick={() => set(id, "remove")}>{t.cRemove}</button>
                       </>}
-                      {c === "left" && <button className="btn coral small" disabled={!it} onClick={() => void confirmArchive(id, e.title)}>{t.cArchive}</button>}
+                      {c === "left" && <button type="button" className="btn coral small" disabled={!it} onClick={() => void confirmArchive(id, e.title)}>{t.cArchive}</button>}
                       {c === "archived" && <small>{t.cRestore}</small>}
                     </div>
                   </div>

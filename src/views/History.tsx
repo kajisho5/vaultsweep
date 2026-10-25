@@ -17,14 +17,14 @@ export function History() {
       <table className="tbl">
         <thead><tr><th>{t.thDate}</th><th>{t.thScore}</th><th>{t.thFlagged}</th><th className="hide-sm">{t.thNew}</th></tr></thead>
         <tbody>
-          {h.length === 0 && <tr><td colSpan={4} style={{ color: "var(--ink3)" }}>{t.firstTitle}</td></tr>}
+          {h.length === 0 && <tr><td colSpan={4} style={{ color: "var(--color-muted)" }}>{t.firstTitle}</td></tr>}
           {[...h].reverse().map((x, i, arr) => {
             const prev = arr[i + 1];
             const dd = prev ? x.score - prev.score : null;
             return (
               <tr key={x.at + i}>
                 <td>{fmtDate(x.at, t.date)}</td>
-                <td><b>{x.score}</b> {dd != null && <small style={{ color: dd >= 0 ? "var(--ok)" : "var(--c-leak)" }}>{dd >= 0 ? "+" : ""}{dd}</small>}</td>
+                <td><b className="m">{x.score}</b> {dd != null && <small style={{ color: dd >= 0 ? "var(--color-ok)" : "var(--color-bad)" }}>{dd >= 0 ? "+" : ""}{dd}</small>}</td>
                 <td>{t.countUnit(x.flagged)}</td>
                 <td className="hide-sm">{x.new_issues ? t.countUnit(x.new_issues) : t.none}</td>
               </tr>
