@@ -3,6 +3,7 @@
 # - 自動リリース：package.json の版番号（例 0.1.0）のリリース v0.1.0 がまだ無ければ、
 #   Mac 版を runway で Developer ID 署名・公証し、全部そろったらリリースを作って .exe と .dmg を置く
 #   → 新しい版を出すときは、版番号を上げて main に push するだけ
+# - 自動更新：Secrets に TAURI_SIGNING_PRIVATE_KEY があれば、更新用のファイル（署名つき）と latest.json もリリースに置く
 name: build
 
 on:
@@ -22,13 +23,16 @@ jobs:
       tag: ${{ steps.v.outputs.tag }}
       release: ${{ steps.v.outputs.release }}
       version: ${{ steps.v.outputs.version }}
+      signing: ${{ steps.v.outputs.signing }}
     steps:
       - uses: actions/checkout@v7
       - id: v
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          UPDATER_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         run: |
+          if [ -n "$UPDATER_KEY" ]; then echo "signing=true" >> "$GITHUB_OUTPUT"; else echo "signing=false" >> "$GITHUB_OUTPUT"; echo "::warning::TAURI_SIGNING_PRIVATE_KEY が無いので、自動更新のファイルは作らない"; fi
           tag="v$(jq -r .version package.json)"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
@@ -158,10 +162,43 @@ jobs:
         target/universal-apple-darwin/release/bundle/macos/vaultsweep.app
     secrets: inherit
 
+  # 自動更新用：公証済みの dmg からアプリを取り出し、まとめる（.app.tar.gz）
+  mac-updater:
+    needs: [plan, mac-notarized]
+    if: needs.plan.outputs.release == 'true' && needs.plan.outputs.signing == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: vaultsweep-notarized
+          path: notarized
+      - name: アプリを取り出して固める
+        env:
+          VER: ${{ needs.plan.outputs.version }}
+        run: |
+          set -euo pipefail
+          dmg=$(ls notarized/*.dmg | head -1)
+          mnt=$(mktemp -d)
+          hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mnt"
+          mkdir -p out work
+          ditto "$mnt/vaultsweep.app" work/vaultsweep.app
+          hdiutil detach "$mnt"
+          # 公証の札をアプリにも付ける（失敗しても先へ。オンラインでの確認は効く）
+          for n in 1 2 3; do xcrun stapler staple work/vaultsweep.app && break; sleep $((n * 10)); done || true
+          codesign --verify --deep --strict --verbose=2 work/vaultsweep.app
+          COPYFILE_DISABLE=1 tar -czf "out/vaultsweep_${VER}_universal.app.tar.gz" -C work vaultsweep.app
+          ls -la out
+      - uses: actions/upload-artifact@v7
+        with:
+          name: vaultsweep-updater-mac
+          path: out/*.app.tar.gz
+          if-no-files-found: error
+
   # 全部そろったらリリースを作って置く（どれか失敗したらリリースは作らない）
   publish:
-    needs: [plan, windows, mac, mac-notarized]
-    if: needs.plan.outputs.release == 'true'
+    needs: [plan, windows, mac, mac-notarized, mac-updater]
+    # mac-updater は鍵が無いと飛ばされる。そのときもリリースは作る
+    if: always() && needs.plan.outputs.release == 'true' && needs.windows.result == 'success' && needs.mac.result == 'success' && needs.mac-notarized.result == 'success' && (needs.mac-updater.result == 'success' || needs.mac-updater.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v8
@@ -172,6 +209,37 @@ jobs:
         with:
           name: vaultsweep-notarized
           path: out
+      - uses: actions/download-artifact@v8
+        if: needs.plan.outputs.signing == 'true'
+        with:
+          name: vaultsweep-updater-mac
+          path: out
+      - uses: actions/setup-node@v7
+        if: needs.plan.outputs.signing == 'true'
+        with:
+          node-version: 22
+      - name: 自動更新のファイルに署名して latest.json を作る
+        if: needs.plan.outputs.signing == 'true'
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
+          TAG: ${{ needs.plan.outputs.tag }}
+          VER: ${{ needs.plan.outputs.version }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          exe=$(ls out/*.exe | head -1); tgz=$(ls out/*.app.tar.gz | head -1)
+          for f in "$exe" "$tgz"; do npx --yes @tauri-apps/cli@2.12.4 signer sign "$f"; done
+          base="https://github.com/$REPO/releases/download/$TAG"
+          jq -n --arg v "$VER" --arg d "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg wu "$base/$(basename "$exe")" --rawfile ws "$exe.sig" \
+            --arg mu "$base/$(basename "$tgz")" --rawfile ms "$tgz.sig" \
+            --arg notes "https://github.com/$REPO/releases/tag/$TAG" \
+            '{version: $v, notes: $notes, pub_date: $d, platforms: {
+               "windows-x86_64": {url: $wu, signature: ($ws|rtrimstr("\n"))},
+               "darwin-aarch64": {url: $mu, signature: ($ms|rtrimstr("\n"))},
+               "darwin-x86_64": {url: $mu, signature: ($ms|rtrimstr("\n"))}}}' > out/latest.json
+          cat out/latest.json
       - name: リリースを作る
         env:
           GH_TOKEN: ${{ github.token }}
@@ -179,8 +247,10 @@ jobs:
           TAG: ${{ needs.plan.outputs.tag }}
         run: |
           ls -la out
+          files=(out/*.exe out/*.dmg)
+          [ -f out/latest.json ] && files+=(out/*.app.tar.gz out/latest.json)
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" out/*.exe out/*.dmg --clobber
+            gh release upload "$TAG" "${files[@]}" --clobber
           else
-            gh release create "$TAG" out/*.exe out/*.dmg --target "$GITHUB_SHA" --title "$TAG" --generate-notes
+            gh release create "$TAG" "${files[@]}" --target "$GITHUB_SHA" --title "$TAG" --generate-notes
           fi
