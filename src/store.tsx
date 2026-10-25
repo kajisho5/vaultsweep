@@ -196,6 +196,8 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
       try {
         const r = await api.saveSettings(s);
         setSettings(r.settings);
+        // デモでは言語を変えると架空の名前も入れ替わるので、読み直す
+        if (api.demo && s.lang !== prev.lang) { const b = await api.bootstrap(); setReport(b.report); setStateRaw(b.state); }
         setNextRun(r.next_run);
         return r.schedule_error;
       } catch (e) {

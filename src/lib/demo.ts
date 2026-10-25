@@ -2,7 +2,15 @@
 
 // 見ている人の言語が日本語なら日本語の架空の名前、それ以外は英語の架空の名前（英語の画面に日本語が混ざらないように）
 const DEMO_JA = typeof navigator !== "undefined" && (navigator.language || "en").toLowerCase().startsWith("ja");
-const L = (ja: string, en: string) => (DEMO_JA ? ja : en);
+// 日本語と英語の組を覚えておき、設定で言語を切り替えたら名前も入れ替える
+const PAIRS: [string, string][] = [];
+const L = (ja: string, en: string) => { PAIRS.push([ja, en]); return DEMO_JA ? ja : en; };
+function relabel<T>(data: T, toJa: boolean): T {
+  let s = JSON.stringify(data);
+  const list = [...PAIRS].sort((a, b) => (toJa ? b[1].length - a[1].length : b[0].length - a[0].length));
+  for (const [ja, en] of list) s = s.split(toJa ? en : ja).join(toJa ? ja : en);
+  return JSON.parse(s) as T;
+}
 import type { Api } from "./api";
 import type { Boot, CancelEntry, Issue, Item, Kind, Pending, Report, Settings, State } from "./types";
 import { KINDS, PASSWORD_KINDS, SEVERITY } from "./types";
@@ -170,6 +178,7 @@ export function demoApi(): Api {
     return null;
   };
   const find = (id: string) => db.report.items.find((i) => i.id === id);
+  let namesJa = DEMO_JA;
   const sysLang = (navigator.language || "en").toLowerCase().startsWith("ja") ? "ja" : "en";
   const removeItem = (id: string) => { db.report.items = db.report.items.filter((i) => i.id !== id); recompute(db.report); };
   return {
@@ -188,7 +197,10 @@ export function demoApi(): Api {
       on({ stage: "done" });
       return { report: clone(db.report), new_issues: 0 };
     },
-    async saveSettings(s) { settings = clone(s); return { settings: clone(settings), next_run: nextRun(), schedule_error: null }; },
+    async saveSettings(s) {
+      const toJa = s.lang ? s.lang === "ja" : DEMO_JA;
+      if (toJa !== namesJa) { db.report = relabel(db.report, toJa); db.state = relabel(db.state, toJa); namesJa = toJa; }
+      settings = clone(s); return { settings: clone(settings), next_run: nextRun(), schedule_error: null }; },
     async setInUse(id, on) {
       if (on) { if (!db.state.in_use.includes(id)) db.state.in_use.push(id); const it = find(id); if (it) it.issues = it.issues.filter((x) => x.kind !== "stale"); recompute(db.report); }
       else db.state.in_use = db.state.in_use.filter((x) => x !== id);

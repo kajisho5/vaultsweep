@@ -344,7 +344,7 @@ const en: Dict = {
   deletionInfo: (d) => `How to cancel: ${d}`,
   difficulty: { easy: "Deletion page (easy)", medium: "Deletion page (medium)", hard: "Contact required (hard)", impossible: "Cannot delete", limited: "Partly deletable", none: "No info" },
   setTwofa: "Set up 2FA", toCancel: "Add to cancel list", inCancel: "On the cancel list",
-  markInUse: "I use this — dismiss", unmarkInUse: "Remove “in use” mark",
+  markInUse: "Mark as in use", unmarkInUse: "Remove “in use” mark",
   inUseOn: "Marked as in use. It won't show as “likely unused”", inUseOff: "Mark removed. It can show as “likely unused” again from the next scan",
   archiveDup: "Clean up this login",
   safe: "Passwords are never shown on this screen.",

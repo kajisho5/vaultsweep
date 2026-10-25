@@ -97,7 +97,6 @@ function ScanProgress() {
   );
 }
 
-/** 押したボタンが消えたり画面が変わったりしたら、キーボードの位置を今の画面の見出しへ移す（ページの先頭へ戻らないように） */
 /** 画面に入るとき、カードや見出しを下から浮かび上がらせる（画面の中に入ったものから順に） */
 function useReveal(view: string) {
   useEffect(() => {
@@ -111,10 +110,14 @@ function useReveal(view: string) {
       el.style.setProperty("--rv-d", `${Math.min(i, 8) * 60}ms`);
       io.observe(el);
     });
-    return () => io.disconnect();
+    // 浮かび上がる途中の部品にキーボードで入ったら、すぐ見える状態にする
+    const onFocus = (e: FocusEvent) => { (e.target as Element)?.closest?.(".rv")?.classList.add("in"); };
+    document.addEventListener("focusin", onFocus);
+    return () => { io.disconnect(); document.removeEventListener("focusin", onFocus); };
   }, [view]);
 }
 
+/** 押したボタンが消えたり画面が変わったりしたら、キーボードの位置を今の画面の見出しへ移す（ページの先頭へ戻らないように） */
 function useFocusKeeper(view: string) {
   const last = useRef<Element | null>(null);
   const first = useRef(true);
