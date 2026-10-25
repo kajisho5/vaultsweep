@@ -168,7 +168,7 @@ export function demoApi(): Api {
   return {
     demo: true,
     async bootstrap(): Promise<Boot> {
-      return { settings: clone(settings), state: clone(db.state), report: clone(db.report), data_dir: "（デモ）", mcp_path: "C:\\Users\\sample\\AppData\\Local\\vaultsweep\\vaultsweep-mcp.exe", next_run: nextRun(), os: "demo", version: "0.1.0", system_lang: sysLang };
+      return { settings: clone(settings), state: clone(db.state), report: clone(db.report), data_dir: "(demo)", mcp_path: "C:\\Users\\sample\\AppData\\Local\\vaultsweep\\vaultsweep-mcp.exe", next_run: nextRun(), os: "demo", version: "0.1.0", system_lang: sysLang };
     },
     async checkConnection() { await sleep(300); return { version: "2.41.1", vaults: 3, account: "sample.1password.example" }; },
     async runScan(on) {
@@ -226,7 +226,7 @@ export function demoApi(): Api {
       db.state.fixed.push({ at: iso(new Date()), id, title: it.title });
       return clone(db.report);
     },
-    async changeRestore(id) { await sleep(300); const it = find(id); if (it?.passkey_site) throw { code: "passkey_risk" }; const s = sessions.get(id); if (s) s.generated = false; },
+    async changeRestore(id, noPasskey) { await sleep(300); const it = find(id); if (it?.passkey_site || !noPasskey) throw { code: "passkey_risk" }; const s = sessions.get(id); if (s) s.generated = false; },
     async changeEnd(id) { sessions.delete(id); },
     async archive(id) {
       await sleep(400);
@@ -246,7 +246,7 @@ export function demoApi(): Api {
       if (p && approve && p.kind === "archive") removeItem(p.item_id);
       return { pending: p, state: clone(db.state) };
     },
-    async exportCsv() { return "（デモのため保存しません）"; },
+    async exportCsv() { return "-"; },
     async testKeyRef(r) { await sleep(300); return r.startsWith("op://"); },
   };
 }

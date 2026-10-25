@@ -22,6 +22,14 @@ impl HttpFetcher {
         let client = reqwest::blocking::Client::builder()
             .user_agent(concat!("vaultsweep/", env!("CARGO_PKG_VERSION")))
             .timeout(std::time::Duration::from_secs(30))
+            // 転送先も許可した相手だけ
+            .redirect(reqwest::redirect::Policy::custom(|a| {
+                if a.previous().len() < 5 && allowed(a.url().as_str()) {
+                    a.follow()
+                } else {
+                    a.stop()
+                }
+            }))
             .build()
             .map_err(|e| e.to_string())?;
         Ok(HttpFetcher { client })

@@ -110,21 +110,37 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
     toastTimer.current = window.setTimeout(() => setToastMsg((x) => ({ ...x, on: false })), 2800);
   }, []);
 
-  const ask = useCallback((m: ModalSpec) => new Promise<string>((resolve) => setModal({ ...m, resolve })), []);
-  const closeModal = (v: string) => { modal?.resolve(v); setModal(null); };
+  const modalRef = useRef<(ModalSpec & { resolve(v: string): void }) | null>(null);
+  const ask = useCallback((m: ModalSpec) => new Promise<string>((resolve) => {
+    // 前の確認が開いたままなら「何も選ばなかった」で閉じる
+    modalRef.current?.resolve("");
+    const next = { ...m, resolve };
+    modalRef.current = next;
+    setModal(next);
+  }), []);
+  const closeModal = useCallback((v: string) => {
+    const cur = modalRef.current;
+    modalRef.current = null;
+    setModal(null);
+    cur?.resolve(v);
+  }, []);
 
   const errText = useCallback((e: unknown) => {
-    const x = e as Partial<ApiError> | string;
-    if (typeof x === "string") return x;
-    const code = x?.code ?? "other";
+    if (e == null) return t.err.other;
+    if (typeof e === "string") return e;
+    const x = e as Partial<ApiError> & { detail?: string };
+    const code = x.code ?? "other";
+    const detail = typeof x.detail === "string" ? x.detail : undefined;
+    if (code === "not_signed_in" && detail === "timeout") return t.err.timeout;
     const base = t.err[code] ?? t.err.other;
-    const detail = "detail" in (x as object) ? (x as { detail?: string }).detail : undefined;
-    return code === "other" && detail ? `${base}（${detail}）` : base;
+    // 中身の決まった合図（no_session など）は見せない
+    return code === "other" && detail && !/^[a-z_]+$/.test(detail) ? base + t.paren(detail) : base;
   }, [t]);
 
   const fail = useCallback((e: unknown) => {
     const code = (e as ApiError)?.code;
-    if (code === "not_installed" || code === "not_signed_in") {
+    const timeout = (e as { detail?: string })?.detail === "timeout";
+    if (code === "not_installed" || (code === "not_signed_in" && !timeout)) {
       void ask({ title: t.setupTitle, body: errText(e) + "\n\n" + t.firstSteps.map((s, i) => `${i + 1}. ${s}`).join("\n"), buttons: [{ label: t.setupLink, kind: "ghost", value: "link" }, { label: t.ok, kind: "primary", value: "ok" }] })
         .then((v) => { if (v === "link") void api.openUrl("https://www.1password.dev/cli/get-started"); });
     } else toast(errText(e));
@@ -159,17 +175,27 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
     }
   }, [api, fail, scanning, t, toast]);
 
-  const saveSettings = useCallback(async (s: Settings) => {
+  // 保存は順番に1つずつ。失敗したら画面の値を元に戻す
+  const saveQueue = useRef<Promise<unknown>>(Promise.resolve());
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+  const saveSettings = useCallback((s: Settings) => {
+    const prev = settingsRef.current;
     setSettings(s);
-    try {
-      const r = await api.saveSettings(s);
-      setSettings(r.settings);
-      setNextRun(r.next_run);
-      return r.schedule_error;
-    } catch (e) {
-      fail(e);
-      return null;
-    }
+    const job = saveQueue.current.then(async () => {
+      try {
+        const r = await api.saveSettings(s);
+        setSettings(r.settings);
+        setNextRun(r.next_run);
+        return r.schedule_error;
+      } catch (e) {
+        setSettings(prev);
+        fail(e);
+        return null;
+      }
+    });
+    saveQueue.current = job.catch(() => {});
+    return job;
   }, [api, fail]);
 
   const item = useCallback((id: string | null) => (id ? report?.items.find((i) => i.id === id) : undefined), [report]);
@@ -197,7 +223,10 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
       try {
         const b = await api.bootstrap();
         setState(b.state);
-        setReport((r) => (b.report && (!r || b.report.scanned_at !== r.scanned_at) ? b.report : r));
+        setReport((r) => {
+          if (b.report && (!r || b.report.scanned_at !== r.scanned_at)) setTodoIds(topIds(b.report));
+          return b.report ?? r;
+        });
       } catch { /* 次の機会に */ }
     };
     const id = window.setInterval(pull, 30000);
@@ -217,22 +246,43 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
   return (
     <C.Provider value={value}>
       {children}
-      {modal && (
-        <div className="modal-bg" onClick={(e) => { if (e.target === e.currentTarget) closeModal(""); }} onKeyDown={(e) => { if (e.key === "Escape") closeModal(""); }}>
-          <div className="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-            <h2 id="mTitle">{modal.title}</h2>
-            <p style={{ whiteSpace: "pre-line" }}>{modal.body}</p>
-            {modal.cmd && <div className="cmd mono">{modal.cmd}</div>}
-            <div className="btns">
-              {modal.buttons.map((b, i) => (
-                <button key={b.value} className={`btn ${b.kind ?? "ghost"}`} autoFocus={i === modal.buttons.length - 1} onClick={() => closeModal(b.value)}>{b.label}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {modal && <Modal spec={modal} close={closeModal} />}
       <div className={`toast${toastMsg.on ? " on" : ""}`} role="status" aria-live="polite">{toastMsg.m}</div>
       <canvas id="confetti" aria-hidden="true" />
     </C.Provider>
+  );
+}
+
+/** 確認の画面。Esc で閉じる・Tab は中だけを回る・閉じたら元の場所に戻る・最初は「やめる」側に合わせる */
+function Modal({ spec, close }: { spec: ModalSpec; close(v: string): void }) {
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const before = document.activeElement as HTMLElement | null;
+    box.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    const on = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); close(""); return; }
+      if (e.key !== "Tab" || !box.current) return;
+      const bs = [...box.current.querySelectorAll<HTMLElement>("button")];
+      if (!bs.length) return;
+      const i = bs.indexOf(document.activeElement as HTMLElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); bs[bs.length - 1].focus(); }
+      else if (!e.shiftKey && (i === -1 || i === bs.length - 1)) { e.preventDefault(); bs[0].focus(); }
+    };
+    document.addEventListener("keydown", on, true);
+    return () => { document.removeEventListener("keydown", on, true); before?.focus?.(); };
+  }, [spec, close]);
+  return (
+    <div className="modal-bg" onClick={(e) => { if (e.target === e.currentTarget) close(""); }}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" ref={box}>
+        <h2 id="mTitle">{spec.title}</h2>
+        <p style={{ whiteSpace: "pre-line" }}>{spec.body}</p>
+        {spec.cmd && <div className="cmd mono">{spec.cmd}</div>}
+        <div className="btns">
+          {spec.buttons.map((b) => (
+            <button key={b.value} className={`btn ${b.kind ?? "ghost"}`} onClick={() => close(b.value)}>{b.label}</button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

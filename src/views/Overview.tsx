@@ -8,27 +8,26 @@ import { siteUrl } from "../lib/api";
 export function PendingBar() {
   const { state, t, api, setState, setReport, toast, fail, startChange, item } = useApp();
   if (!state.pending.length) return null;
+  const [busy, setBusy] = useState<string | null>(null);
   const resolve = async (p: Pending, approve: boolean) => {
+    if (busy) return;
+    setBusy(p.id);
     try {
-      if (approve && p.kind === "change") {
-        const r = await api.pendingResolve(p.id, false);
-        setState(r.state);
-        if (item(p.item_id)) startChange(p.item_id);
-        return;
-      }
       const r = await api.pendingResolve(p.id, approve);
       setState(r.state);
-      if (approve) { setReport((await api.bootstrap()).report); toast(t.archived); }
-    } catch (e) { fail(e); }
+      if (approve && p.kind === "change") {
+        if (item(p.item_id)) startChange(p.item_id); else toast(t.noRows);
+      } else if (approve) { setReport((await api.bootstrap()).report); toast(t.archived); }
+    } catch (e) { fail(e); } finally { setBusy(null); }
   };
   return (
     <div style={{ marginBottom: 16 }}>
       {state.pending.map((p) => (
         <div className="pending" key={p.id}>
-          <span><b>{t.pendingTitle}</b>：{p.kind === "archive" ? t.pendingArchive(p.title) : t.pendingChange(p.title)}</span>
+          <span><b>{t.pendingTitle}</b>{t.colon}{p.kind === "archive" ? t.pendingArchive(p.title) : t.pendingChange(p.title)}</span>
           <span style={{ display: "flex", gap: 8 }}>
-            <button className="btn ghost small" onClick={() => resolve(p, false)}>{t.deny}</button>
-            <button className={`btn small ${p.kind === "archive" ? "coral" : "primary"}`} onClick={() => resolve(p, true)}>{t.approve}</button>
+            <button className="btn ghost small" disabled={!!busy} onClick={() => resolve(p, false)}>{t.deny}</button>
+            <button className={`btn small ${p.kind === "archive" ? "coral" : "primary"}`} disabled={!!busy} onClick={() => resolve(p, true)}>{t.approve}</button>
           </span>
         </div>
       ))}
@@ -101,6 +100,8 @@ export function Overview() {
       <p className="lead">{t.ovLead(fmtDate(report.scanned_at, t.dateTime), nextRun ? t.dateTime(new Date(nextRun)) : null)}</p>
       {report.warnings.includes("offline") && <div className="warn">{t.warnOffline}</div>}
       {report.warnings.includes("hibp_failed") && <div className="warn">{t.warnHibp}</div>}
+      {report.warnings.includes("hibp_partial") && <div className="warn">{t.warnPartial}</div>}
+      {report.warnings.filter((w) => w.startsWith("skipped:")).map((w) => <div className="warn" key={w}>{t.warnSkipped(Number(w.slice(8)) || 0)}</div>)}
       <div className="kpis">
         <div className="kpi"><span>{t.k1}</span><strong><CountUp value={report.score} /></strong><small>{t.k1d(delta)}</small></div>
         <div className="kpi"><span>{t.k2}</span><strong><CountUp value={flagged} /></strong><small>{t.k2d(lastNew)}</small></div>
@@ -111,7 +112,7 @@ export function Overview() {
         <div className="prog-head"><h2>{t.progTitle}</h2><span>{pct}%</span></div>
         <div className="prog-bar" role="img" aria-label={`${pct}%`}>
           <i className="clean" style={{ width: shown ? `${(clean / Math.max(1, total)) * 100}%` : 0 }} />
-          {KINDS.map((k) => <i key={k} className="seg" style={{ ...kc(k), width: shown ? `${(byMain(k) / Math.max(1, total)) * 100}%` : 0 }} />)}
+          {KINDS.map((k) => <i key={k} className="pseg" style={{ ...kc(k), width: shown ? `${(byMain(k) / Math.max(1, total)) * 100}%` : 0 }} />)}
         </div>
         <p className="cap" style={{ margin: "10px 0 0" }}>{flagged ? t.progMsg(clean, total, more, goal) : t.progAll}</p>
       </div>

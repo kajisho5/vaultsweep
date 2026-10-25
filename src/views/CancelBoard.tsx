@@ -31,9 +31,9 @@ export function CancelBoard() {
                 const diff = it?.deletion ? t.difficulty[it.deletion.difficulty] ?? it.deletion.difficulty : t.difficulty.none;
                 const sub = c === "todo" ? diff : c === "left" ? t.cLeftAt(fmtDate(e.left_at, t.date)) : t.cArchivedAt(fmtDate(e.archived_at, t.date));
                 return (
-                  <div className="kcard" key={id} style={c === "archived" ? { opacity: 0.7 } : undefined}>
+                  <div className="kcard" key={id} style={c === "archived" ? { opacity: 0.85 } : undefined}>
                     <h4>{e.title}</h4>
-                    <small>{e.domain ?? "—"}・{sub}</small>
+                    <small>{e.domain ?? "—"}{t.dot}{sub}</small>
                     <div className="btns">
                       {c === "todo" && <>
                         <button className="btn primary small" disabled={!it} onClick={() => startFlow(id)}>{t.cStart}</button>

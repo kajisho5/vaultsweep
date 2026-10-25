@@ -106,27 +106,60 @@ impl OpRunner for RealOp {
                 OpError::Other(e.to_string())
             }
         })?;
-        if let Some(data) = stdin {
-            use std::io::Write;
-            let mut si = child
-                .stdin
-                .take()
-                .ok_or_else(|| OpError::Other("stdin".into()))?;
-            si.write_all(data)
-                .map_err(|e| OpError::Other(e.to_string()))?;
-            drop(si);
+        // 標準入力は別の流れで書く（op が読みながら書く場合に、お互い待ちで固まらないように）
+        let writer = match (stdin, child.stdin.take()) {
+            (Some(data), Some(mut si)) => {
+                let data = Zeroizing::new(data.to_vec());
+                Some(std::thread::spawn(move || {
+                    use std::io::Write;
+                    let _ = si.write_all(&data);
+                }))
+            }
+            _ => None,
+        };
+        let mut so = child.stdout.take().ok_or_else(|| OpError::Other("stdout".into()))?;
+        let mut se = child.stderr.take().ok_or_else(|| OpError::Other("stderr".into()))?;
+        let rd_out = std::thread::spawn(move || {
+            use std::io::Read;
+            let mut b = Zeroizing::new(Vec::new());
+            let _ = so.read_to_end(&mut b);
+            b
+        });
+        let rd_err = std::thread::spawn(move || {
+            use std::io::Read;
+            let mut b = Vec::new();
+            let _ = se.read_to_end(&mut b);
+            b
+        });
+        // 時間切れ（承認画面を放置したときなど）
+        let deadline = std::time::Instant::now() + OP_TIMEOUT;
+        let status = loop {
+            match child.try_wait() {
+                Ok(Some(st)) => break st,
+                Ok(None) if std::time::Instant::now() >= deadline => {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Err(OpError::NotSignedIn("timeout".into()));
+                }
+                Ok(None) => std::thread::sleep(std::time::Duration::from_millis(50)),
+                Err(e) => return Err(OpError::Other(e.to_string())),
+            }
+        };
+        if let Some(w) = writer {
+            let _ = w.join();
         }
-        let out = child
-            .wait_with_output()
-            .map_err(|e| OpError::Other(e.to_string()))?;
-        let stdout = Zeroizing::new(out.stdout);
-        if out.status.success() {
+        let stdout = rd_out.join().unwrap_or_default();
+        let stderr = rd_err.join().unwrap_or_default();
+        if status.success() {
             Ok(stdout)
         } else {
-            Err(classify_err(&String::from_utf8_lossy(&out.stderr)))
+            Err(classify_err(&String::from_utf8_lossy(&stderr)))
         }
     }
 }
+
+/// op を待つ最長時間（Windows Hello の承認を含む）
+pub const OP_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(180);
 
 pub fn classify_err(stderr: &str) -> OpError {
     let s = stderr.trim();
@@ -260,8 +293,12 @@ pub fn get_logins(
     }
     let mut res = Vec::with_capacity(total);
     for (i, it) in list.iter().enumerate() {
-        check_id(&it.id)?;
-        res.push(get_login(op, &it.id)?);
+        // 読めない項目が1件あっても、ほかは続ける（サインイン・ロックの問題だけは止める）
+        match check_id(&it.id).and_then(|_| get_login(op, &it.id)) {
+            Ok(l) => res.push(l),
+            Err(e @ (OpError::NotSignedIn(_) | OpError::NotInstalled)) => return Err(e),
+            Err(_) => {}
+        }
         progress(i + 1, total);
     }
     Ok(res)

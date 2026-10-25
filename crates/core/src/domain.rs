@@ -34,6 +34,10 @@ pub fn candidates(host: &str) -> Vec<String> {
 
 /// まとまりとしてのサイト（重複の判定用）。簡易に末尾2つ（co.jp などは3つ）
 pub fn site_key(host: &str) -> String {
+    // IP アドレスはまとめない
+    if host.parse::<std::net::IpAddr>().is_ok() || host.starts_with('[') {
+        return host.to_string();
+    }
     let labels: Vec<&str> = host.split('.').collect();
     let n = labels.len();
     if n <= 2 {
@@ -70,5 +74,6 @@ mod tests {
         );
         assert_eq!(site_key("login.shop.example.co.jp"), "example.co.jp");
         assert_eq!(site_key("accounts.example.com"), "example.com");
+        assert_eq!(site_key("192.168.1.1"), "192.168.1.1");
     }
 }

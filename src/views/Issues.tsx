@@ -81,8 +81,8 @@ export function Issues() {
         {chip(null, t.all, flagged.length)}
         {KINDS.map((k) => chip(k, t.kind[k], report.counts[k] ?? 0))}
       </div>
-      <div className="grid2" style={{ gridTemplateColumns: "minmax(0,1.6fr) minmax(320px,1fr)" }}>
-        <div>
+      <div className="grid2 keep2" style={{ gridTemplateColumns: "minmax(0,1.6fr) minmax(320px,1fr)" }}>
+        <div className="tbl-wrap">
           <table className="tbl click">
             <thead><tr><th>{t.thSite}</th><th>{t.thIssues}</th><th className="hide-sm">{t.thUpdated}</th><th>{t.thRisk}</th></tr></thead>
             <tbody>

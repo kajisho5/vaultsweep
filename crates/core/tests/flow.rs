@@ -507,3 +507,64 @@ fn mcp_legacy() {
     assert_eq!(out[4]["result"]["isError"], true);
     let _ = HashMap::<u8, u8>::new();
 }
+
+#[test]
+fn concurrent_state_updates_are_not_lost() {
+    let store = std::sync::Arc::new(tmp_store("concurrent"));
+    let mut hs = vec![];
+    for t in 0..8 {
+        let st = store.clone();
+        hs.push(std::thread::spawn(move || {
+            for i in 0..100 {
+                st.update_state(|s| {
+                    s.in_use.insert(format!("t{t}i{i}"));
+                })
+                .unwrap();
+            }
+        }));
+    }
+    for h in hs {
+        h.join().unwrap();
+    }
+    assert_eq!(store.state().in_use.len(), 800, "同時に書いても消えない");
+}
+
+#[test]
+fn broken_state_file_is_kept_aside() {
+    let store = tmp_store("broken");
+    std::fs::write(store.dir.join("state.json"), b"{not json").unwrap();
+    store.update_state(|s| s.in_use.insert("x".into())).unwrap();
+    let kept = std::fs::read_dir(&store.dir).unwrap().filter_map(|e| e.ok()).any(|e| e.file_name().to_string_lossy().starts_with("state.json.broken-"));
+    assert!(kept, "壊れたファイルは消さずに取っておく");
+    std::fs::write(store.dir.join("settings.json"), b"{oops").unwrap();
+    assert!(store.settings().offline, "設定が読めないときは外へ問い合わせない");
+}
+
+#[test]
+fn url_secrets_are_removed() {
+    use vaultsweep_core::audit::clean_url;
+    assert_eq!(clean_url("https://admin:secret@192.168.1.1/x?token=abc#f").as_deref(), Some("https://192.168.1.1/x"));
+    let op = FakeOp::new();
+    op.items.lock().unwrap()[1]["urls"] = json!([{"primary":true,"href":"https://sample_b:hunter2@sns-b.example/home?session=zzz"}]);
+    let store = tmp_store("urlsecret");
+    scan::run(&op, Some(&FakeNet), &store, &|_| {}).unwrap();
+    let saved = std::fs::read_to_string(store.dir.join("report.json")).unwrap();
+    assert!(!saved.contains("hunter2") && !saved.contains("session=zzz"));
+}
+
+#[test]
+fn one_unreadable_item_does_not_stop_scan() {
+    struct Flaky(FakeOp);
+    impl OpRunner for Flaky {
+        fn run(&self, args: &[&str], stdin: Option<&[u8]>) -> OpResult<Zeroizing<Vec<u8>>> {
+            if args.get(2) == Some(&"-") || args.get(2) == Some(&"dddddddddddddddddddddddddd") {
+                return Err(OpError::Other("permission".into()));
+            }
+            self.0.run(args, stdin)
+        }
+    }
+    let store = tmp_store("flaky");
+    let r = scan::run(&Flaky(FakeOp::new()), Some(&FakeNet), &store, &|_| {}).unwrap().report;
+    assert_eq!(r.total, 4);
+    assert!(r.warnings.contains(&"skipped:1".to_string()));
+}

@@ -31,8 +31,12 @@ pub struct Prepared {
 }
 
 pub fn prepare(l: LoginFull, keep_email: bool) -> Prepared {
-    let host = l.urls.iter().find_map(|u| host_of(u));
-    let url = l.urls.first().cloned();
+    // ドメインと表示用URLは同じURLから取る。URLの中のID・パスワード・?以降・#以降は捨てる
+    let (host, url) = l
+        .urls
+        .iter()
+        .find_map(|u| host_of(u).map(|h| (Some(h), clean_url(u))))
+        .unwrap_or((None, None));
     let (pw_sha256, pw_sha1, strength) = match &l.password {
         Some(p) => {
             let mut h = Sha256::new();
@@ -79,6 +83,21 @@ pub fn prepare(l: LoginFull, keep_email: bool) -> Prepared {
         email,
     }
     // l はここで捨てられ、Zeroizing の中身は消える
+}
+
+/// "https://user:pw@a.example/x?token=1#y" → "https://a.example/x"
+pub fn clean_url(raw: &str) -> Option<String> {
+    let t = raw.trim();
+    let with = if t.contains("://") { t.to_string() } else { format!("https://{t}") };
+    let mut u = url::Url::parse(&with).ok()?;
+    if !matches!(u.scheme(), "http" | "https") {
+        return None;
+    }
+    let _ = u.set_username("");
+    let _ = u.set_password(None);
+    u.set_query(None);
+    u.set_fragment(None);
+    Some(u.to_string())
 }
 
 pub fn risk_of(issues: &[Issue]) -> f64 {

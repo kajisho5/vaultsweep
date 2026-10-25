@@ -1,41 +1,35 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useApp } from "../store";
 import { Tag } from "../components/ui";
 import { has } from "../lib/types";
 import { siteUrl } from "../lib/api";
-import { SiteActions, useChanger } from "./changeKit";
+import { SiteActions, useChanger, useLeaveGuard } from "./changeKit";
 
 export function Change() {
-  const { t, changeId, item, go, api, report, setReport, setState, settings, celebrate, fail, ask, leaveGuard } = useApp();
+  const { t, changeId, item, go, api, report, setReport, setState, settings, celebrate, fail } = useApp();
+  const [saving, setSaving] = useState(false);
   const [snapshot] = useState(() => item(changeId));
   const it = item(changeId) ?? snapshot;
   const ch = useChanger(snapshot);
   const [done, setDone] = useState<{ before: number; after: number; nofa: boolean } | null>(null);
 
-  // 新しいパスワードを作ったまま離れようとしたら確かめる
-  useEffect(() => {
-    leaveGuard.current = async () => {
-      if (ch.phaseRef.current !== "generated") return true;
-      const v = await ask({ title: t.leaveTitle, body: t.leaveBody, buttons: [{ label: t.cancel, kind: "ghost", value: "stay" }, { label: t.leaveKeep, kind: "ghost", value: "keep" }, { label: t.leaveRestore, kind: "primary", value: "restore" }] });
-      if (v === "restore") return ch.restore(true);
-      return v === "keep";
-    };
-    return () => { leaveGuard.current = null; };
-  }, [ask, ch, leaveGuard, t]);
+  useLeaveGuard(ch);
 
   if (!it) return <><button className="btn ghost" onClick={() => go("issues")}>{t.back}</button></>;
   const step = done ? 4 : ch.phase === "generated" ? 2 : 1;
 
   const confirm = async () => {
+    if (saving) return;
+    setSaving(true);
     try {
       const before = report?.score ?? 0;
       const r = await api.changeConfirm(it.id);
       if (r) setReport(r);
       setState((await api.bootstrap()).state);
       ch.finish();
-      setDone({ before, after: r?.score ?? 0, nofa: has(it, "nofa") });
+      setDone({ before, after: r?.score ?? before, nofa: has(it, "nofa") });
       celebrate();
-    } catch (e) { fail(e); }
+    } catch (e) { fail(e); } finally { setSaving(false); }
   };
 
   return (
@@ -78,7 +72,7 @@ export function Change() {
               <ol className="how">{t.siteHow.map((s) => <li key={s}>{s}</li>)}</ol>
               <SiteActions ch={ch} />
               <div className="actions">
-                <button className="btn primary" onClick={confirm}>{t.saved}</button>
+                <button className="btn primary" disabled={saving} onClick={confirm}>{t.saved}</button>
                 <button className="btn ghost" onClick={() => void ch.restore()}>{t.undo}</button>
               </div>
             </>

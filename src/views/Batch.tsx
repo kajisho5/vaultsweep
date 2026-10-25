@@ -2,52 +2,53 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "../store";
 import { Tag } from "../components/ui";
 import { mainKind, type Item } from "../lib/types";
-import { SiteActions, useChanger } from "./changeKit";
+import { SiteActions, useChanger, useLeaveGuard } from "./changeKit";
 
 type St = "todo" | "done" | "skip";
 
 function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): void }) {
-  const { t, api, setReport, setState, fail, toast, ask, leaveGuard } = useApp();
+  const { t, api, setReport, setState, fail, toast } = useApp();
+  const working = useRef(false);
   const ch = useChanger(it);
   const gen = ch.phase === "generated";
 
   const done = async () => {
-    if (!gen) return;
+    if (!gen || working.current) return;
+    working.current = true;
     try {
       const r = await api.changeConfirm(it.id);
       if (r) setReport(r);
       setState((await api.bootstrap()).state);
       ch.finish();
       onDone();
-    } catch (e) { fail(e); }
+    } catch (e) { fail(e); } finally { working.current = false; }
   };
   const skip = async () => {
-    if (gen) {
-      if (!(await ch.restore(true))) return;
-      toast(t.bSkipped);
-    }
-    onSkip();
+    if (ch.phaseRef.current === "busy" || working.current) return;
+    working.current = true;
+    try {
+      if (ch.phaseRef.current === "generated") {
+        if (!(await ch.restore(true))) return;
+        toast(t.bSkipped);
+      }
+      onSkip();
+    } finally { working.current = false; }
   };
   const keys = useRef({ done, skip });
   keys.current = { done, skip };
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.closest("input,select,textarea") || document.querySelector(".modal-bg")) return;
+      // ボタンやリンクに当たっている Enter は、そのボタンの動きを優先する
+      const tg = e.target as HTMLElement | null;
+      if (tg?.closest("input,select,textarea,button,a,[role=switch],[tabindex],[contenteditable]") || document.querySelector(".modal-bg")) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.repeat || e.isComposing) return;
       if (e.key === "Enter") { e.preventDefault(); void keys.current.done(); }
       if (e.key === "s" || e.key === "S") void keys.current.skip();
     };
     addEventListener("keydown", on);
     return () => removeEventListener("keydown", on);
   }, []);
-  useEffect(() => {
-    leaveGuard.current = async () => {
-      if (ch.phaseRef.current !== "generated") return true;
-      const v = await ask({ title: t.leaveTitle, body: t.leaveBody, buttons: [{ label: t.cancel, kind: "ghost", value: "stay" }, { label: t.leaveKeep, kind: "ghost", value: "keep" }, { label: t.leaveRestore, kind: "primary", value: "restore" }] });
-      if (v === "restore") return ch.restore(true);
-      return v === "keep";
-    };
-    return () => { leaveGuard.current = null; };
-  }, [ask, ch, leaveGuard, t]);
+  useLeaveGuard(ch);
 
   return (
     <div className="card">
@@ -65,7 +66,7 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): v
       ) : <SiteActions ch={ch} />}
       <div className="actions">
         <button className="btn primary" disabled={!gen} onClick={done}>{t.bNext}</button>
-        <button className="btn ghost" onClick={skip}>{t.bSkip}</button>
+        <button className="btn ghost" disabled={ch.phase === "busy"} onClick={skip}>{t.bSkip}</button>
         {gen && <button className="btn ghost" onClick={() => void ch.restore()}>{t.bUndo}</button>}
       </div>
       <p className="cap" style={{ marginTop: 12 }}>{t.bKeys}</p>

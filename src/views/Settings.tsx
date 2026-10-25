@@ -37,6 +37,7 @@ export function SettingsView() {
     const rows = report.items.filter((i) => i.issues.length).map((i) => [
       i.title, i.domain ?? "", i.vault, i.issues.map((x) => `${t.kind[x.kind]}: ${issueText(x, t)}`).join(" / "), String(Math.round(i.risk * 100)), i.updated_at?.slice(0, 10) ?? "",
     ]);
+    if (api.demo) { toast(t.demoExport); return; }
     try { toast(t.exported(await api.exportCsv(t.csvHead, rows))); } catch (e) { fail(e); }
   };
 
@@ -88,7 +89,9 @@ export function SettingsView() {
               <select className="select" value={settings.schedule} aria-label={t.sWhen} onChange={(e) => up({ schedule: e.target.value as Settings["schedule"] })}>
                 {(["weekly", "daily", "monthly"] as const).map((s) => <option key={s} value={s}>{t.sched[s]}</option>)}
               </select>
-              <input className="inp" type="time" aria-label={t.sTime} value={settings.schedule_time} onChange={(e) => e.target.value && up({ schedule_time: e.target.value })} />
+              <input className="inp" type="time" aria-label={t.sTime} defaultValue={settings.schedule_time} key={settings.schedule_time}
+                onBlur={(e) => { const v = e.target.value; if (v && v !== settings.schedule_time) void up({ schedule_time: v }); }}
+                onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
             </span>
           </div>
           <div className="set-row">{t.sNotify}
@@ -157,7 +160,7 @@ export function SettingsView() {
           <p className="cap" style={{ marginTop: 10 }}>{t.attribution}</p>
           <h2 style={{ marginTop: 18 }}>{t.sOther}</h2>
           <div className="set-row">{t.sExport}<button className="btn ghost small" disabled={!report} onClick={exportCsv}>CSV</button></div>
-          <div className="set-row">{t.sDataDir}<small className="mono" style={{ overflowWrap: "anywhere", textAlign: "right" }}>{boot.data_dir}</small></div>
+          <div className="set-row">{t.sDataDir}<small className="mono" style={{ overflowWrap: "anywhere", textAlign: "right" }}>{api.demo ? t.demoDir : boot.data_dir}</small></div>
           <div className="set-row">{t.sVersion}<small>{boot.version}</small></div>
         </div>
       </div>

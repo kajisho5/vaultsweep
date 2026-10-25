@@ -36,11 +36,11 @@ pub fn cached(cache_dir: &Path, name: &str, url: &str, f: Option<&dyn Fetcher>) 
         && let Ok((200, body)) = f.get(url, &[])
     {
         let _ = std::fs::create_dir_all(cache_dir);
-        let tmp = path.with_extension("tmp");
-        if std::fs::write(&tmp, &body).is_ok() {
-            let _ = std::fs::rename(&tmp, &path);
+        // 正しい JSON のときだけ保存して使う
+        if serde_json::from_slice::<serde_json::Value>(&body).is_ok() {
+            let _ = crate::store::write_atomic(&path, &body);
+            return Some(body);
         }
-        return Some(body);
     }
     std::fs::read(&path).ok()
 }

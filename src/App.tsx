@@ -28,7 +28,7 @@ function Sidebar() {
     <aside className="side">
       <div className="logo"><Logo />vaultsweep</div>
       <div className="acct"><i>1P</i><div><b>1Password</b><small>{report ? t.vaults(vaults) : boot.version && `v${boot.version}`}</small></div></div>
-      <nav className="nav" aria-label="menu">
+      <nav className="nav" aria-label={t.menu}>
         {NAV.map((n) => (
           <button key={n.v} aria-current={parent(view) === n.v ? "page" : undefined} onClick={() => go(n.v)}>
             <NavIcon name={n.key} />{t.nav[n.key]}
@@ -53,7 +53,7 @@ function Topbar() {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); ref.current?.focus(); }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k" && !document.querySelector(".modal-bg")) { e.preventDefault(); ref.current?.focus(); }
     };
     addEventListener("keydown", on);
     return () => removeEventListener("keydown", on);

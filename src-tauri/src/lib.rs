@@ -141,7 +141,18 @@ async fn save_settings(settings: Settings) -> R<Saved> {
         let sched_changed = before.auto_scan != after.auto_scan
             || before.schedule != after.schedule
             || before.schedule_time != after.schedule_time;
-        let schedule_error = if sched_changed { apply_schedule(&after).err() } else { None };
+        let mut after = after;
+        let mut schedule_error = None;
+        if sched_changed {
+            if let Err(e) = apply_schedule(&after) {
+                schedule_error = Some(e);
+                // 予定を作れなかったら「オン」のままにしない
+                if after.auto_scan {
+                    after.auto_scan = false;
+                    after = st.save_settings(after).map_err(other)?;
+                }
+            }
+        }
         Ok(Saved { next_run: schedule::next_run_now(&after), settings: after, schedule_error })
     })
     .await
@@ -168,7 +179,8 @@ fn apply_schedule(s: &Settings) -> Result<(), String> {
     if out.status.success() || !s.auto_scan {
         Ok(())
     } else {
-        Err(String::from_utf8_lossy(&out.stderr).trim().to_string())
+        // schtasks のエラー文は文字コードが違って化けるので、終了コードだけ返す
+        Err(format!("schtasks exit {}", out.status.code().unwrap_or(-1)))
     }
 }
 
@@ -259,18 +271,21 @@ fn copy_plain(text: String) -> R<()> {
 #[tauri::command]
 async fn change_confirm(app: AppHandle, id: String) -> R<Option<Report>> {
     app.state::<AppState>().sessions.lock().unwrap().remove(&id);
+    clip::clear_if_ours();
     blocking(move || store().mark_changed(&id).map_err(other)).await
 }
 
 /// 元のパスワードに戻す（1Password の中だけ）
 #[tauri::command]
-async fn change_restore(app: AppHandle, id: String) -> R<()> {
+async fn change_restore(app: AppHandle, id: String, no_passkey: bool) -> R<()> {
+    // 1Password の決まり：JSON で書き戻すとパスキーが消える。
+    // パスキー対応サイト、または本人が「パスキーは入れていない」と答えていないときは、自動で戻さない。
     let passkey = store()
         .report()
         .and_then(|r| r.items.into_iter().find(|i| i.id == id))
         .map(|i| i.passkey_site)
         .unwrap_or(false);
-    if passkey {
+    if passkey || !no_passkey {
         return Err(OpError::PasskeyRisk);
     }
     let old = {
@@ -290,6 +305,7 @@ async fn change_restore(app: AppHandle, id: String) -> R<()> {
 #[tauri::command]
 fn change_end(app: AppHandle, id: String) {
     app.state::<AppState>().sessions.lock().unwrap().remove(&id);
+    clip::clear_if_ours();
 }
 
 /// 保管庫（アーカイブ）へ移す。完全には消さない。
@@ -344,8 +360,9 @@ struct Resolved {
 async fn pending_resolve(id: String, approve: bool) -> R<Resolved> {
     blocking(move || {
         let s = store();
-        let p = s.take_pending(&id).map_err(other)?;
-        if let (Some(p), true) = (&p, approve) {
+        let found = s.state().pending.into_iter().find(|p| p.id == id);
+        // 片付けが成功してから依頼を消す（失敗したら依頼は残る）
+        if let (Some(p), true) = (&found, approve) {
             if p.kind == "archive" {
                 op::archive(&RealOp::default(), &p.item_id)?;
                 s.remove_item(&p.item_id).map_err(other)?;
@@ -354,6 +371,7 @@ async fn pending_resolve(id: String, approve: bool) -> R<Resolved> {
                 }
             }
         }
+        let p = s.take_pending(&id).map_err(other)?;
         Ok(Resolved { pending: p, state: s.state() })
     })
     .await
@@ -478,6 +496,13 @@ pub fn run() {
             if headless {
                 headless_scan(app.handle().clone());
             } else {
+                // アプリの場所が変わっても自動診断が古い場所を指さないよう、起動のたびに登録し直す
+                std::thread::spawn(|| {
+                    let s = store().settings();
+                    if s.auto_scan {
+                        let _ = apply_schedule(&s);
+                    }
+                });
                 tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
                     .title("vaultsweep")
                     .inner_size(1320.0, 860.0)
@@ -486,6 +511,12 @@ pub fn run() {
             }
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("vaultsweep failed to start");
+        .build(tauri::generate_context!())
+        .expect("vaultsweep failed to start")
+        .run(|_app, ev| {
+            // 閉じるときに、自分が入れたパスワードがまだクリップボードにあれば消す
+            if let tauri::RunEvent::Exit = ev {
+                clip::clear_if_ours();
+            }
+        });
 }

@@ -40,6 +40,7 @@ pub fn run(
 
     progress(Progress::Connecting);
     let raw = op::list_logins_raw(opr)?;
+    let listed = op::parse_list(&raw).map(|l| l.len()).unwrap_or(0);
     let mut prog = |d: usize, t: usize| progress(Progress::Reading { done: d, total: t });
     let logins = op::get_logins(opr, &raw, &mut prog)?;
     drop(raw);
@@ -53,6 +54,7 @@ pub fn run(
         .map(|l| audit::prepare(l, hibp_key.is_some()))
         .collect();
 
+    let mut pwned_partial = false;
     let pwned = match fetch {
         Some(f) => {
             let hashes: Vec<String> = prepared
@@ -62,7 +64,12 @@ pub fn run(
                 .into_iter()
                 .collect();
             let cb = |d: usize, t: usize| progress(Progress::Checking { done: d, total: t });
-            hibp::check_hashes(f, &hashes, &cb).ok()
+            hibp::check_hashes(f, &hashes, &cb).ok().map(|mut m| {
+                if m.remove(hibp::PARTIAL).is_some() {
+                    pwned_partial = true;
+                }
+                m
+            })
         }
         None => None,
     };
@@ -79,6 +86,12 @@ pub fn run(
         now: chrono::Utc::now(),
     });
 
+    if pwned_partial {
+        report.warnings.push("hibp_partial".into());
+    }
+    if prepared.len() < listed {
+        report.warnings.push(format!("skipped:{}", listed - prepared.len()));
+    }
     if let (Some(key), Some(f)) = (&hibp_key, fetch) {
         let emails: Vec<String> = prepared
             .iter()

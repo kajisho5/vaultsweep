@@ -48,11 +48,19 @@ export function useChanger(it: Item | undefined) {
     } catch (e) { fail(e); }
   }, [api, fail, id, t]);
 
-  /** 1Password の中だけ元に戻す。戻せたら true */
+  /** 1Password の中だけ元に戻す。戻せたら true。
+   *  1Password の決まりで、書き戻すとその項目のパスキーが消えるため、先に本人に確かめる。 */
   const restore = useCallback(async (quiet = false) => {
     if (!id) return false;
+    if (it?.passkey_site) { await showPasskey(); return false; }
+    const v = await ask({ title: t.pkAskTitle, body: t.pkAskBody, buttons: [
+      { label: t.pkAskUnsure, kind: "ghost", value: "unsure" },
+      { label: t.pkAskNo, kind: "primary", value: "no" },
+    ] });
+    if (v === "unsure") { await showPasskey(); return false; }
+    if (v !== "no") return false;
     try {
-      await api.changeRestore(id);
+      await api.changeRestore(id, true);
       setPhase("ready");
       setCopy((c) => ({ ...c, what: null }));
       if (!quiet) toast(t.undone);
@@ -61,7 +69,7 @@ export function useChanger(it: Item | undefined) {
       if ((e as ApiError)?.code === "passkey_risk") await showPasskey(); else fail(e);
       return false;
     }
-  }, [api, fail, id, showPasskey, t, toast]);
+  }, [api, ask, fail, id, it, showPasskey, t, toast]);
 
   const openPage = useCallback(() => {
     if (!it) return;
@@ -71,6 +79,24 @@ export function useChanger(it: Item | undefined) {
 
   const finish = useCallback(() => { setPhase("ready"); phaseRef.current = "ready"; setCopy((c) => ({ ...c, what: null })); }, []);
   return { phase, phaseRef, generate, doCopy, restore, openPage, copy, finish };
+}
+
+/** 作っている途中・作ったあとに画面を離れようとしたら止める */
+export function useLeaveGuard(ch: ReturnType<typeof useChanger>) {
+  const { ask, t, toast, leaveGuard } = useApp();
+  const ref = useRef(ch);
+  ref.current = ch;
+  useEffect(() => {
+    leaveGuard.current = async () => {
+      const c = ref.current;
+      if (c.phaseRef.current === "busy") { toast(t.busyWait); return false; }
+      if (c.phaseRef.current !== "generated") return true;
+      const v = await ask({ title: t.leaveTitle, body: t.leaveBody, buttons: [{ label: t.cancel, kind: "ghost", value: "stay" }, { label: t.leaveKeep, kind: "ghost", value: "keep" }, { label: t.leaveRestore, kind: "primary", value: "restore" }] });
+      if (v === "restore") return c.restore(true);
+      return v === "keep";
+    };
+    return () => { leaveGuard.current = null; };
+  }, [ask, leaveGuard, t, toast]);
 }
 
 export function SiteActions({ ch }: { ch: ReturnType<typeof useChanger> }) {

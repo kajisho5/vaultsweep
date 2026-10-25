@@ -16,6 +16,9 @@ pub fn sha1_hex(pw: &str) -> String {
     hex::encode_upper(h.finalize())
 }
 
+/// check_hashes の結果に入る「一部失敗」の印（ハッシュとは重ならない）
+pub const PARTIAL: &str = "!partial";
+
 /// 範囲の返事 "SUFFIX:COUNT" を読む。件数0（水増し分）は捨てる。
 pub fn parse_range(body: &str) -> HashMap<String, u64> {
     body.lines()
@@ -62,7 +65,15 @@ pub fn check_hashes(
                     };
                     let p = &prefixes[i];
                     let url = format!("https://api.pwnedpasswords.com/range/{p}");
-                    match f.get(&url, &[("Add-Padding", "true")]) {
+                    let mut res = f.get(&url, &[("Add-Padding", "true")]);
+                for _ in 0..2 {
+                    if matches!(res, Ok((200, _))) {
+                        break;
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(600));
+                    res = f.get(&url, &[("Add-Padding", "true")]);
+                }
+                match res {
                         Ok((200, body)) => {
                             let m = parse_range(&String::from_utf8_lossy(&body));
                             let mut r = result.lock().unwrap();
@@ -86,7 +97,12 @@ pub fn check_hashes(
     if !errors.is_empty() && errors.len() == total {
         return Err(errors[0].clone());
     }
-    Ok(result.into_inner().unwrap())
+    let mut r = result.into_inner().unwrap();
+    // 一部だけ失敗したことを呼ぶ側に伝える（特別なキー）
+    if !errors.is_empty() {
+        r.insert(PARTIAL.to_string(), errors.len() as u64);
+    }
+    Ok(r)
 }
 
 #[derive(Debug, Clone, Deserialize)]

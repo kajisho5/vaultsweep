@@ -18,7 +18,7 @@ export interface Api {
   copySecret(id: string, which: "old" | "new"): Promise<{ seconds: number }>;
   copyPlain(text: string): Promise<void>;
   changeConfirm(id: string): Promise<Report | null>;
-  changeRestore(id: string): Promise<void>;
+  changeRestore(id: string, noPasskey: boolean): Promise<void>;
   changeEnd(id: string): Promise<void>;
   archive(id: string): Promise<State>;
   writeReceipt(id: string, dateLabel: string, date: string, receiptLabel: string, receipt: string): Promise<State>;
@@ -54,7 +54,7 @@ async function tauriApi(): Promise<Api> {
     copySecret: (id, which) => invoke("copy_secret", { id, which }),
     copyPlain: (text) => invoke("copy_plain", { text }),
     changeConfirm: (id) => invoke("change_confirm", { id }),
-    changeRestore: (id) => invoke("change_restore", { id }),
+    changeRestore: (id, noPasskey) => invoke("change_restore", { id, noPasskey }),
     changeEnd: (id) => invoke("change_end", { id }),
     archive: (id) => invoke("archive", { id }),
     writeReceipt: (id, dateLabel, date, receiptLabel, receipt) => invoke("write_receipt", { id, dateLabel, date, receiptLabel, receipt }),

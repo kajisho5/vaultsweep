@@ -78,10 +78,23 @@ pub fn copy_plain(text: &str) -> Result<(), String> {
     imp::write(text)
 }
 
+static LAST: std::sync::Mutex<Option<[u8; 32]>> = std::sync::Mutex::new(None);
+
+/// 自分が入れたパスワードがまだクリップボードにあれば消す（変更の終わり・アプリ終了で呼ぶ）
+pub fn clear_if_ours() {
+    let Some(d) = LAST.lock().unwrap().take() else { return };
+    if let Some(now) = imp::read() {
+        if digest(&now) == d {
+            imp::clear();
+        }
+    }
+}
+
 /// 値を入れて、30秒後に消す予約をする
 pub fn copy_with_timeout(value: Zeroizing<String>) -> Result<(), String> {
     imp::write(&value)?;
     let d = digest(&value);
+    *LAST.lock().unwrap() = Some(d);
     drop(value);
     std::thread::spawn(move || {
         std::thread::sleep(std::time::Duration::from_secs(CLEAR_SECS));
