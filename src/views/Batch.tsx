@@ -28,8 +28,13 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): v
     working.current = true;
     try {
       if (ch.phaseRef.current === "generated") {
-        if (!(await ch.restore(true))) return;
-        toast(t.bSkipped);
+        if (it.passkey_site) {
+          // パスキー対応のサイトは自動で戻せないので、新しいパスワードのまま「あとで」にする（元の値はアプリが覚えている）
+          toast(t.bSkipKeep);
+        } else {
+          if (!(await ch.restore(true))) return;
+          toast(t.bSkipped);
+        }
       }
       onSkip();
     } finally { working.current = false; }

@@ -415,9 +415,11 @@ impl Store {
                 return;
             }
             if let Some(e) = s.cancel.get_mut(id) {
+                // 退会日は最初に「退会した」にした日のまま（記録を書き足しても変わらない）
+                let was_left = e.state == "left";
                 e.state = state.to_string();
                 match state {
-                    "left" => e.left_at = Some(now()),
+                    "left" if !was_left || e.left_at.is_none() => e.left_at = Some(now()),
                     "archived" => e.archived_at = Some(now()),
                     _ => {}
                 }

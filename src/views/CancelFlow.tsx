@@ -99,7 +99,7 @@ export function CancelFlow() {
           {step < bodies.length - 1 && (
             <div className="actions">
               <button type="button" className="btn primary" onClick={async () => {
-                if (step === 2) { try { setState(await api.cancelSet(it.id, "left")); } catch { /* リストにない項目でも先へ */ } }
+                if (step === 2) { try { setState(await api.cancelSet(it.id, "left")); } catch (e) { fail(e); /* 記録に失敗しても手順は先へ進める */ } }
                 setStep(step + 1);
               }}>{t.next}</button>
               <button type="button" className="btn" onClick={() => setStep(step + 1)}>{t.skipStep}</button>

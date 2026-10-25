@@ -73,8 +73,14 @@ const topIds = (r: Report | null): TodoEntry[] => (r ? r.items.filter((i) => i.i
 
 export function AppProvider({ api, boot: initial, children }: { api: Api; boot: Boot; children: ReactNode }) {
   const [boot] = useState(initial);
-  const [report, setReport] = useState<Report | null>(initial.report);
-  const [state, setState] = useState<State>(initial.state);
+  const [report, setReportRaw] = useState<Report | null>(initial.report);
+  const [state, setStateRaw] = useState<State>(initial.state);
+  // 操作で結果が変わるたびに数を進める。裏での読み直しは、その間に操作があったら捨てる（新しい結果を古い結果で上書きしない）
+  const ver = useRef(0);
+  const setReport = useCallback((v: Report | null | ((r: Report | null) => Report | null)) => { ver.current++; setReportRaw(v); }, []);
+  const setState = useCallback((v: State | ((s: State) => State)) => { ver.current++; setStateRaw(v); }, []);
+  const reportRef = useRef(report);
+  reportRef.current = report;
   const [settings, setSettings] = useState<Settings>(initial.settings);
   const [nextRun, setNextRun] = useState<string | null>(initial.next_run);
   const [view, setView] = useState<View>("overview");
@@ -128,7 +134,8 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
 
   const errText = useCallback((e: unknown) => {
     if (e == null) return t.err.other;
-    if (typeof e === "string") return e;
+    // 文字のままのエラー（中の決まりごとの英文など）は、そのまま見せず一言に添える
+    if (typeof e === "string") return t.err.other + t.paren(e.length > 120 ? e.slice(0, 120) + "…" : e);
     const x = e as Partial<ApiError> & { detail?: string };
     const code = x.code ?? "other";
     const detail = typeof x.detail === "string" ? x.detail : undefined;
@@ -222,9 +229,11 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
     if (api.demo) return;
     const pull = async () => {
       try {
+        const v0 = ver.current;
         const b = await api.bootstrap();
-        setState(b.state);
-        setReport((r) => {
+        if (ver.current !== v0) return;
+        setStateRaw(b.state);
+        setReportRaw((r) => {
           if (b.report && (!r || b.report.scanned_at !== r.scanned_at)) setTodoIds(topIds(b.report));
           return b.report ?? r;
         });
@@ -234,6 +243,23 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
     window.addEventListener("focus", pull);
     return () => { clearInterval(id); window.removeEventListener("focus", pull); };
   }, [api]);
+
+  // 作ったまま確定していない項目があるのにウィンドウを閉じようとしたとき
+  useEffect(() => {
+    let un: (() => void) | null = null;
+    let dead = false;
+    void api.onCloseGuard(async (ids) => {
+      const names = ids.map((id) => reportRef.current?.items.find((i) => i.id === id)?.title ?? id).join(t.dot);
+      const v = await ask({ title: t.closeTitle, body: t.closeBody(names), buttons: [
+        { label: t.closeQuit, kind: "ghost", value: "quit" },
+        { label: t.closeOpen, kind: "ghost", value: "open" },
+        { label: t.closeStay, kind: "primary", value: "stay" },
+      ] });
+      if (v === "quit") void api.quitNow();
+      else if (v === "open" && ids[0]) { setChangeId(ids[0]); void go("change"); }
+    }).then((f) => { if (dead) f(); else un = f; });
+    return () => { dead = true; un?.(); };
+  }, [api, ask, go, t]);
 
   const value: Ctx = useMemo(() => ({
     api, boot, t, lang, report, state, settings, nextRun, view, go, setReport, setState, saveSettings, toast, ask, errText, fail, scan, scanning, progress,

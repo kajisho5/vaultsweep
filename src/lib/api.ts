@@ -20,6 +20,12 @@ export interface Api {
   changeConfirm(id: string): Promise<Report | null>;
   changeRestore(id: string, noPasskey: boolean): Promise<void>;
   changeEnd(id: string): Promise<void>;
+  /** 新しいパスワードを作ったまま、サイトでの変更を確定していない項目 */
+  changeUnfinished(): Promise<string[]>;
+  /** 確定していない項目があっても閉じる（本人が選んだとき） */
+  quitNow(): Promise<void>;
+  /** ウィンドウを閉じようとしたが、確定していない項目があって止めたとき */
+  onCloseGuard(cb: (ids: string[]) => void): Promise<() => void>;
   archive(id: string): Promise<State>;
   writeReceipt(id: string, dateLabel: string, date: string, receiptLabel: string, receipt: string): Promise<State>;
   openUrl(url: string): Promise<void>;
@@ -56,6 +62,9 @@ async function tauriApi(): Promise<Api> {
     changeConfirm: (id) => invoke("change_confirm", { id }),
     changeRestore: (id, noPasskey) => invoke("change_restore", { id, noPasskey }),
     changeEnd: (id) => invoke("change_end", { id }),
+    changeUnfinished: () => invoke("change_unfinished"),
+    quitNow: () => invoke("quit_now"),
+    onCloseGuard: (cb) => listen<string[]>("close-guard", (e) => cb(e.payload)),
     archive: (id) => invoke("archive", { id }),
     writeReceipt: (id, dateLabel, date, receiptLabel, receipt) => invoke("write_receipt", { id, dateLabel, date, receiptLabel, receipt }),
     openUrl: (url) => invoke("open_url", { url }),
@@ -72,5 +81,5 @@ export function getApi(): Promise<Api> {
 }
 
 export const changeUrl = (it: Item) =>
-  it.domain ? `https://${it.domain}/.well-known/change-password` : it.url ?? null;
+  it.domain ? `https://${it.domain}/.well-known/change-password` : it.url && /^https:\/\//.test(it.url) ? it.url : null;
 export const siteUrl = (it: Item) => (it.url && /^https?:\/\//.test(it.url) ? it.url : it.domain ? `https://${it.domain}/` : null);

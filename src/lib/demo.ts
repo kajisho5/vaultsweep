@@ -151,7 +151,8 @@ export function demoApi(): Api {
     lang: null, theme: "system", auto_scan: true, schedule: "weekly", schedule_time: "09:00", notify: "new", offline: false,
     stale_days: 365, weak_level: "weak", pw_length: 24, pw_symbols: true, hibp_key_ref: null,
   };
-  const sessions = new Map<string, { generated: boolean }>();
+  // 本物と同じく：作ったあとは確定か元に戻すまで「元のパスワード」を覚えておく
+  const sessions = new Map<string, { generated: boolean; dirty: boolean }>();
   const clone = <T,>(x: T): T => structuredClone(x);
   const nextRun = () => {
     if (!settings.auto_scan) return null;
@@ -197,15 +198,16 @@ export function demoApi(): Api {
     async cancelSet(id, state, receipt = null) {
       if (state === "remove") delete db.state.cancel[id];
       else if (db.state.cancel[id]) {
-        const e = db.state.cancel[id]; e.state = state;
-        if (state === "left") e.left_at = iso(new Date());
+        const e = db.state.cancel[id];
+        if (state === "left" && (e.state !== "left" || !e.left_at)) e.left_at = iso(new Date());
+        e.state = state;
         if (state === "archived") e.archived_at = iso(new Date());
         if (receipt) e.receipt = receipt;
       }
       return clone(db.state);
     },
-    async changeBegin(id) { await sleep(250); sessions.set(id, { generated: false }); },
-    async changeGenerate(id) { await sleep(450); const s = sessions.get(id); if (!s) throw { code: "other", detail: "no_session" }; s.generated = true; },
+    async changeBegin(id) { await sleep(250); if (!sessions.get(id)?.dirty) sessions.set(id, { generated: false, dirty: false }); },
+    async changeGenerate(id) { await sleep(450); const s = sessions.get(id); if (!s) throw { code: "other", detail: "no_session" }; s.dirty = true; s.generated = true; },
     async copySecret(id, which) {
       const s = sessions.get(id); if (!s || (which === "new" && !s.generated)) throw { code: "other", detail: "no_value" };
       return { seconds: 30 };
@@ -229,8 +231,11 @@ export function demoApi(): Api {
       db.state.fixed.push({ at: iso(new Date()), id, title: it.title });
       return clone(db.report);
     },
-    async changeRestore(id, noPasskey) { await sleep(300); const it = find(id); if (it?.passkey_site || !noPasskey) throw { code: "passkey_risk" }; const s = sessions.get(id); if (s) s.generated = false; },
-    async changeEnd(id) { sessions.delete(id); },
+    async changeRestore(id, noPasskey) { await sleep(300); const it = find(id); if (it?.passkey_site || !noPasskey) throw { code: "passkey_risk" }; if (!sessions.has(id)) throw { code: "other", detail: "no_value" }; sessions.delete(id); },
+    async changeEnd(id) { if (!sessions.get(id)?.dirty) sessions.delete(id); },
+    async changeUnfinished() { return [...sessions].filter(([, s]) => s.dirty).map(([k]) => k); },
+    async quitNow() { sessions.clear(); },
+    async onCloseGuard() { return () => {}; },
     async archive(id) {
       await sleep(400);
       removeItem(id);
@@ -239,7 +244,7 @@ export function demoApi(): Api {
     },
     async writeReceipt(id, _dl, _d, _rl, receipt) {
       await sleep(250);
-      const e = db.state.cancel[id]; if (e) { e.state = "left"; e.left_at ??= iso(new Date()); if (receipt) e.receipt = receipt; }
+      const e = db.state.cancel[id]; if (e) { if (e.state !== "left" || !e.left_at) e.left_at = iso(new Date()); e.state = "left"; if (receipt) e.receipt = receipt; }
       return clone(db.state);
     },
     async openUrl(url) { console.info("[demo] open", url); },

@@ -26,6 +26,8 @@ use zeroize::Zeroizing;
 struct Session {
     old: Option<Zeroizing<String>>,
     new: Option<Zeroizing<String>>,
+    /// 1Password の中を書き換えた（かもしれない）。確定か元に戻すまで、元のパスワードを手放さない。
+    dirty: bool,
 }
 
 #[derive(Default)]
@@ -213,9 +215,13 @@ async fn cancel_set(id: String, state: String, receipt: Option<String>) -> R<Sta
 #[tauri::command]
 async fn change_begin(app: AppHandle, id: String) -> R<()> {
     op::check_id(&id)?;
+    // 作り直しのときは、最初に読んだ「元のパスワード」をそのまま使う（作った値を元として読み直さない）
+    if app.state::<AppState>().sessions.lock().unwrap().get(&id).is_some_and(|s| s.dirty) {
+        return Ok(());
+    }
     let i2 = id.clone();
     let old = blocking(move || op::read_password(&RealOp::default(), &i2)).await?;
-    app.state::<AppState>().sessions.lock().unwrap().insert(id, Session { old, new: None });
+    app.state::<AppState>().sessions.lock().unwrap().insert(id, Session { old, new: None, dirty: false });
     Ok(())
 }
 
@@ -223,8 +229,9 @@ async fn change_begin(app: AppHandle, id: String) -> R<()> {
 #[tauri::command]
 async fn change_generate(app: AppHandle, id: String) -> R<()> {
     op::check_id(&id)?;
-    if !app.state::<AppState>().sessions.lock().unwrap().contains_key(&id) {
-        return Err(OpError::Other("no_session".into()));
+    match app.state::<AppState>().sessions.lock().unwrap().get_mut(&id) {
+        Some(sess) => sess.dirty = true,
+        None => return Err(OpError::Other("no_session".into())),
     }
     let s = store().settings();
     let i2 = id.clone();
@@ -270,9 +277,12 @@ fn copy_plain(text: String) -> R<()> {
 /// サイトで保存できた：札を外して記録する
 #[tauri::command]
 async fn change_confirm(app: AppHandle, id: String) -> R<Option<Report>> {
+    // 記録できてから元のパスワードを手放す（記録に失敗しても「戻す」ができるように）
+    let i2 = id.clone();
+    let r = blocking(move || store().mark_changed(&i2).map_err(other)).await?;
     app.state::<AppState>().sessions.lock().unwrap().remove(&id);
     clip::clear_if_ours();
-    blocking(move || store().mark_changed(&id).map_err(other)).await
+    Ok(r)
 }
 
 /// 元のパスワードに戻す（1Password の中だけ）
@@ -296,16 +306,41 @@ async fn change_restore(app: AppHandle, id: String, no_passkey: bool) -> R<()> {
     let Some(old) = old else { return Err(OpError::Other("no_value".into())) };
     let i2 = id.clone();
     blocking(move || op::restore_password(&RealOp::default(), &i2, &old)).await?;
-    if let Some(s) = app.state::<AppState>().sessions.lock().unwrap().get_mut(&id) {
-        s.new = None;
-    }
+    // 1Password が元どおりになったので、覚えていた値も手放す
+    app.state::<AppState>().sessions.lock().unwrap().remove(&id);
+    clip::clear_if_ours();
     Ok(())
 }
 
 #[tauri::command]
 fn change_end(app: AppHandle, id: String) {
-    app.state::<AppState>().sessions.lock().unwrap().remove(&id);
+    {
+        let st = app.state::<AppState>();
+        let mut map = st.sessions.lock().unwrap();
+        // 作ったまま確定していないものは、元のパスワードを覚えたままにする（あとで戻せるように）。アプリを閉じれば消える。
+        if !map.get(&id).is_some_and(|s| s.dirty) {
+            map.remove(&id);
+        }
+    }
     clip::clear_if_ours();
+}
+
+/// 作ったまま確定していない項目（名前は画面側で引く）
+fn unfinished_ids(app: &AppHandle) -> Vec<String> {
+    app.state::<AppState>().sessions.lock().unwrap().iter().filter(|(_, s)| s.dirty).map(|(k, _)| k.clone()).collect()
+}
+
+#[tauri::command]
+fn change_unfinished(app: AppHandle) -> Vec<String> {
+    unfinished_ids(&app)
+}
+
+/// 確定していない項目があっても、本人が選んだので閉じる
+#[tauri::command]
+fn quit_now(app: AppHandle) {
+    app.state::<AppState>().sessions.lock().unwrap().clear();
+    clip::clear_if_ours();
+    app.exit(0);
 }
 
 /// 保管庫（アーカイブ）へ移す。完全には消さない。
@@ -482,6 +517,8 @@ pub fn run() {
             copy_secret,
             copy_plain,
             change_confirm,
+            change_unfinished,
+            quit_now,
             change_restore,
             change_end,
             archive,
@@ -510,6 +547,16 @@ pub fn run() {
                     .build()?;
             }
             Ok(())
+        })
+        .on_window_event(|window, ev| {
+            // 新しいパスワードを作ったまま（サイトでの変更が確定していない）なら、すぐには閉じず画面で確かめる
+            if let tauri::WindowEvent::CloseRequested { api, .. } = ev {
+                let ids = unfinished_ids(window.app_handle());
+                if !ids.is_empty() {
+                    api.prevent_close();
+                    let _ = window.emit("close-guard", ids);
+                }
+            }
         })
         .build(tauri::generate_context!())
         .expect("vaultsweep failed to start")

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useApp } from "../store";
-import { Switch } from "../components/ui";
+import { Switch, fmtDate } from "../components/ui";
 import { PendingBar } from "./Overview";
 import type { Settings } from "../lib/types";
 import { issueText } from "../lib/i18n";
@@ -35,7 +35,7 @@ export function SettingsView() {
   const exportCsv = async () => {
     if (!report) return;
     const rows = report.items.filter((i) => i.issues.length).map((i) => [
-      i.title, i.domain ?? "", i.vault, i.issues.map((x) => `${t.kind[x.kind]}: ${issueText(x, t)}`).join(" / "), String(Math.round(i.risk * 100)), i.updated_at?.slice(0, 10) ?? "",
+      i.title, i.domain ?? "", i.vault, i.issues.map((x) => `${t.kind[x.kind]}: ${issueText(x, t)}`).join(" / "), String(Math.round(i.risk * 100)), i.updated_at ? fmtDate(i.updated_at, t.ymd) : "",
     ]);
     if (api.demo) { toast(t.demoExport); return; }
     try { toast(t.exported(await api.exportCsv(t.csvHead, rows))); } catch (e) { fail(e); }
@@ -142,9 +142,14 @@ export function SettingsView() {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input className="inp m" style={{ flex: 1, minWidth: 200 }} placeholder={t.sHibpPh} value={keyRef} aria-label={t.sHibp}
                 onChange={(e) => { setKeyRef(e.target.value); setKeyOk(null); }}
-                onBlur={() => up({ hibp_key_ref: keyRef.trim().startsWith("op://") ? keyRef.trim() : null })} />
+                onBlur={() => {
+                  const v = keyRef.trim();
+                  if (!v) { if (settings.hibp_key_ref) void up({ hibp_key_ref: null }); return; }
+                  if (!v.startsWith("op://")) { toast(t.hibpBadRef); return; }
+                  if (v !== settings.hibp_key_ref) void up({ hibp_key_ref: v });
+                }} />
               <button type="button" className="btn small" disabled={!keyRef.trim().startsWith("op://")} onClick={async () => {
-                try { setKeyOk(await api.testKeyRef(keyRef.trim())); await up({ hibp_key_ref: keyRef.trim() }); } catch { setKeyOk(false); }
+                try { setKeyOk(await api.testKeyRef(keyRef.trim())); await up({ hibp_key_ref: keyRef.trim() }); } catch (e) { setKeyOk(null); fail(e); }
               }}>{t.sHibpTest}</button>
               <button type="button" className="btn small" onClick={() => api.openUrl("https://haveibeenpwned.com/API/Key").catch(fail)}>{t.sHibpGet}</button>
             </div>

@@ -18,7 +18,10 @@ export function useChanger(it: Item | undefined) {
   useEffect(() => {
     setPhase("ready");
     setCopy({ what: null, stamp: 0, seconds: 30 });
-    return () => { if (id) void api.changeEnd(id).catch(() => {}); };
+    // 前に作ったまま確定していなければ、その続きから（元のパスワードはまだ覚えている）
+    let live = true;
+    if (id) api.changeUnfinished().then((ids) => { if (live && ids.includes(id) && phaseRef.current === "ready") setPhase("generated"); }).catch(() => {});
+    return () => { live = false; if (id) void api.changeEnd(id).catch(() => {}); };
   }, [api, id]);
 
   const showPasskey = useCallback(async () => {
@@ -58,14 +61,17 @@ export function useChanger(it: Item | undefined) {
       { label: t.pkAskNo, kind: "primary", value: "no" },
     ] });
     if (v === "unsure") { await showPasskey(); return false; }
-    if (v !== "no") return false;
+    if (v !== "no" || phaseRef.current !== "generated") return false;
+    // 戻している間は「保存できた」などを押せないようにする
+    setPhase("busy"); phaseRef.current = "busy";
     try {
       await api.changeRestore(id, true);
-      setPhase("ready");
+      setPhase("ready"); phaseRef.current = "ready";
       setCopy((c) => ({ ...c, what: null }));
       if (!quiet) toast(t.undone);
       return true;
     } catch (e) {
+      setPhase("generated"); phaseRef.current = "generated";
       if ((e as ApiError)?.code === "passkey_risk") await showPasskey(); else fail(e);
       return false;
     }
@@ -74,8 +80,8 @@ export function useChanger(it: Item | undefined) {
   const openPage = useCallback(() => {
     if (!it) return;
     const u = changeUrl(it);
-    if (u) api.openUrl(u).catch(fail);
-  }, [api, fail, it]);
+    if (u) api.openUrl(u).catch(fail); else toast(t.noUrl);
+  }, [api, fail, it, t, toast]);
 
   const finish = useCallback(() => { setPhase("ready"); phaseRef.current = "ready"; setCopy((c) => ({ ...c, what: null })); }, []);
   return { phase, phaseRef, generate, doCopy, restore, openPage, copy, finish };
