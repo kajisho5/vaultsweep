@@ -1,7 +1,9 @@
-# vaultsweep 紹介ページ（GitHub Pages）設計書 — 案2
+# vaultsweep 紹介ページ（GitHub Pages）設計書 — 案3（英語が主・日本語はサブ）
 
 状態：**確認待ち**（この設計書と SVG を見てもらってから作る）
-デザイン案：`docs/pages-design.svg`（A＝パソコン幅・ダーク、B＝スマホ幅・ライト／Mac で開いた例）
+デザイン案：`docs/pages-design.svg`（A＝英語ページ・パソコン幅・ダーク、B＝日本語ページ・スマホ幅・ライト／Mac で開いた例）
+
+**言語：英語が主。** `https://kajisho5.github.io/vaultsweep/` が英語、`/vaultsweep/ja/` が日本語。上の帯と一番下に切り替えリンクを置く。見ている人の言語で勝手に飛ばすことはしない（検索エンジンが英語ページを正しく読めるように）。`hreflang` で英語・日本語の対応を知らせる。
 使うスキル：`landing-page-design`（elayadesign/ai-design-skills、2026-10-25 時点の版 38bbe57）
 
 ## 0. 前提（スキルの「最初に聞くこと」への答え。分からない所は仮に決めた）
@@ -10,7 +12,7 @@
 |---|---|
 | 一番してほしいこと | アプリをダウンロードしてもらう |
 | 何がもらえるか | 無料のアプリ（Windows・Mac） |
-| 誰向けか | 1Password を使っていて、漏洩や使い回しが気になっているのに手をつけていない人 |
+| 誰向けか | 世界中の 1Password 利用者（英語が主）。漏洩や使い回しが気になっているのに、手をつけていない人 |
 | ためらう理由（仮） | ①パスワードを他のアプリに触らせるのが怖い ②壊したら困る ③設定が面倒そう |
 | 来る道（仮） | GitHub・SNS・検索 |
 | 証拠に使えるもの | オープンソース、安全の約束、実際の画面。お客様の声や数字は**載せない**（作り話になるため） |
@@ -34,14 +36,17 @@
 | 10 | 最後の誘い | 戻せること（安心材料）＋最初の画面と同じボタン | ② |
 | 11 | 一番下 | プライバシー・ライセンス・ソース・更新履歴・English、データの出典、商標の注記 | |
 
-### 最初の画面の言葉
+### 最初の画面の言葉（英語／日本語）
 
-- 見出し：漏れた・使い回した／パスワードを、／今夜のうちに片付ける。
-- 説明：vaultsweep は 1Password を診断して、危ない順に並べ、変更と解約を1件ずつ手伝う無料のアプリです。Windows と Mac で動きます。
-- 主ボタン：「Windows 版を無料でダウンロード」
-  - 見ている人が Mac なら「Mac 版を無料でダウンロード」に入れ替える。分からなければ Windows を出す。
-  - もう片方は文字のリンクにする。
-- 証拠の一行：オープンソース（MIT）· パスワードはパソコンの外に出ません · v0.1.0
+| | 英語（主） | 日本語 |
+|---|---|---|
+| 見出し | Clean up leaked and／reused passwords／in 1Password tonight. | 漏れた・使い回した／パスワードを、／今夜のうちに片付ける。 |
+| 説明 | vaultsweep scans your 1Password vault, ranks what is risky, and walks you through changing passwords and closing accounts one at a time. Free for Windows and Mac. | vaultsweep は 1Password を診断して、危ない順に並べ、変更と解約を1件ずつ手伝う無料のアプリです。Windows と Mac で動きます。 |
+| 主ボタン | Download free for Windows（Mac で見ていれば for Mac） | Windows 版を無料でダウンロード（Mac なら Mac 版） |
+| 証拠の一行 | Open source (MIT) · Your passwords never leave your computer · v0.1.0 | オープンソース（MIT）· パスワードはパソコンの外に出ません · v0.1.0 |
+| 大きな一言 | Your passwords never leave your computer. Nothing changes until you press the button. | パスワードは、あなたのパソコンから出ていかない。片付けるのは、あなたが押したときだけ。 |
+
+- 主ボタンでは、見ている人のパソコンが Windows か Mac かを判定し、合う方を出す。判定できなければ Windows を出す。もう一方は文字のリンクにする。
 
 ### よいこと（4つ）
 
@@ -57,8 +62,9 @@
 ### 検索での見え方（SEO・AEO）
 
 - 検索に**出す**（ずっと使える内容のため）。
-- 題名：「vaultsweep — 1Password の漏洩・使い回しを見つけて片付ける無料アプリ」
-- 説明文：「1Password を診断して、漏れた・使い回した・使っていないパスワードを危ない順に並べ、変更と解約を手伝います。Windows・Mac 対応、オープンソース。」
+- 英語の題名：「vaultsweep: find and fix leaked and reused passwords in 1Password」
+- 英語の説明文：「Free, open source app for Windows and Mac. Scans your 1Password vault, ranks risky logins, and helps you change passwords and close accounts.」
+- 日本語ページにも、同じ内容の日本語の題名と説明文を付ける。
 - よくある質問は「質問と答え」の形のデータ（FAQ スキーマ）も付ける。
 
 ## 2. 見た目の決まり（スキルの B に沿う）
@@ -102,7 +108,7 @@ Phosphor の最新版は 2024-03 公開。古いが、更新が止まってい�
 ## 4. 部品・状態・データ
 
 - 部品：`Layout`、`Nav`（≡→× の切り替え）、`Hero`、`Benefits`、`Tagline`（1語ずつ）、`Kinds`、`HowTo`、`CopyButton`、`Safety`、`Mcp`、`Faq`、`FinalCta`、`Footer`
-- 状態：ページの中で持つのは「メニューが開いているか」と「コピーした直後か」だけ。言語は URL で分ける（`/vaultsweep/` と `/vaultsweep/en/`）。テーマは OS の設定に任せる。
+- 状態：ページの中で持つのは「メニューが開いているか」と「コピーした直後か」だけ。言語は URL で分ける（英語 `/vaultsweep/`、日本語 `/vaultsweep/ja/`）。テーマは OS の設定に任せる。
 - 動く部分は小さな素の JS で書く：Mac かどうかの判定、メニューの開閉、コピー、画面に入ったら浮かび上がる、1語ずつ色を付ける。スクロールは `IntersectionObserver` で見る。
 - データ：
   - ダウンロードは「最新のリリース」ページへ飛ばす。
@@ -121,7 +127,7 @@ site/
     layouts/Layout.astro
     components/*.astro
     scripts/motion.ts      ← 浮かび上がり・1語ずつ・メニュー・コピー・Mac 判定
-    pages/index.astro / en/index.astro / privacy.astro / en/privacy.astro / 404.astro
+    pages/index.astro（英語） / ja/index.astro / privacy.astro / ja/privacy.astro / 404.astro
   public/shots/*.png  public/og.png  public/favicon.svg
 .github/workflows/pages.yml
 ```
@@ -131,7 +137,7 @@ site/
 1. GitHub で、Pages を「GitHub Actions から公開」に切り替える。
    - 開く場所：https://github.com/kajisho5/vaultsweep/settings/pages
    - 押すところ：「Build and deployment」→「Source」を「GitHub Actions」にする。
-2. main に push すると、`https://kajisho5.github.io/vaultsweep/` に公開される。
+2. main に push すると、英語ページが `https://kajisho5.github.io/vaultsweep/`、日本語ページが `/vaultsweep/ja/` に公開される。
 3. ダウンロードボタンを生かすには、リリースが要る。
    - 「v0.1.0」という印（タグ）を付けると、リリースが自動で作られ、Windows 版と Mac 版が置かれる。
    - タグを付けるのは公開の操作なので、付けてよいか確認してから行う。
