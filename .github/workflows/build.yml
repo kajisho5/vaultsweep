@@ -1,0 +1,60 @@
+# Windows 用のインストーラー（.exe）を作る
+# - main に push したとき・手動で動かしたとき：成果物（Artifacts）に置く
+# - v から始まるタグ（例 v0.1.0）を push したとき：リリースにも置く
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Rust を用意
+        run: rustup toolchain install stable --profile minimal && rustup default stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: 画面の部品を入れる
+        run: npm ci
+
+      - name: 中身の試験
+        run: cargo test -p vaultsweep-core
+
+      - name: MCP 用の小さなプログラムを作る
+        shell: bash
+        run: |
+          cargo build --release -p vaultsweep-core --bin vaultsweep-mcp
+          mkdir -p src-tauri/binaries
+          cp target/release/vaultsweep-mcp.exe src-tauri/binaries/vaultsweep-mcp-x86_64-pc-windows-msvc.exe
+
+      - name: アプリとインストーラーを作る
+        run: npx tauri build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: vaultsweep-windows
+          path: |
+            target/release/bundle/nsis/*.exe
+          if-no-files-found: error
+
+      - name: リリースに置く（タグのときだけ）
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" target/release/bundle/nsis/*.exe --title "$GITHUB_REF_NAME" --generate-notes

@@ -1,0 +1,26 @@
+[package]
+name = "vaultsweep-core"
+description = "vaultsweep の中身（1Password CLI 連携・判定・MCP）"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "vaultsweep_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "vaultsweep-mcp"
+path = "src/bin/vaultsweep-mcp.rs"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha1.workspace = true
+sha2.workspace = true
+hex.workspace = true
+zeroize.workspace = true
+chrono.workspace = true
+url.workspace = true
+dirs.workspace = true
+reqwest.workspace = true

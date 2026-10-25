@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "画面に許すのは基本の操作だけ。URLを開く・コピー・通知は、中身（Rust）側で確かめてから行う。",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

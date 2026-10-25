@@ -1,0 +1,164 @@
+import { useState } from "react";
+import { useApp } from "../store";
+import { Switch } from "../components/ui";
+import { PendingBar } from "./Overview";
+import type { PayMatch, Settings } from "../lib/types";
+import { issueText } from "../lib/i18n";
+
+function Seg<T extends string>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange(v: T): void; label: string }) {
+  return (
+    <div className="seg" role="group" aria-label={label}>
+      {options.map(([v, l]) => <button key={v} aria-pressed={value === v} onClick={() => onChange(v)}>{l}</button>)}
+    </div>
+  );
+}
+
+async function readText(f: File): Promise<string> {
+  const buf = await f.arrayBuffer();
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch { return new TextDecoder("shift_jis").decode(buf); }
+}
+
+export function SettingsView() {
+  const { t, settings, saveSettings, nextRun, boot, api, toast, fail, report } = useApp();
+  const [schedErr, setSchedErr] = useState<string | null>(null);
+  const [keyRef, setKeyRef] = useState(settings.hibp_key_ref ?? "");
+  const [keyOk, setKeyOk] = useState<boolean | null>(null);
+  const [pay, setPay] = useState<PayMatch[] | null>(null);
+  const up = async (patch: Partial<Settings>) => {
+    const err = await saveSettings({ ...settings, ...patch });
+    if ("auto_scan" in patch || "schedule" in patch || "schedule_time" in patch) setSchedErr(err);
+  };
+  const lang = settings.lang ?? "auto";
+  const mcpCmd = boot.mcp_path ?? "vaultsweep-mcp";
+  const config = JSON.stringify({ mcpServers: { vaultsweep: { command: mcpCmd, args: ["--mcp"] } } }, null, 2);
+
+  const exportCsv = async () => {
+    if (!report) return;
+    const rows = report.items.filter((i) => i.issues.length).map((i) => [
+      i.title, i.domain ?? "", i.vault, i.issues.map((x) => `${t.kind[x.kind]}: ${issueText(x, t)}`).join(" / "), String(Math.round(i.risk * 100)), i.updated_at?.slice(0, 10) ?? "",
+    ]);
+    try { toast(t.exported(await api.exportCsv(t.csvHead, rows))); } catch (e) { fail(e); }
+  };
+
+  return (
+    <>
+      <h1 className="title">{t.sTitle}</h1>
+      <p className="lead">{t.sLead}</p>
+      <PendingBar />
+      <div className="settings">
+        <div className="card">
+          <h2>{t.sView}</h2><p className="cap">{t.sViewCap}</p>
+          <div className="set-row">{t.sLang}
+            <select className="select" value={lang} aria-label={t.sLang} onChange={(e) => up({ lang: e.target.value === "auto" ? null : (e.target.value as "ja" | "en") })}>
+              <option value="auto">{t.langAuto}</option><option value="ja">日本語</option><option value="en">English</option>
+            </select>
+          </div>
+          <div className="set-row">{t.sTheme}
+            <Seg label={t.sTheme} value={settings.theme} onChange={(v) => up({ theme: v })} options={[["light", t.themeLight], ["dark", t.themeDark], ["system", t.themeSystem]]} />
+          </div>
+        </div>
+
+        <div className="card">
+          <h2>{t.sAuto}</h2><p className="cap">{t.sAutoCap}</p>
+          <div className="set-row">{t.sAutoOn}<Switch label={t.sAutoOn} on={settings.auto_scan} onChange={(v) => up({ auto_scan: v })} /></div>
+          <div className="set-row">{t.sWhen}
+            <span style={{ display: "flex", gap: 8 }}>
+              <select className="select" value={settings.schedule} aria-label={t.sWhen} onChange={(e) => up({ schedule: e.target.value as Settings["schedule"] })}>
+                {(["weekly", "daily", "monthly"] as const).map((s) => <option key={s} value={s}>{t.sched[s]}</option>)}
+              </select>
+              <input className="inp" type="time" aria-label={t.sTime} value={settings.schedule_time} onChange={(e) => e.target.value && up({ schedule_time: e.target.value })} />
+            </span>
+          </div>
+          <div className="set-row">{t.sNotify}
+            <select className="select" value={settings.notify} aria-label={t.sNotify} onChange={(e) => up({ notify: e.target.value as Settings["notify"] })}>
+              {(["new", "always", "never"] as const).map((s) => <option key={s} value={s}>{t.notify[s]}</option>)}
+            </select>
+          </div>
+          <div className="set-row"><span>{t.sOffline}<br /><small>{t.sOfflineCap}</small></span><Switch label={t.sOffline} on={settings.offline} onChange={(v) => up({ offline: v })} /></div>
+          <p className="cap" style={{ margin: "10px 0 0" }}>{t.sNext(nextRun ? t.dateTime(new Date(nextRun)) : null)}</p>
+          {schedErr && <div className="warn">{t.sSchedErr(schedErr)}</div>}
+        </div>
+
+        <div className="card">
+          <h2>{t.sRule}</h2><p className="cap">{t.sRuleCap}</p>
+          <div className="set-row">{t.sStale}
+            <select className="select" value={settings.stale_days} aria-label={t.sStale} onChange={(e) => up({ stale_days: Number(e.target.value) })}>
+              {[180, 365, 730].map((d) => <option key={d} value={d}>{t.days(d)}</option>)}
+            </select>
+          </div>
+          <div className="set-row">{t.sWeak}
+            <select className="select" value={settings.weak_level} aria-label={t.sWeak} onChange={(e) => up({ weak_level: e.target.value as Settings["weak_level"] })}>
+              {(["weak", "fair"] as const).map((d) => <option key={d} value={d}>{t.weakOpt[d]}</option>)}
+            </select>
+          </div>
+          <h2 style={{ marginTop: 18 }}>{t.sGen}</h2><p className="cap">{t.sGenCap}</p>
+          <div className="set-row">{t.sLen}
+            <select className="select" value={settings.pw_length} aria-label={t.sLen} onChange={(e) => up({ pw_length: Number(e.target.value) })}>
+              {[16, 20, 24, 32, 40].map((d) => <option key={d} value={d}>{t.chars(d)}</option>)}
+            </select>
+          </div>
+          <div className="set-row">{t.sSym}<Switch label={t.sSym} on={settings.pw_symbols} onChange={(v) => up({ pw_symbols: v })} /></div>
+        </div>
+
+        <div className="card">
+          <h2>{t.sMcp}</h2><p className="cap">{t.sMcpCap}</p>
+          <div className="codebox mono">{config}</div>
+          <button className="btn ghost small" onClick={() => api.copyPlain(config).then(() => toast(t.configCopied)).catch(fail)}>{t.copyConfig}</button>
+          <div className="set-row">{t.sMcpGive}<small>{t.sMcpGiveV}</small></div>
+          <div className="set-row">{t.sMcpNot}<small>{t.sMcpNotV}</small></div>
+          <div className="set-row">{t.sMcpAsk}<small>{t.sMcpAskV}</small></div>
+        </div>
+
+        <div className="card">
+          <h2>{t.sInt}</h2><p className="cap">{t.sIntCap}</p>
+          <div style={{ padding: "12px 0", borderBottom: "1px solid var(--line2)" }}>
+            <b style={{ fontSize: 14 }}>{t.sHibp}</b>
+            <p className="cap" style={{ margin: "4px 0 8px" }}>{t.sHibpCap}</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <input className="inp mono" style={{ flex: 1, minWidth: 200 }} placeholder={t.sHibpPh} value={keyRef} aria-label={t.sHibp}
+                onChange={(e) => { setKeyRef(e.target.value); setKeyOk(null); }}
+                onBlur={() => up({ hibp_key_ref: keyRef.trim().startsWith("op://") ? keyRef.trim() : null })} />
+              <button className="btn ghost small" disabled={!keyRef.trim().startsWith("op://")} onClick={async () => {
+                try { setKeyOk(await api.testKeyRef(keyRef.trim())); await up({ hibp_key_ref: keyRef.trim() }); } catch { setKeyOk(false); }
+              }}>{t.sHibpTest}</button>
+              <button className="btn ghost small" onClick={() => api.openUrl("https://haveibeenpwned.com/API/Key").catch(fail)}>{t.sHibpGet}</button>
+            </div>
+            {keyOk != null && <p className="cap" style={{ margin: "6px 0 0", color: keyOk ? "var(--ok)" : "var(--coral)" }}>{keyOk ? t.sHibpOk : t.sHibpNg}</p>}
+          </div>
+          <div style={{ padding: "12px 0" }}>
+            <b style={{ fontSize: 14 }}>{t.sFreee}</b>
+            <p className="cap" style={{ margin: "4px 0 8px" }}>{t.sFreeeCap}</p>
+            <label className="btn ghost small" style={{ display: "inline-block" }}>
+              {t.sFreeePick}
+              <input type="file" accept=".csv,text/csv" hidden onChange={async (e) => {
+                const f = e.target.files?.[0]; e.target.value = "";
+                if (!f) return;
+                try { setPay(await api.freeeMatch(await readText(f))); } catch (err) { fail(err); }
+              }} />
+            </label>
+            {pay && (
+              <>
+                <p className="cap" style={{ margin: "10px 0 4px" }}>{t.sFreeeRes(pay.length)}</p>
+                {pay.map((p) => (
+                  <div className="src" key={p.id}>{p.title}{p.stale && <span className="tag" style={{ ["--c" as string]: "var(--c-stale)" }}>{t.sFreeeStale}</span>}<span>{t.yen(p.total)}</span></div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="card">
+          <h2>{t.sData}</h2><p className="cap">{t.sDataCap}</p>
+          {t.src.map(([name, what, url]) => (
+            <div className="src" key={name}><button className="linkbtn" onClick={() => api.openUrl(url).catch(fail)}>{name}</button><span>{what}</span></div>
+          ))}
+          <p className="cap" style={{ marginTop: 10 }}>{t.attribution}</p>
+          <h2 style={{ marginTop: 18 }}>{t.sOther}</h2>
+          <div className="set-row">{t.sExport}<button className="btn ghost small" disabled={!report} onClick={exportCsv}>CSV</button></div>
+          <div className="set-row">{t.sDataDir}<small className="mono" style={{ overflowWrap: "anywhere", textAlign: "right" }}>{boot.data_dir}</small></div>
+          <div className="set-row">{t.sVersion}<small>{boot.version}</small></div>
+        </div>
+      </div>
+    </>
+  );
+}

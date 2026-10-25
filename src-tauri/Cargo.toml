@@ -1,0 +1,30 @@
+[package]
+name = "vaultsweep"
+description = "1Password の中を診断して、パスワード変更と解約を手伝うアプリ"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "vaultsweep_app"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+vaultsweep-core = { path = "../crates/core" }
+tauri = { version = "2.12.5", features = [] }
+tauri-plugin-opener = "2.7.2"
+tauri-plugin-notification = "2.7.0"
+tauri-plugin-clipboard-manager = "2.5.0"
+serde.workspace = true
+serde_json.workspace = true
+zeroize.workspace = true
+sha2.workspace = true
+chrono.workspace = true
+dirs.workspace = true
+sys-locale = "0.3.2"
+
+[target.'cfg(windows)'.dependencies]
+clipboard-win = "5.4.3"
