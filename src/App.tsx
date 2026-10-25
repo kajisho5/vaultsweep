@@ -67,7 +67,12 @@ function Topbar() {
       <label className="tsearch">
         <SearchIcon />
         <input ref={ref} value={query} placeholder={t.search} aria-label={t.search}
-          onChange={(e) => { setQuery(e.target.value); setListFilter(null); if (view !== "issues") void go("issues"); }} />
+          onChange={async (e) => {
+            const v = e.target.value;
+            // ほかの画面からの検索は、一覧へ移れたときだけ文字を入れる（離れる確認で止めたら、検索欄も元のまま）
+            if (view !== "issues" && !(await go("issues"))) return;
+            setQuery(v); setListFilter(null);
+          }} />
         <kbd>Ctrl K</kbd>
       </label>
       <button type="button" className={`chipbtn${pend ? " alert" : ""}`} onClick={() => go("settings")}>{pend ? t.aiRequests(pend) : t.mcpChip}</button>
@@ -92,8 +97,40 @@ function ScanProgress() {
   );
 }
 
+/** 押したボタンが消えたり画面が変わったりしたら、キーボードの位置を今の画面の見出しへ移す（ページの先頭へ戻らないように） */
+function useFocusKeeper(view: string) {
+  const last = useRef<Element | null>(null);
+  const first = useRef(true);
+  const toHeading = () => {
+    const h = document.querySelector<HTMLElement>(".view h1");
+    if (!h) return;
+    h.tabIndex = -1;
+    h.focus({ preventScroll: true });
+  };
+  useEffect(() => {
+    const onIn = (e: FocusEvent) => { last.current = e.target as Element; };
+    document.addEventListener("focusin", onIn);
+    const mo = new MutationObserver(() => {
+      const a = document.activeElement;
+      if ((!a || a === document.body) && last.current && !last.current.isConnected && !document.querySelector(".modal-bg")) {
+        last.current = null;
+        toHeading();
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => { document.removeEventListener("focusin", onIn); mo.disconnect(); };
+  }, []);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    // 画面を変えたのが検索欄への入力なら、入力を続けられるようにそのままにする
+    if (document.activeElement?.closest(".tsearch")) return;
+    requestAnimationFrame(toHeading);
+  }, [view]);
+}
+
 export function App() {
   const { view, api, t } = useApp();
+  useFocusKeeper(view);
   return (
     <div className="app">
       <Sidebar />

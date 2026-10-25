@@ -15,6 +15,8 @@ export function CancelFlow() {
   const [date, setDate] = useState(today());
   const [receipt, setReceipt] = useState("");
   const [written, setWritten] = useState(false);
+  // 「できた・次へ」で進んだ手順だけに ✓ を付ける（左の一覧で飛んだだけでは付けない）
+  const [doneSteps, setDoneSteps] = useState<number[]>([]);
   if (!it) return <button type="button" className="btn" onClick={() => go("cancel")}>{t.cfBack}</button>;
   const site = siteUrl(it);
   const del = it.deletion;
@@ -62,8 +64,8 @@ export function CancelFlow() {
       <h2>{t.cfProofTitle}</h2>
       <p className="cap">{t.cfProofCap}</p>
       <div className="dummy" style={{ gridTemplateColumns: "auto minmax(0,260px)" }}>
-        <span>{t.leaveDate}</span><input className="inp" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <span>{t.receiptNo}{t.optional}</span><input className="inp" value={receipt} maxLength={80} onChange={(e) => setReceipt(e.target.value)} />
+        <span>{t.leaveDate}</span><input className="inp" type="date" value={date} onChange={(e) => { setDate(e.target.value); setWritten(false); }} />
+        <span>{t.receiptNo}{t.optional}</span><input className="inp" value={receipt} maxLength={80} onChange={(e) => { setReceipt(e.target.value); setWritten(false); }} />
       </div>
       <button type="button" className="btn" disabled={written} onClick={async () => {
         try { setState(await api.writeReceipt(it.id, t.leaveDate, date, t.receiptNo, receipt)); setWritten(true); toast(t.proofWritten); } catch (e) { fail(e); }
@@ -88,8 +90,8 @@ export function CancelFlow() {
         <div className="card" style={{ padding: "var(--space-sm)" }}>
           <ul className="flow-steps">
             {t.cfSteps.map((s, i) => (
-              <li key={s} className={i < step ? "done" : i === step ? "now" : ""}>
-                <button type="button" onClick={() => setStep(i)} aria-current={i === step ? "step" : undefined}><span className="dot">{i < step ? "✓" : String(i + 1).padStart(2, "0")}</span>{s}</button>
+              <li key={s} className={i === step ? "now" : doneSteps.includes(i) ? "done" : ""}>
+                <button type="button" onClick={() => setStep(i)} aria-current={i === step ? "step" : undefined}><span className="dot">{doneSteps.includes(i) && i !== step ? "✓" : String(i + 1).padStart(2, "0")}</span>{s}</button>
               </li>
             ))}
           </ul>
@@ -100,6 +102,7 @@ export function CancelFlow() {
             <div className="actions">
               <button type="button" className="btn primary" onClick={async () => {
                 if (step === 2) { try { setState(await api.cancelSet(it.id, "left")); } catch (e) { fail(e); /* 記録に失敗しても手順は先へ進める */ } }
+                setDoneSteps((d) => (d.includes(step) ? d : [...d, step]));
                 setStep(step + 1);
               }}>{t.next}</button>
               <button type="button" className="btn" onClick={() => setStep(step + 1)}>{t.skipStep}</button>

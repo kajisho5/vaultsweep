@@ -33,7 +33,7 @@ export function CancelBoard() {
                 return (
                   <div className={`kcard${c === "archived" ? " archived" : ""}`} key={id}>
                     <h4>{e.title}</h4>
-                    <small>{e.domain ?? "—"}{t.dot}{sub}</small>
+                    <small>{e.domain ?? "—"}{t.dot}{sub}{e.receipt ? <>{t.dot}{t.receiptNo} <span className="m">{e.receipt}</span></> : null}</small>
                     <div className="btns">
                       {c === "todo" && <>
                         <button type="button" className="btn small" disabled={!it} onClick={() => startFlow(id)}>{t.cStart}</button>

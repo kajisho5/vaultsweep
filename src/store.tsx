@@ -19,7 +19,7 @@ interface Ctx {
   settings: Settings;
   nextRun: string | null;
   view: View;
-  go(v: View): void;
+  go(v: View): Promise<boolean>;
   setReport(r: Report | null): void;
   setState(s: State): void;
   saveSettings(s: Settings): Promise<string | null>;
@@ -114,7 +114,8 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
   const toast = useCallback((m: string) => {
     setToastMsg({ m, on: true });
     clearTimeout(toastTimer.current);
-    toastTimer.current = window.setTimeout(() => setToastMsg((x) => ({ ...x, on: false })), 2800);
+    // 長い知らせほど長く出しておく
+    toastTimer.current = window.setTimeout(() => setToastMsg((x) => ({ ...x, on: false })), Math.min(9000, 2800 + m.length * 45));
   }, []);
 
   const modalRef = useRef<(ModalSpec & { resolve(v: string): void }) | null>(null);
@@ -157,11 +158,12 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
   const go = useCallback(async (v: View) => {
     if (leaveGuard.current) {
       const ok = await leaveGuard.current();
-      if (!ok) return;
+      if (!ok) return false;
       leaveGuard.current = null;
     }
     setView(v);
     window.scrollTo({ top: 0 });
+    return true;
   }, []);
 
   const scan = useCallback(async () => {

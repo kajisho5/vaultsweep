@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "../store";
 import { Tag, Meter } from "../components/ui";
-import { mainKind, type Item } from "../lib/types";
+import { PASSWORD_KINDS, mainKind, type Item } from "../lib/types";
 import { SiteActions, useChanger, useLeaveGuard } from "./changeKit";
 
-type St = "todo" | "done" | "skip";
+/** done=変えた skip=あとで kept=新しいパスワードのまま「あとで」 gone=順番が来たときには片付いていた */
+type St = "todo" | "done" | "skip" | "kept" | "gone";
 
-function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): void }) {
+function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(kept: boolean): void }) {
   const { t, api, setReport, setState, fail, toast } = useApp();
   const working = useRef(false);
   const ch = useChanger(it);
@@ -27,8 +28,10 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): v
     if (ch.phaseRef.current === "busy" || working.current) return;
     working.current = true;
     try {
+      let kept = false;
       if (ch.phaseRef.current === "generated") {
         if (it.passkey_site) {
+          kept = true;
           // パスキー対応のサイトは自動で戻せないので、新しいパスワードのまま「あとで」にする（元の値はアプリが覚えている）
           toast(t.bSkipKeep);
         } else {
@@ -36,7 +39,7 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): v
           toast(t.bSkipped);
         }
       }
-      onSkip();
+      onSkip(kept);
     } finally { working.current = false; }
   };
   const keys = useRef({ done, skip });
@@ -45,7 +48,7 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(): v
     const on = (e: KeyboardEvent) => {
       // ボタンやリンクに当たっている Enter は、そのボタンの動きを優先する
       const tg = e.target as HTMLElement | null;
-      if (tg?.closest("input,select,textarea,button,a,[role=switch],[tabindex],[contenteditable]") || document.querySelector(".modal-bg")) return;
+      if (tg?.closest("input,select,textarea,button,a,[role=switch],[tabindex]:not([tabindex=\"-1\"]),[contenteditable]") || document.querySelector(".modal-bg")) return;
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat || e.isComposing) return;
       if (e.key === "Enter") { e.preventDefault(); void keys.current.done(); }
       if (e.key === "s" || e.key === "S") void keys.current.skip();
@@ -88,8 +91,13 @@ export function Batch() {
   const finished = idx < 0;
   const nDone = q.filter((s) => s !== "todo").length;
   const changed = q.filter((s) => s === "done").length;
-  const skipped = q.filter((s) => s === "skip").length;
+  const skipped = q.filter((s) => s === "skip" || s === "kept").length;
+  const kept = snap.filter((_, i) => q[i] === "kept");
   const set = (i: number, s: St) => setQ((old) => old.map((x, j) => (j === i ? s : x)));
+  // 使い回し・似ているの相手を先に直すと、順番が来る前に片付くことがある。そのときは作り直させずに飛ばす
+  const cur = idx >= 0 ? item(snap[idx].id) : undefined;
+  const curGone = idx >= 0 && (!cur || !cur.issues.some((x) => PASSWORD_KINDS.includes(x.kind)));
+  useEffect(() => { if (curGone) set(idx, "gone"); }, [curGone, idx]);
   useEffect(() => { if (finished && changed > 0) celebrate(); }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
@@ -107,7 +115,7 @@ export function Batch() {
               const k = mainKind(p);
               return (
                 <li key={p.id} className={st === "todo" ? (i === idx ? "now" : "") : st}>
-                  <span className="st">{st === "done" ? "✓" : st === "skip" ? "–" : String(i + 1).padStart(2, "0")}</span>{p.title}<small>{k ? t.kind[k] : ""}</small>
+                  <span className="st">{st === "done" || st === "gone" ? "✓" : st === "skip" ? "–" : st === "kept" ? "!" : String(i + 1).padStart(2, "0")}</span>{p.title}<small className={st === "kept" ? "badc" : undefined}>{st === "gone" ? t.bGone : st === "kept" ? t.bKept : k ? t.kind[k] : ""}</small>
                 </li>
               );
             })}
@@ -115,13 +123,14 @@ export function Batch() {
         </div>
         {finished ? (
           <div className="card">
-            <h2>{t.bEndTitle}</h2>
-            <p className="cap">{t.bEndCap(changed)}</p>
-            <div className="okbox"><b>{t.scoreUp(startScore, report?.score ?? startScore)}</b><p>{t.doneNext}</p></div>
+            <h2>{changed ? t.bEndTitle : t.bEndNoneTitle}</h2>
+            <p className="cap">{changed ? t.bEndCap(changed) : t.bEndNone}</p>
+            {kept.length > 0 && <div className="warn">{t.bKeptWarn(kept.map((p) => p.title).join(t.dot))}</div>}
+            {changed > 0 && <div className="okbox"><b>{t.scoreUp(startScore, report?.score ?? startScore)}</b><p>{t.doneNext}</p></div>}
             <button type="button" className="btn primary" style={{ marginTop: 8 }} onClick={() => go("issues")}>{t.toList}</button>
           </div>
-        ) : (
-          <Current key={snap[idx].id} it={item(snap[idx].id) ?? snap[idx]} onDone={() => set(idx, "done")} onSkip={() => set(idx, "skip")} />
+        ) : curGone ? <div className="card" /> : (
+          <Current key={snap[idx].id} it={cur ?? snap[idx]} onDone={() => set(idx, "done")} onSkip={(k) => set(idx, k ? "kept" : "skip")} />
         )}
       </div>
     </>

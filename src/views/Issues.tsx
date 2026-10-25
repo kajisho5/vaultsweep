@@ -13,7 +13,7 @@ function Detail({ it }: { it: Item }) {
   const doc = it.twofa_doc ?? (has(it, "nofa") ? siteUrl(it) : null);
   const diff = it.deletion ? t.difficulty[it.deletion.difficulty] ?? it.deletion.difficulty : null;
   return (
-    <aside className="card detail" aria-label={it.title}>
+    <aside className="card detail" aria-label={it.title} tabIndex={-1}>
       <div className="part">
         <h2>{it.title}</h2>
         <div className="mutedc" style={{ fontSize: "var(--text-sm)" }}>{it.domain ?? "—"}</div>
@@ -45,6 +45,7 @@ function Detail({ it }: { it: Item }) {
               try {
                 const r = await api.setInUse(it.id, !inUse);
                 if (r) setReport(r);
+                toast(inUse ? t.inUseOff : t.inUseOn);
                 setState((await api.bootstrap()).state);
               } catch (e) { fail(e); }
             }}>{inUse ? t.unmarkInUse : t.markInUse}</button>
@@ -71,7 +72,7 @@ export function Issues() {
   if (!report) return <><h1 className="title">{t.isTitle}</h1><p className="lead">{t.firstTitle}</p></>;
   const sel = rows.find((r) => r.id === selId) ?? rows[0];
   const chip = (k: (typeof KINDS)[number] | null, label: string, n: number) => (
-    <button type="button" key={k ?? "all"} className="chip" aria-pressed={listFilter === k} onClick={() => setListFilter(k)}>
+    <button type="button" key={k ?? "all"} className="chip" aria-pressed={listFilter === k} onClick={() => setListFilter(listFilter === k ? null : k)}>
       {label} <b>{n}</b>
     </button>
   );
@@ -94,7 +95,18 @@ export function Issues() {
             <tbody>
               {rows.length === 0 && <tr><td colSpan={4} className="mutedc">{t.noRows}</td></tr>}
               {rows.map((p) => (
-                <tr key={p.id} className={p.id === sel?.id ? "sel" : ""} onClick={() => setSelId(p.id)} tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") setSelId(p.id); }}>
+                <tr key={p.id} className={p.id === sel?.id ? "sel" : ""} aria-current={p.id === sel?.id ? "true" : undefined} onClick={() => setSelId(p.id)} tabIndex={0} onKeyDown={(e) => {
+                  // ↑↓ で行を移る。Enter で選んで右の詳細へ進む
+                  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                    e.preventDefault();
+                    const tr = (e.key === "ArrowDown" ? e.currentTarget.nextElementSibling : e.currentTarget.previousElementSibling) as HTMLElement | null;
+                    const i = rows.findIndex((r) => r.id === p.id) + (e.key === "ArrowDown" ? 1 : -1);
+                    if (tr && rows[i]) { setSelId(rows[i].id); tr.focus(); }
+                  } else if (e.key === "Enter") {
+                    setSelId(p.id);
+                    requestAnimationFrame(() => document.querySelector<HTMLElement>(".detail")?.focus());
+                  }
+                }}>
                   <td className="site"><b>{p.title}</b><small>{p.domain ?? "—"}</small></td>
                   <td><div className="tags" style={{ marginTop: 0 }}>{p.issues.slice(0, 2).map((x) => <Tag key={x.kind} k={x.kind} />)}{p.issues.length > 2 && <span className="m mutedc" style={{ alignSelf: "center", fontSize: "var(--text-xs)" }}>+{p.issues.length - 2}</span>}</div></td>
                   <td className="hide-sm m">{fmtDate(p.updated_at, t.ymd)}</td>
