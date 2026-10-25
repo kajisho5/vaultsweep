@@ -1,3 +1,4 @@
+import pkg from "../../package.json";
 // デモ用の中身。名前・サイト・数字はすべて架空。1Password にはつながない。
 
 // 見ている人の言語が日本語なら日本語の架空の名前、それ以外は英語の架空の名前（英語の画面に日本語が混ざらないように）
@@ -200,7 +201,7 @@ export function demoApi(): Api {
   return {
     demo: true,
     async bootstrap(): Promise<Boot> {
-      return { settings: clone(settings), state: clone(db.state), report: clone(db.report), data_dir: "(demo)", mcp_path: "C:\\Users\\sample\\AppData\\Local\\vaultsweep\\vaultsweep-mcp.exe", next_run: nextRun(), os: "demo", version: "0.1.0", system_lang: sysLang };
+      return { settings: clone(settings), state: clone(db.state), report: clone(db.report), data_dir: "(demo)", mcp_path: "C:\\Users\\sample\\AppData\\Local\\vaultsweep\\vaultsweep-mcp.exe", next_run: nextRun(), os: "demo", version: pkg.version, system_lang: sysLang };
     },
     async checkConnection() { await sleep(300); return { version: "2.41.1", vaults: 3, account: "sample.1password.example" }; },
     async runScan(on) {
@@ -255,7 +256,7 @@ export function demoApi(): Api {
       return { domain: dom, rule: r?.info ?? null, plan, site };
     },
     // デモ：新しい版の帯の見本を出す。押しても実際には更新しない
-    async updateCheck() { await sleep(400); return { version: "0.2.0", current: "0.1.0" }; },
+    async updateCheck() { await sleep(400); const [a, b, c] = pkg.version.split(".").map(Number); return { version: `${a}.${b}.${c + 1}`, current: pkg.version }; },
     async updateInstall(onProgress) {
       for (const p of [8, 27, 51, 76, 100]) { await sleep(260); onProgress(p); }
       throw { code: "other", detail: "demo_update" };

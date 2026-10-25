@@ -4908,7 +4908,7 @@ dependencies = [
 
 [[package]]
 name = "vaultsweep"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "clipboard-win",
@@ -4932,7 +4932,7 @@ dependencies = [
 
 [[package]]
 name = "vaultsweep-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "dirs",
