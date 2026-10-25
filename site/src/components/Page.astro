@@ -23,7 +23,7 @@ const half = Math.ceil(t.kinds.length / 2);
 ---
 <header data-nav class="fixed inset-x-0 top-6 z-40 flex justify-center px-4">
   <nav aria-label={t.menu} class="flex w-max items-center gap-2 rounded-full border border-line bg-card/80 py-2 pr-2 pl-4 backdrop-blur-xl">
-    <a href={home} class="press flex items-center gap-2 rounded-full px-2 py-1 text-base font-semibold" aria-label="vaultsweep">
+    <a href={home} class="press flex items-center gap-2 rounded-full px-2 py-1 text-base font-semibold hover:bg-hover" aria-label="vaultsweep">
       <Logo size={20} />vaultsweep
     </a>
     <ul class="hidden items-center gap-1 md:flex">
@@ -31,19 +31,20 @@ const half = Math.ceil(t.kinds.length / 2);
     </ul>
     <a href={other} hreflang={lang === "en" ? "ja" : "en"} class="press hidden rounded-full px-3 py-2 text-sm font-medium text-muted hover:bg-hover hover:text-ink md:block">{t.other.label}</a>
     <a href={REPO} class="press hidden rounded-full p-2 text-ink hover:bg-hover md:block" aria-label="GitHub"><Icon name="github" /></a>
-    <button type="button" data-burger data-menu={t.menu} data-close={t.close} aria-label={t.menu} aria-expanded="false" aria-controls="sheet" class="burger press relative ml-2 h-8 w-8 rounded-full text-ink md:hidden">
+    <button type="button" data-burger data-menu={t.menu} data-close={t.close} aria-label={t.menu} aria-expanded="false" aria-controls="sheet" class="burger press relative ml-2 h-8 w-8 rounded-full text-ink hover:bg-hover md:hidden">
       <span></span><span></span><span></span>
     </button>
   </nav>
-  <div id="sheet" class="sheet fixed inset-0 -z-10 flex flex-col justify-center gap-6 bg-bg/80 px-8 backdrop-blur-3xl md:hidden">
-    {t.nav.map(([href, label]) => <a href={href} class="text-3xl font-semibold">{label}</a>)}
-    <a href={other} class="text-3xl font-semibold text-muted">{t.other.label}</a>
+  <div id="sheet" inert class="sheet fixed inset-0 -z-10 flex flex-col justify-center gap-6 bg-bg/80 px-8 backdrop-blur-3xl md:hidden">
+    {t.nav.map(([href, label]) => <a href={href} class="press w-max text-3xl font-semibold hover:text-muted">{label}</a>)}
+    <a href={other} hreflang={lang === "en" ? "ja" : "en"} class="press w-max text-3xl font-semibold text-muted hover:text-ink">{t.other.label}</a>
+    <a href={REPO} class="press w-max text-3xl font-semibold text-muted hover:text-ink">GitHub</a>
   </div>
 </header>
 
 <main id="main">
   <!-- 最初の画面 -->
-  <section class={`${wrap} pt-40 pb-24`}>
+  <section class={`${wrap} mt-24 pt-12 pb-24`}>
     <h1 class="grad max-w-[680px] text-4xl font-semibold tracking-tight md:text-6xl" data-rv>
       {t.h1.map((l, i) => <>{l}{i < t.h1.length - 1 && <br />}</>)}
     </h1>
@@ -127,8 +128,8 @@ const half = Math.ceil(t.kinds.length / 2);
           <p class="flex items-center gap-2 text-sm font-medium text-muted"><Icon name={c.icon} size={16} />{c.os}</p>
           <div class="mt-2 flex items-center justify-between gap-4 rounded-lg border border-line bg-code py-2 pr-2 pl-4">
             <code class="font-mono text-sm">{c.cmd}</code>
-            <button type="button" data-copy={c.cmd} data-done={t.copied} class="press inline-flex items-center gap-2 rounded-lg border border-line2 bg-card px-3 py-2 text-sm font-semibold hover:bg-hover">
-              <Icon name="copy" size={16} /><span data-label>{t.copy}</span>
+            <button type="button" data-copy={c.cmd} data-done={t.copied} data-fail={t.copyFail} class="press inline-flex shrink-0 items-center gap-2 rounded-lg border border-line2 bg-card px-3 py-2 text-sm font-semibold whitespace-nowrap hover:bg-hover">
+              <Icon name="copy" size={16} /><span data-label aria-live="polite">{t.copy}</span>
             </button>
           </div>
         </div>
@@ -155,7 +156,7 @@ const half = Math.ceil(t.kinds.length / 2);
         </li>
       ))}
     </ul>
-    <a href={REPO} class="press mt-6 inline-flex items-center gap-2 text-base font-medium underline decoration-line2 underline-offset-4 hover:decoration-ink" data-rv><Icon name="github" />{t.source}</a>
+    <div class="mt-6" data-rv><a href={REPO} class="press inline-flex items-center gap-2 text-base font-medium underline decoration-line2 underline-offset-4 hover:decoration-ink"><Icon name="github" />{t.source}</a></div>
   </section>
 
   <!-- AI と使う -->
@@ -208,15 +209,15 @@ const half = Math.ceil(t.kinds.length / 2);
 <footer class="border-t border-line">
   <div class={`${wrap} flex flex-col gap-4 py-12`}>
     <div class="flex flex-wrap items-center justify-between gap-4">
-      <a href={home} class="flex items-center gap-2 text-base font-semibold"><Logo size={20} />vaultsweep</a>
+      <a href={home} class="press flex items-center gap-2 text-base font-semibold hover:text-muted"><Logo size={20} />vaultsweep</a>
       <p class="text-xs text-muted">{t.trademark}</p>
     </div>
     <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink2">
-      <li><a class="hover:text-ink" href={`${home}privacy/`}>{t.footer.privacy}</a></li>
-      <li><a class="hover:text-ink" href={`${REPO}/blob/main/LICENSE`}>{t.footer.license}</a></li>
-      <li><a class="hover:text-ink" href={REPO}>{t.footer.source}</a></li>
-      <li><a class="hover:text-ink" href={`${REPO}/releases`}>{t.footer.changelog}</a></li>
-      <li><a class="hover:text-ink" href={other} hreflang={lang === "en" ? "ja" : "en"}>{t.other.label}</a></li>
+      <li><a class="press inline-block hover:text-ink" href={`${home}privacy/`}>{t.footer.privacy}</a></li>
+      <li><a class="press inline-block hover:text-ink" href={`${REPO}/blob/main/LICENSE`}>{t.footer.license}</a></li>
+      <li><a class="press inline-block hover:text-ink" href={REPO}>{t.footer.source}</a></li>
+      <li><a class="press inline-block hover:text-ink" href={`${REPO}/releases`}>{t.footer.changelog}</a></li>
+      <li><a class="press inline-block hover:text-ink" href={other} hreflang={lang === "en" ? "ja" : "en"}>{t.other.label}</a></li>
     </ul>
     <p class="text-xs text-muted">{t.data}</p>
   </div>

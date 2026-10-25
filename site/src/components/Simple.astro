@@ -10,7 +10,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const home = lang === "en" ? base : `${base}ja/`;
 ---
 <header class="flex justify-center px-4 pt-6">
-  <a href={home} class="press flex w-max items-center gap-2 rounded-full border border-line bg-card px-4 py-2 text-base font-semibold"><Logo size={20} />vaultsweep</a>
+  <a href={home} class="press flex w-max items-center gap-2 rounded-full border border-line bg-card px-4 py-2 text-base font-semibold hover:bg-hover"><Logo size={20} />vaultsweep</a>
 </header>
 <main id="main" class="mx-auto w-full max-w-[680px] px-4 py-24">
   <h1 class="text-4xl font-semibold tracking-tight">{title}</h1>

@@ -3,8 +3,8 @@ import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "../styles/global.css";
 import { DICT, type Lang } from "../i18n";
-interface Props { lang: Lang; title?: string; path?: string; jsonLd?: object; noindex?: boolean }
-const { lang, title, path = "", jsonLd, noindex } = Astro.props;
+interface Props { lang: Lang; title?: string; description?: string; path?: string; jsonLd?: object; noindex?: boolean }
+const { lang, title, description, path = "", jsonLd, noindex } = Astro.props;
 const t = DICT[lang];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const site = Astro.site!.origin;
@@ -19,22 +19,29 @@ const og = `${site}${base}og-${lang}.png`;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title ?? t.title}</title>
-    <meta name="description" content={t.description} />
-    {noindex && <meta name="robots" content="noindex" />}
-    <link rel="canonical" href={url} />
-    <link rel="alternate" hreflang="en" href={enUrl} />
-    <link rel="alternate" hreflang="ja" href={jaUrl} />
-    <link rel="alternate" hreflang="x-default" href={enUrl} />
+    <meta name="description" content={description ?? t.description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <>
+      <link rel="canonical" href={url} />
+      <link rel="alternate" hreflang="en" href={enUrl} />
+      <link rel="alternate" hreflang="ja" href={jaUrl} />
+      <link rel="alternate" hreflang="x-default" href={enUrl} />
+    </>}
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title ?? t.title} />
-    <meta property="og:description" content={t.description} />
-    <meta property="og:url" content={url} />
+    <meta property="og:description" content={description ?? t.description} />
+    {!noindex && <meta property="og:url" content={url} />}
     <meta property="og:image" content={og} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
-    <script is:inline>document.documentElement.classList.add("js");</script>
+    <script is:inline>
+      // 浮かび上がる演出は、使える環境のときだけ。3秒たっても準備できなければ、全部そのまま見せる
+      if ("IntersectionObserver" in window) {
+        document.documentElement.classList.add("js");
+        setTimeout(function () { if (!document.documentElement.dataset.ready) document.documentElement.classList.remove("js"); }, 3000);
+      }
+    </script>
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
   <body class="bg-bg text-ink antialiased">
