@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "../store";
 import { Tag, Meter } from "../components/ui";
 import { PASSWORD_KINDS, mainKind, type Item } from "../lib/types";
-import { SiteActions, useChanger, useLeaveGuard } from "./changeKit";
+import { RejectBox, RuleBox, SiteActions, genArg, useChanger, useLeaveGuard } from "./changeKit";
 
 /** done=変えた skip=あとで kept=新しいパスワードのまま「あとで」 gone=順番が来たときには片付いていた */
 type St = "todo" | "done" | "skip" | "kept" | "gone";
@@ -70,8 +70,11 @@ function Current({ it, onDone, onSkip }: { it: Item; onDone(): void; onSkip(kept
       </ol>
       {it.passkey_site && !gen && <div className="warn">{t.passkeyWarn}</div>}
       {!gen ? (
-        <button type="button" className="btn primary" disabled={ch.phase === "busy"} aria-busy={ch.phase === "busy"} onClick={async () => { if (await ch.generate()) toast(t.bGenerated); }}>{ch.phase === "busy" ? t.working : t.bGen}</button>
-      ) : <SiteActions ch={ch} />}
+        <>
+          <RuleBox ch={ch} />
+          <button type="button" className="btn primary" disabled={ch.phase === "busy" || (!!ch.plan?.plan.manual && !ch.editing)} aria-busy={ch.phase === "busy"} onClick={async () => { if (await ch.generate(genArg(ch))) toast(t.bGenerated); }}>{ch.phase === "busy" ? t.working : t.bGen}</button>
+        </>
+      ) : <><SiteActions ch={ch} /><RejectBox ch={ch} /></>}
       <div className="actions">
         <button type="button" className={`btn${gen ? " primary" : ""}`} disabled={!gen} onClick={done}>{t.bNext}</button>
         <button type="button" className="btn" disabled={ch.phase === "busy"} onClick={skip}>{t.bSkip}</button>

@@ -594,14 +594,25 @@ fn similar_passwords_detected_and_cleared() {
         it[4]["fields"][1]["value"] = json!("Sample-Kumo2024!");
     }
     let store = tmp_store("similar");
-    let r = scan::run(&op, Some(&FakeNet), &store, &|_| {}).unwrap().report;
+    let r = scan::run(&op, Some(&FakeNet), &store, &|_| {})
+        .unwrap()
+        .report;
     assert!(kinds(&r, "dddddddddddddddddddddddddd").contains(&Kind::Similar));
     assert!(kinds(&r, "eeeeeeeeeeeeeeeeeeeeeeeeee").contains(&Kind::Similar));
     // 同じパスワード（A と B）は「使い回し」で、「似ている」には入れない
     assert!(!kinds(&r, "aaaaaaaaaaaaaaaaaaaaaaaaaa").contains(&Kind::Similar));
     let saved = std::fs::read_to_string(store.dir.join("report.json")).unwrap();
-    assert!(!saved.contains("Kumo") && !saved.to_lowercase().contains("kumo"), "パスワードの一部も残さない");
-    let r2 = store.mark_changed("dddddddddddddddddddddddddd").unwrap().unwrap();
+    assert!(
+        !saved.contains("Kumo") && !saved.to_lowercase().contains("kumo"),
+        "パスワードの一部も残さない"
+    );
+    let r2 = store
+        .mark_changed("dddddddddddddddddddddddddd")
+        .unwrap()
+        .unwrap();
     assert!(!kinds(&r2, "dddddddddddddddddddddddddd").contains(&Kind::Similar));
-    assert!(!kinds(&r2, "eeeeeeeeeeeeeeeeeeeeeeeeee").contains(&Kind::Similar), "相手が1件だけになったら外す");
+    assert!(
+        !kinds(&r2, "eeeeeeeeeeeeeeeeeeeeeeeeee").contains(&Kind::Similar),
+        "相手が1件だけになったら外す"
+    );
 }

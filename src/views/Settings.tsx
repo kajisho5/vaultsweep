@@ -1,17 +1,9 @@
 import { useState } from "react";
 import { useApp } from "../store";
-import { Switch, fmtDate } from "../components/ui";
+import { Seg, Switch, fmtDate } from "../components/ui";
 import { PendingBar } from "./Overview";
 import type { Settings } from "../lib/types";
 import { issueText } from "../lib/i18n";
-
-function Seg<T extends string>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange(v: T): void; label: string }) {
-  return (
-    <div className="seg" role="group" aria-label={label}>
-      {options.map(([v, l]) => <button key={v} aria-pressed={value === v} onClick={() => onChange(v)}>{l}</button>)}
-    </div>
-  );
-}
 
 export function SettingsView() {
   const { t, settings, saveSettings, nextRun, boot, api, toast, fail, report, errText } = useApp();

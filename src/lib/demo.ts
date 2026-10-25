@@ -12,7 +12,7 @@ function relabel<T>(data: T, toJa: boolean): T {
   return JSON.parse(s) as T;
 }
 import type { Api } from "./api";
-import type { Boot, CancelEntry, Issue, Item, Kind, Pending, Report, Settings, State } from "./types";
+import type { Boot, CancelEntry, Issue, Item, Kind, Pending, Plan, Report, RuleInfo, Settings, SiteRule, State } from "./types";
 import { KINDS, PASSWORD_KINDS, SEVERITY } from "./types";
 
 function rng(seed: number) {
@@ -69,6 +69,20 @@ const KNOWN: Record<number, Known> = {
   130: [L("架空ポイントL", "Fictional Points L"), "point-l.example", ["similar"]],
 };
 
+// サイトの決まり（デモ用。本物は Apple の公開データから読む）
+const DEMO_RULES: Record<number, { raw: string; info: RuleInfo; plan: Plan }> = {
+  63: {
+    raw: "minlength: 8; maxlength: 20; max-consecutive: 3; required: lower, upper; required: digit; allowed: [!$*?@|];",
+    info: { min: 8, max: 20, max_consecutive: 3, required: ["lower", "upper", "digit"], symbols: "!$*?@|", letters: true, digits: true },
+    plan: { length: 20, chars: "alnum", source: "rule", manual: false },
+  },
+  42: {
+    raw: "maxlength: 15;",
+    info: { min: null, max: 15, max_consecutive: null, required: [], symbols: null, letters: true, digits: true },
+    plan: { length: 15, chars: "all", source: "rule", manual: false },
+  },
+};
+
 function build(now: Date): { report: Report; state: State } {
   const R = rng(42);
   const N = 143;
@@ -122,6 +136,7 @@ function build(now: Date): { report: Report; state: State } {
       has_totp: !x.kinds.includes("nofa") && x.n % 4 === 0, passkey_site: x.n === 63 || x.n % 11 === 0,
       twofa_doc: x.kinds.includes("nofa") ? `https://help.${x.dom}/2fa` : null, deletion: del,
       username_hint: x.title.length % 2 ? "ta•••" : "us•••",
+      pw_rule: DEMO_RULES[x.n]?.raw ?? null,
     };
   });
   const report: Report = {
@@ -162,6 +177,7 @@ export function demoApi(): Api {
   let settings: Settings = {
     lang: null, theme: "system", auto_scan: true, schedule: "weekly", schedule_time: "09:00", notify: "new", offline: false,
     stale_days: 365, weak_level: "weak", pw_length: 24, pw_symbols: true, hibp_key_ref: null,
+    auto_update: true, site_rules: {},
   };
   // 本物と同じく：作ったあとは確定か元に戻すまで「元のパスワード」を覚えておく
   const sessions = new Map<string, { generated: boolean; dirty: boolean }>();
@@ -223,7 +239,22 @@ export function demoApi(): Api {
       return clone(db.state);
     },
     async changeBegin(id) { await sleep(250); if (!sessions.get(id)?.dirty) sessions.set(id, { generated: false, dirty: false }); },
-    async changeGenerate(id) { await sleep(450); const s = sessions.get(id); if (!s) throw { code: "other", detail: "no_session" }; s.dirty = true; s.generated = true; },
+    async changeGenerate(id, site) {
+      await sleep(450); const s = sessions.get(id); if (!s) throw { code: "other", detail: "no_session" };
+      const dom = find(id)?.domain;
+      if (site && dom) settings.site_rules = { ...settings.site_rules, [dom]: { length: Math.min(64, Math.max(4, site.length)), chars: site.chars } };
+      s.dirty = true; s.generated = true;
+    },
+    async changePlan(id) {
+      await sleep(120);
+      const it = find(id); const dom = it?.domain ?? null;
+      const n = Number(id.slice(4, 7)); const r = DEMO_RULES[n];
+      const site: SiteRule | null = dom ? settings.site_rules[dom] ?? null : null;
+      const def: Plan = { length: settings.pw_length, chars: settings.pw_symbols ? "all" : "alnum", source: "default", manual: false };
+      const plan: Plan = site ? { length: site.length, chars: site.chars, source: "site", manual: false } : r ? { ...r.plan, chars: r.plan.chars === "all" && !settings.pw_symbols ? "alnum" : r.plan.chars } : def;
+      return { domain: dom, rule: r?.info ?? null, plan, site };
+    },
+    async siteRuleClear(domain) { const { [domain]: _, ...rest } = settings.site_rules; settings.site_rules = rest; },
     async copySecret(id, which) {
       const s = sessions.get(id); if (!s || (which === "new" && !s.generated)) throw { code: "other", detail: "no_value" };
       return { seconds: 30 };

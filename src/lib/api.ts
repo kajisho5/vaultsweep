@@ -1,5 +1,5 @@
 // 画面から中身を呼ぶ口。アプリの外（ブラウザ）ではデモ用の架空データで動く。
-import type { Boot, Item, Pending, Progress, Report, ScanResult, Settings, State } from "./types";
+import type { Boot, ChangePlan, Item, Pending, Progress, Report, ScanResult, Settings, SiteRule, State } from "./types";
 import { demoApi } from "./demo";
 
 export interface Saved { settings: Settings; next_run: string | null; schedule_error: string | null }
@@ -14,7 +14,11 @@ export interface Api {
   cancelAdd(id: string): Promise<State>;
   cancelSet(id: string, state: "todo" | "left" | "archived" | "remove", receipt?: string | null): Promise<State>;
   changeBegin(id: string): Promise<void>;
-  changeGenerate(id: string): Promise<void>;
+  /** site を渡すと、このサイトの決まりとして覚えてから作る */
+  changeGenerate(id: string, site?: SiteRule | null): Promise<void>;
+  /** このサイトの決まりと、使う作り方 */
+  changePlan(id: string): Promise<ChangePlan>;
+  siteRuleClear(domain: string): Promise<void>;
   copySecret(id: string, which: "old" | "new"): Promise<{ seconds: number }>;
   copyPlain(text: string): Promise<void>;
   changeConfirm(id: string): Promise<Report | null>;
@@ -56,7 +60,9 @@ async function tauriApi(): Promise<Api> {
     cancelAdd: (id) => invoke("cancel_add", { id }),
     cancelSet: (id, state, receipt = null) => invoke("cancel_set", { id, state, receipt }),
     changeBegin: (id) => invoke("change_begin", { id }),
-    changeGenerate: (id) => invoke("change_generate", { id }),
+    changeGenerate: (id, site = null) => invoke("change_generate", { id, site }),
+    changePlan: (id) => invoke("change_plan", { id }),
+    siteRuleClear: (domain) => invoke("site_rule_clear", { domain }),
     copySecret: (id, which) => invoke("copy_secret", { id, which }),
     copyPlain: (text) => invoke("copy_plain", { text }),
     changeConfirm: (id) => invoke("change_confirm", { id }),

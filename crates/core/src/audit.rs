@@ -308,6 +308,7 @@ pub fn audit(inp: AuditInput) -> Report {
                 .unwrap_or(false),
             twofa_doc: twofa.flatten(),
             deletion: p.host.as_deref().and_then(|h| inp.lists.deletion(h)),
+            pw_rule: p.host.as_deref().and_then(|h| inp.lists.rules.find(h)),
             username_hint: p.username_hint.clone(),
         });
     }

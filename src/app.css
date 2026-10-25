@@ -247,6 +247,16 @@
   .codebox { font-family: var(--font-outlier); font-size: var(--text-sm); background: var(--color-paper-3); color: var(--color-ink-2); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-pill); padding: var(--space-sm); white-space: pre; overflow: auto; margin: var(--space-sm) 0; }
   .src { display: flex; justify-content: space-between; padding: var(--space-xs) 0; border-bottom: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); gap: var(--space-sm); }
   .src span { color: var(--color-muted); text-align: right; }
+  .rulebox { background: var(--color-paper-3); border: var(--rule-hair) solid var(--color-rule); border-radius: 12px; padding: var(--space-md); }
+  .rulehead { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-sm); flex-wrap: wrap; margin-bottom: var(--space-xs); font-size: var(--text-sm); }
+  .rulehead small { font-size: var(--text-xs); color: var(--color-muted); font-weight: 500; }
+  .rulehead small.cool { color: var(--color-cool); }
+  .rulelist { margin: 0; display: grid; gap: var(--space-2xs); font-size: var(--text-sm); }
+  .rulelist div { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: var(--space-sm); }
+  .rulelist dt { color: var(--color-muted); }
+  .rulelist dd { margin: 0; color: var(--color-ink-2); font-weight: 500; overflow-wrap: anywhere; }
+  .rulelist dd.m { font-family: var(--font-outlier); }
+  .ruleplan { margin: var(--space-sm) 0 0; padding-top: var(--space-sm); border-top: var(--rule-hair) solid var(--color-rule); color: var(--color-ok); font-weight: 600; font-size: var(--text-sm); }
   .okbox { border: var(--rule-hair) solid var(--color-ok); background: var(--color-ok-soft); color: var(--color-ink); border-radius: var(--radius-pill); padding: var(--space-sm) var(--space-md); margin-bottom: var(--space-xs); }
   .okbox b { color: var(--color-ok); display: block; font-size: var(--text-sm); font-weight: 600; }
   .okbox p { margin: var(--space-3xs) 0 0; font-size: var(--text-sm); color: var(--color-ink-2); }

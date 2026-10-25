@@ -9,6 +9,7 @@ pub mod mcp;
 pub mod model;
 pub mod net;
 pub mod op;
+pub mod rules;
 pub mod scan;
 pub mod schedule;
 pub mod similar;

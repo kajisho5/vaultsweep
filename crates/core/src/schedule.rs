@@ -38,14 +38,20 @@ pub fn delete_args() -> Vec<String> {
 pub const LAUNCHD_LABEL: &str = "app.vaultsweep.scan";
 
 fn xml_escape(s: &str) -> String {
-    s.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;")
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
 }
 
 /// Mac の launchd 用の設定（~/Library/LaunchAgents に置く）。
 /// 寝ていて時刻を過ぎたときは、起きたあとに1回動く（launchd の決まり）。
 pub fn launchd_plist(exe: &str, s: &Settings) -> Option<String> {
     let t = NaiveTime::parse_from_str(&s.schedule_time, "%H:%M").ok()?;
-    let (h, m) = (t.format("%H").to_string().parse::<u32>().ok()?, t.format("%M").to_string().parse::<u32>().ok()?);
+    let (h, m) = (
+        t.format("%H").to_string().parse::<u32>().ok()?,
+        t.format("%M").to_string().parse::<u32>().ok()?,
+    );
     let extra = match s.schedule.as_str() {
         "daily" => String::new(),
         "monthly" => "<key>Day</key><integer>1</integer>".into(),
@@ -125,7 +131,11 @@ mod tests {
         );
         let a = create_args("C:\\x\\vaultsweep.exe", &s);
         assert!(a.contains(&"WEEKLY".to_string()));
-        let p = launchd_plist("/Applications/vault & sweep.app/Contents/MacOS/vaultsweep", &s).unwrap();
+        let p = launchd_plist(
+            "/Applications/vault & sweep.app/Contents/MacOS/vaultsweep",
+            &s,
+        )
+        .unwrap();
         assert!(p.contains("<key>Weekday</key><integer>1</integer><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer>"));
         assert!(p.contains("vault &amp; sweep.app"));
         let pm = launchd_plist("/x", &m).unwrap();

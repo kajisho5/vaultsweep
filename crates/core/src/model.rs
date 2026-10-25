@@ -150,6 +150,9 @@ pub struct ItemReport {
     pub deletion: Option<Deletion>,
     /// ユーザー名の伏せ字（先頭2文字だけ）。例 "ta•••"
     pub username_hint: Option<String>,
+    /// サイトのパスワードの決まり（Apple の公開データ）。例 "minlength: 8; maxlength: 20;"
+    #[serde(default)]
+    pub pw_rule: Option<String>,
 }
 
 impl ItemReport {

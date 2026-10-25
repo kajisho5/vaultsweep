@@ -16,6 +16,7 @@ use vaultsweep_core::mcp::{Scanner, Server};
 use vaultsweep_core::model::Report;
 use vaultsweep_core::net::{Fetcher, HttpFetcher};
 use vaultsweep_core::op::{self, Connection, OpError, RealOp};
+use vaultsweep_core::rules;
 use vaultsweep_core::scan::{self, Progress, ScanResult};
 use vaultsweep_core::schedule;
 use vaultsweep_core::store::{Pending, Settings, State, Store};
@@ -257,26 +258,156 @@ async fn change_begin(app: AppHandle, id: String) -> R<()> {
     Ok(())
 }
 
-/// 新しいパスワードを 1Password の中で作って保存する
+/// サイトの決まりを画面に見せる形（値ではなく決まりだけ）
+#[derive(Serialize)]
+struct RuleInfo {
+    min: Option<u32>,
+    max: Option<u32>,
+    max_consecutive: Option<u32>,
+    /// 必ず入れる種類："lower" / "upper" / "digit" / "symbol"
+    required: Vec<String>,
+    /// 使える記号が限られているときの記号の一覧。None なら制限なし
+    symbols: Option<String>,
+    letters: bool,
+    digits: bool,
+}
+
+#[derive(Serialize)]
+struct ChangePlan {
+    domain: Option<String>,
+    rule: Option<RuleInfo>,
+    plan: rules::Plan,
+    /// 本人が決めた決まり（あれば）
+    site: Option<rules::SiteRule>,
+}
+
+fn rule_info(r: &rules::Rule) -> RuleInfo {
+    let mut req: Vec<String> = vec![];
+    for q in &r.required {
+        for (on, k) in [(q.lower, "lower"), (q.upper, "upper"), (q.digit, "digit"), (!q.symbols.is_empty(), "symbol")] {
+            if on && !req.iter().any(|x| x == k) {
+                req.push(k.into());
+            }
+        }
+    }
+    let a = r.allowed.as_ref();
+    RuleInfo {
+        min: r.min,
+        max: r.max,
+        max_consecutive: r.max_consecutive,
+        required: req,
+        symbols: a.filter(|a| !a.any).map(|a| a.symbols.iter().filter(|c| !c.is_whitespace()).collect()),
+        letters: a.map(|a| a.any || a.lower || a.upper).unwrap_or(true),
+        digits: a.map(|a| a.any || a.digit).unwrap_or(true),
+    }
+}
+
+/// 項目のサイトと、使う作り方を決める
+fn plan_for(id: &str) -> (Option<String>, Option<rules::Rule>, Option<rules::SiteRule>, rules::Plan, Settings) {
+    let st = store();
+    let s = st.settings();
+    let item = st.report().and_then(|r| r.items.into_iter().find(|i| i.id == id));
+    let domain = item.as_ref().and_then(|i| i.domain.clone()).map(|d| d.to_lowercase());
+    let rule = item.as_ref().and_then(|i| i.pw_rule.as_deref()).map(rules::parse);
+    let site = domain.as_ref().and_then(|d| s.site_rules.get(d).copied());
+    let plan = rules::plan(s.pw_length, s.pw_symbols, rule.as_ref(), site);
+    (domain, rule, site, plan, s)
+}
+
+/// 変更画面で、このサイトの決まりと作り方を見せる
 #[tauri::command]
-async fn change_generate(app: AppHandle, id: String) -> R<()> {
+async fn change_plan(id: String) -> R<ChangePlan> {
     op::check_id(&id)?;
+    blocking(move || {
+        let (domain, rule, site, plan, _) = plan_for(&id);
+        Ok(ChangePlan { domain, rule: rule.as_ref().map(rule_info), plan, site })
+    })
+    .await
+}
+
+/// 新しいパスワードを 1Password の中で作って保存する。
+/// site を渡したら、このサイトの決まりとして覚えてから作る（作り直しにも使う）。
+/// 作ったあと決まりに合うかを確かめ、合わなければ5回まで作り直す。
+/// 元のパスワード（old）は最初に預かったものを持ち続ける。
+#[tauri::command]
+async fn change_generate(app: AppHandle, id: String, site: Option<rules::SiteRule>) -> R<()> {
+    op::check_id(&id)?;
+    if !app.state::<AppState>().sessions.lock().unwrap().contains_key(&id) {
+        return Err(OpError::Other("no_session".into()));
+    }
+    let i2 = id.clone();
+    let (plan, check) = blocking(move || {
+        let given = site.map(|sr| sr.sanitized());
+        if let Some(sr) = given {
+            let st = store();
+            let (domain, ..) = plan_for(&i2);
+            if let Some(d) = domain {
+                let mut s = st.settings();
+                s.site_rules.insert(d, sr);
+                st.save_settings(s).map_err(other)?;
+            }
+        }
+        let (_, rule, saved, plan, s) = plan_for(&i2);
+        // 渡された決まりを優先（ドメインが無くて覚えられない項目でも、今回はそれで作る）
+        let site = given.or(saved);
+        let plan = match site {
+            Some(_) => rules::plan(s.pw_length, s.pw_symbols, None, site),
+            None => plan,
+        };
+        let check = match site {
+            Some(sr) => Some(rules::site_rule_as_rule(sr)),
+            None => rule.filter(|_| plan.source == "rule"),
+        };
+        Ok((plan, check))
+    })
+    .await?;
+    if plan.manual {
+        return Err(OpError::Other("rule_manual".into()));
+    }
     match app.state::<AppState>().sessions.lock().unwrap().get_mut(&id) {
         Some(sess) => sess.dirty = true,
         None => return Err(OpError::Other("no_session".into())),
     }
-    let s = store().settings();
     let i2 = id.clone();
-    let new = blocking(move || {
+    let (new, ok) = blocking(move || {
         let o = RealOp::default();
-        op::generate_password(&o, &i2, &op::recipe(s.pw_length, s.pw_symbols))?;
-        op::read_password(&o, &i2)
+        let recipe = plan.recipe();
+        let mut last = None;
+        for _ in 0..5 {
+            op::generate_password(&o, &i2, &recipe)?;
+            let pw = op::read_password(&o, &i2)?;
+            let fits = match (&check, pw.as_deref()) {
+                (Some(r), Some(p)) => rules::satisfies(p, r),
+                _ => true,
+            };
+            last = pw;
+            if fits {
+                return Ok((last, true));
+            }
+        }
+        Ok((last, false))
     })
     .await?;
     if let Some(sess) = app.state::<AppState>().sessions.lock().unwrap().get_mut(&id) {
         sess.new = new;
     }
+    if !ok {
+        return Err(OpError::Other("rule_unmet".into()));
+    }
     Ok(())
+}
+
+/// このサイトの決まりを忘れる（公開データか設定どおりに戻す）
+#[tauri::command]
+async fn site_rule_clear(domain: String) -> R<()> {
+    blocking(move || {
+        let st = store();
+        let mut s = st.settings();
+        s.site_rules.remove(&domain.to_lowercase());
+        st.save_settings(s).map_err(other)?;
+        Ok(())
+    })
+    .await
 }
 
 #[derive(Serialize)]
@@ -546,6 +677,8 @@ pub fn run() {
             cancel_set,
             change_begin,
             change_generate,
+            change_plan,
+            site_rule_clear,
             copy_secret,
             copy_plain,
             change_confirm,

@@ -3,7 +3,7 @@ import { useApp } from "../store";
 import { Tag } from "../components/ui";
 import { has } from "../lib/types";
 import { siteUrl } from "../lib/api";
-import { SiteActions, useChanger, useLeaveGuard } from "./changeKit";
+import { RejectBox, RuleBox, SiteActions, genArg, useChanger, useLeaveGuard } from "./changeKit";
 
 export function Change() {
   const { t, changeId, item, go, api, report, setReport, setState, settings, celebrate, fail } = useApp();
@@ -63,10 +63,11 @@ export function Change() {
           ) : ch.phase !== "generated" ? (
             <>
               <h2>{t.genTitle}</h2>
-              <p className="cap">{t.genCap(settings.pw_length, settings.pw_symbols)}</p>
+              <p className="cap">{t.genCap(ch.plan?.plan.length ?? settings.pw_length, t.charsV[ch.plan?.plan.chars ?? (settings.pw_symbols ? "all" : "alnum")])}</p>
               <div className="tags" style={{ marginBottom: 12 }}>{it.issues.map((x) => <Tag key={x.kind} k={x.kind} />)}</div>
+              <RuleBox ch={ch} />
               {it.passkey_site && <div className="warn">{t.passkeyWarn}</div>}
-              <button type="button" className="btn primary" disabled={ch.phase === "busy"} aria-busy={ch.phase === "busy"} onClick={() => void ch.generate()}>{ch.phase === "busy" ? t.working : t.genBtn}</button>
+              <button type="button" className="btn primary" disabled={ch.phase === "busy" || (!!ch.plan?.plan.manual && !ch.editing)} aria-busy={ch.phase === "busy"} onClick={() => void ch.generate(genArg(ch))}>{ch.phase === "busy" ? t.working : ch.editing ? t.genWith : t.genBtn}</button>
             </>
           ) : (
             <>
@@ -74,6 +75,7 @@ export function Change() {
               <p className="cap">{t.siteCap}</p>
               <ol className="how">{t.siteHow.map((s) => <li key={s}>{s}</li>)}</ol>
               <SiteActions ch={ch} />
+              <RejectBox ch={ch} />
               <div className="actions">
                 <button type="button" className="btn primary" disabled={saving} onClick={confirm}>{t.saved}</button>
                 <button type="button" className="btn" onClick={() => void ch.restore()}>{t.undo}</button>

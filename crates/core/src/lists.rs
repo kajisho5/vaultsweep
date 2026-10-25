@@ -3,6 +3,7 @@
 //! - Passkeys Directory（CC BY 4.0）: パスキーに対応しているサイト
 //! - JustDeleteMe（MIT）: 退会ページと難しさ
 //! - HIBP の事故サイト一覧
+//! - Apple Password Manager Resources（MIT）: サイトごとのパスワードの決まり（同梱の控えあり）
 
 use crate::domain::candidates;
 use crate::hibp::{self, Breach};
@@ -52,6 +53,8 @@ pub struct Lists {
     pub passkeys: Option<HashSet<String>>,
     pub jdm: Option<HashMap<String, Deletion>>,
     pub breaches: Option<HashMap<String, Vec<Breach>>>,
+    /// サイトごとのパスワードの決まり（取れなければ同梱の控え）
+    pub rules: crate::rules::RuleBook,
 }
 
 pub fn parse_totp(b: &[u8]) -> Option<HashMap<String, Option<String>>> {
@@ -117,6 +120,10 @@ impl Lists {
             jdm: cached(cache_dir, "jdm.json", JDM_URL, f).and_then(|b| parse_jdm(&b)),
             breaches: cached(cache_dir, "breaches.json", hibp::BREACHES_URL, f)
                 .and_then(|b| hibp::parse_breaches(&b).ok()),
+            rules: cached(cache_dir, "password-rules.json", crate::rules::RULES_URL, f)
+                .and_then(|b| crate::rules::RuleBook::parse(&b))
+                .filter(|b| !b.is_empty())
+                .unwrap_or_else(crate::rules::RuleBook::bundled),
         }
     }
 
@@ -163,6 +170,7 @@ mod tests {
             passkeys: Some(p),
             jdm: Some(j),
             breaches: None,
+            rules: Default::default(),
         };
         assert!(l.totp_doc("us.zoom.us").is_some());
         assert!(l.passkey("login.a.example"));

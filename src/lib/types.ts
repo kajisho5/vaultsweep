@@ -39,7 +39,21 @@ export interface Item {
   twofa_doc: string | null;
   deletion: Deletion | null;
   username_hint: string | null;
+  /** サイトのパスワードの決まり（Apple の公開データ） */
+  pw_rule?: string | null;
 }
+
+export type RuleChars = "all" | "alnum" | "digits";
+export interface SiteRule { length: number; chars: RuleChars }
+export interface RuleInfo {
+  min: number | null; max: number | null; max_consecutive: number | null;
+  required: ("lower" | "upper" | "digit" | "symbol")[];
+  /** 使える記号が限られているときの一覧。null なら制限なし */
+  symbols: string | null;
+  letters: boolean; digits: boolean;
+}
+export interface Plan { length: number; chars: RuleChars; source: "rule" | "site" | "default"; manual: boolean }
+export interface ChangePlan { domain: string | null; rule: RuleInfo | null; plan: Plan; site: SiteRule | null }
 
 export interface Report {
   scanned_at: string;
@@ -65,6 +79,8 @@ export interface Settings {
   pw_length: number;
   pw_symbols: boolean;
   hibp_key_ref: string | null;
+  auto_update: boolean;
+  site_rules: Record<string, SiteRule>;
 }
 
 export interface CancelEntry {

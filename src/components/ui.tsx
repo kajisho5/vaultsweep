@@ -132,3 +132,12 @@ export function fmtDate(s: string | null | undefined, f: (d: Date) => string) {
   const d = new Date(s);
   return isNaN(d.getTime()) ? "—" : f(d);
 }
+
+/** いくつかから1つを選ぶ */
+export function Seg<T extends string>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange(v: T): void; label: string }) {
+  return (
+    <div className="seg" role="group" aria-label={label}>
+      {options.map(([v, l]) => <button type="button" key={v} aria-pressed={value === v} onClick={() => onChange(v)}>{l}</button>)}
+    </div>
+  );
+}

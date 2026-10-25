@@ -32,6 +32,10 @@ pub struct Settings {
     pub pw_symbols: bool,
     /// HIBP のキーの場所（op://保管庫/項目/欄）。キーそのものは保存しない
     pub hibp_key_ref: Option<String>,
+    /// 新しい版を自動で確かめる
+    pub auto_update: bool,
+    /// 本人が決めた、サイトごとのパスワードの決まり（ドメイン → 長さ・使う文字）
+    pub site_rules: BTreeMap<String, crate::rules::SiteRule>,
 }
 
 impl Default for Settings {
@@ -49,6 +53,8 @@ impl Default for Settings {
             pw_length: 24,
             pw_symbols: true,
             hibp_key_ref: None,
+            auto_update: true,
+            site_rules: BTreeMap::new(),
         }
     }
 }
@@ -87,6 +93,17 @@ impl Settings {
             self.weak_level = d.weak_level;
         }
         self.pw_length = self.pw_length.clamp(12, 64);
+        self.site_rules = std::mem::take(&mut self.site_rules)
+            .into_iter()
+            .filter(|(k, _)| {
+                !k.is_empty()
+                    && k.len() <= 253
+                    && k.chars()
+                        .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-')
+            })
+            .take(2000)
+            .map(|(k, v)| (k.to_lowercase(), v.sanitized()))
+            .collect();
         if let Some(r) = &self.hibp_key_ref
             && !r.starts_with("op://")
         {
