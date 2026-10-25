@@ -93,6 +93,9 @@ jobs:
           mkdir -p src-tauri/binaries
           lipo -create -output src-tauri/binaries/vaultsweep-mcp-universal-apple-darwin \
             target/aarch64-apple-darwin/release/vaultsweep-mcp target/x86_64-apple-darwin/release/vaultsweep-mcp
+          # 両方入りを作るときも、途中でそれぞれの種類の名前で探されるので置いておく
+          cp target/aarch64-apple-darwin/release/vaultsweep-mcp src-tauri/binaries/vaultsweep-mcp-aarch64-apple-darwin
+          cp target/x86_64-apple-darwin/release/vaultsweep-mcp src-tauri/binaries/vaultsweep-mcp-x86_64-apple-darwin
 
       - name: アプリと .dmg を作る（署名は仮の署名。Apple の公証はまだしない）
         run: npx tauri build --target universal-apple-darwin --bundles app,dmg
