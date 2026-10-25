@@ -161,6 +161,9 @@ async fn save_settings(settings: Settings) -> R<Saved> {
 }
 
 fn apply_schedule(s: &Settings) -> Result<(), String> {
+    if cfg!(target_os = "macos") {
+        return apply_schedule_mac(s);
+    }
     if !cfg!(windows) {
         return Err("unsupported_os".into());
     }
@@ -183,6 +186,35 @@ fn apply_schedule(s: &Settings) -> Result<(), String> {
     } else {
         // schtasks のエラー文は文字コードが違って化けるので、終了コードだけ返す
         Err(format!("schtasks exit {}", out.status.code().unwrap_or(-1)))
+    }
+}
+
+/// Mac：~/Library/LaunchAgents に予定を置いて launchd に読ませる（オフなら外して消す）
+fn apply_schedule_mac(s: &Settings) -> Result<(), String> {
+    use std::process::Command;
+    let home = dirs::home_dir().ok_or("no home")?;
+    let plist = home.join("Library").join("LaunchAgents").join(format!("{}.plist", schedule::LAUNCHD_LABEL));
+    let uid = Command::new("/usr/bin/id").arg("-u").output().map_err(|e| e.to_string())?;
+    let uid = String::from_utf8_lossy(&uid.stdout).trim().to_string();
+    if uid.is_empty() || !uid.chars().all(|c| c.is_ascii_digit()) {
+        return Err("uid".into());
+    }
+    let domain = format!("gui/{uid}");
+    // 前の予定は外す（入っていなければ失敗するが、それでよい）
+    let _ = Command::new("/bin/launchctl").args(["bootout", &format!("{domain}/{}", schedule::LAUNCHD_LABEL)]).output();
+    if !s.auto_scan {
+        let _ = std::fs::remove_file(&plist);
+        return Ok(());
+    }
+    let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+    let body = schedule::launchd_plist(&exe.to_string_lossy(), s).ok_or("time")?;
+    std::fs::create_dir_all(plist.parent().ok_or("dir")?).map_err(|e| e.to_string())?;
+    std::fs::write(&plist, body).map_err(|e| e.to_string())?;
+    let out = Command::new("/bin/launchctl").args(["bootstrap", &domain]).arg(&plist).output().map_err(|e| e.to_string())?;
+    if out.status.success() {
+        Ok(())
+    } else {
+        Err(format!("launchctl exit {}", out.status.code().unwrap_or(-1)))
     }
 }
 
@@ -531,6 +563,9 @@ pub fn run() {
         .setup(move |app| {
             clip::init(app.handle());
             if headless {
+                // Mac：裏での診断中は Dock にアイコンを出さない
+                #[cfg(target_os = "macos")]
+                app.set_activation_policy(tauri::ActivationPolicy::Accessory);
                 headless_scan(app.handle().clone());
             } else {
                 // アプリの場所が変わっても自動診断が古い場所を指さないよう、起動のたびに登録し直す
@@ -560,10 +595,22 @@ pub fn run() {
         })
         .build(tauri::generate_context!())
         .expect("vaultsweep failed to start")
-        .run(|_app, ev| {
-            // 閉じるときに、自分が入れたパスワードがまだクリップボードにあれば消す
-            if let tauri::RunEvent::Exit = ev {
-                clip::clear_if_ours();
+        .run(|app, ev| match ev {
+            // Mac の ⌘Q など、ウィンドウの×を通らずにアプリを終える操作も、確定していない変更があれば止めて画面で確かめる
+            // （「このまま閉じる」から呼ぶ app.exit(0) は code が入っているので止めない）
+            tauri::RunEvent::ExitRequested { api, code: None, .. } => {
+                let ids = unfinished_ids(app);
+                if !ids.is_empty() {
+                    if let Some(w) = app.get_webview_window("main") {
+                        api.prevent_exit();
+                        let _ = w.show();
+                        let _ = w.set_focus();
+                        let _ = w.emit("close-guard", ids);
+                    }
+                }
             }
+            // 閉じるときに、自分が入れたパスワードがまだクリップボードにあれば消す
+            tauri::RunEvent::Exit => clip::clear_if_ours(),
+            _ => {}
         });
 }

@@ -1,7 +1,7 @@
 // 画面全体で共有する状態
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Api } from "./lib/api";
-import { DICTS, type Dict, type Lang } from "./lib/i18n";
+import { DICTS, MAC, type Dict, type Lang } from "./lib/i18n";
 import { mainKind, type ApiError, type Boot, type Item, type Kind, type Progress, type Report, type Settings, type State } from "./lib/types";
 
 export type View = "overview" | "issues" | "change" | "batch" | "cancel" | "cflow" | "history" | "settings";
@@ -99,7 +99,7 @@ export function AppProvider({ api, boot: initial, children }: { api: Api; boot: 
   const leaveGuard = useRef<(() => Promise<boolean>) | null>(null);
 
   const lang: Lang = settings.lang ?? boot.system_lang;
-  const t = DICTS[lang];
+  const t = useMemo<Dict>(() => (boot.os === "macos" ? { ...DICTS[lang], ...MAC[lang] } : DICTS[lang]), [boot.os, lang]);
 
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   useEffect(() => {

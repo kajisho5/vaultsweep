@@ -54,7 +54,8 @@ impl Default for RealOp {
     }
 }
 
-/// op の場所を探す。PATH にあればそれ、なければ Windows のよくある場所。
+/// op の場所を探す。PATH にあればそれ、なければ Windows・Mac のよくある場所。
+/// （Mac の Finder から開いたアプリには /usr/local/bin などが PATH に入っていないため、ここで探す）
 pub fn find_op() -> PathBuf {
     let exe = if cfg!(windows) { "op.exe" } else { "op" };
     if let Some(paths) = std::env::var_os("PATH") {
@@ -77,6 +78,15 @@ pub fn find_op() -> PathBuf {
         }
         if let Some(c) = cands.into_iter().find(|c| c.is_file()) {
             return c;
+        }
+    }
+    if cfg!(target_os = "macos") {
+        // 公式の入れ方（.pkg / zip）は /usr/local/bin、Homebrew は Apple シリコンなら /opt/homebrew/bin
+        for c in ["/usr/local/bin/op", "/opt/homebrew/bin/op"] {
+            let c = PathBuf::from(c);
+            if c.is_file() {
+                return c;
+            }
         }
     }
     PathBuf::from(exe)

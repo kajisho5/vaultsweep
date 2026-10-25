@@ -121,7 +121,7 @@ const ja = {
   leaveBody: "1Passwordには新しいパスワードが入っています。サイトで変えていないなら、先に元に戻してください。このまま離れても、アプリを閉じるまではこの項目を開けば続きから戻せます。",
   leaveRestore: "元に戻して離れる", leaveKeep: "このまま離れる",
   pkAskTitle: "この項目にパスキーを保存していますか？",
-  pkAskBody: "1Password の決まりで、パスワードを書き戻すとその項目のパスキーが消えます。パスキーを入れていないときだけ、自動で元に戻します。",
+  pkAskBody: "1Password の決まりで、パスワードを書き戻すとその項目のパスキーが消えます。このアプリからはパスキーが入っているか見えないので、1Password アプリでこの項目を開いて確かめてください。パスキーを入れていないときだけ、自動で元に戻します。",
   pkAskUnsure: "入れている・わからない", pkAskNo: "入れていない（元に戻す）",
   busyWait: "新しいパスワードを作っている途中です。終わるまでお待ちください",
   passkeyTitle: "1Password アプリで元に戻してください",
@@ -215,7 +215,7 @@ const ja = {
   sOffline: "外部に問い合わせない（オフライン診断）",
   sOfflineCap: "オンにすると漏洩・事故サイトの判定ができません。",
   sNext: (d: string | null) => (d ? `次回：${d}` : "次回：なし"),
-  sSchedErr: (e: string) => (e === "unsupported_os" ? "この環境では自動診断の予定を作れません（Windows のみ）。" : `予定を作れませんでした：${e}`),
+  sSchedErr: (e: string) => (e === "unsupported_os" ? "この環境では自動診断の予定を作れません（Windows と Mac のみ）。" : `予定を作れませんでした：${e}`),
   sRule: "判定の基準", sRuleCap: "「使ってなさそう」と「弱い」の決め方です。次の診断から使われます。",
   sStale: "さわっていない日数がこれ以上なら「使ってなさそう」",
   days: (d: number) => `${d}日`,
@@ -243,7 +243,7 @@ const ja = {
   ] as [string, string, string][],
   attribution: "Data sourced from 2FA Directory by 2factorauth.",
   sOther: "そのほか", sExport: "診断結果を CSV で保存", exported: (p: string) => `保存しました：${p}`,
-  sDataDir: "保存場所", sVersion: "バージョン",
+  sDataDir: "保存場所", sVersion: "バージョン", kbd: "Ctrl K",
   csvHead: ["サイト", "ドメイン", "保管庫", "問題", "危険度", "最後にさわった日"],
   // エラー
   err: {
@@ -390,7 +390,7 @@ const en: Dict = {
   leaveBody: "1Password now holds the new password. If you didn't change it on the site, restore the old one first. If you leave anyway, you can open this login again to pick up where you left off until you close the app.",
   leaveRestore: "Restore and leave", leaveKeep: "Leave as is",
   pkAskTitle: "Does this login hold a passkey?",
-  pkAskBody: "In 1Password, writing a password back removes the login's passkey. vaultsweep only restores automatically when there's no passkey.",
+  pkAskBody: "In 1Password, writing a password back removes the login's passkey. vaultsweep can't see whether a login holds a passkey, so open this login in the 1Password app and check. vaultsweep only restores automatically when there's no passkey.",
   pkAskUnsure: "Yes / not sure", pkAskNo: "No passkey (restore)",
   busyWait: "Still creating the new password. Please wait.",
   passkeyTitle: "Restore it in the 1Password app",
@@ -479,7 +479,7 @@ const en: Dict = {
   sOffline: "Don't contact outside services (offline scan)",
   sOfflineCap: "When on, leaked passwords and breached sites can't be checked.",
   sNext: (d) => (d ? `Next: ${d}` : "Next: none"),
-  sSchedErr: (e) => (e === "unsupported_os" ? "Automatic scans can only be scheduled on Windows." : `Couldn't create the schedule: ${e}`),
+  sSchedErr: (e) => (e === "unsupported_os" ? "Automatic scans can only be scheduled on Windows and Mac." : `Couldn't create the schedule: ${e}`),
   sRule: "Rules", sRuleCap: "How “likely unused” and “weak” are decided. Applies from the next scan.",
   sStale: "Mark “likely unused” when untouched for at least",
   days: (d) => `${d} days`,
@@ -507,7 +507,7 @@ const en: Dict = {
   ],
   attribution: "Data sourced from 2FA Directory by 2factorauth.",
   sOther: "Other", sExport: "Save results as CSV", exported: (p) => `Saved: ${p}`,
-  sDataDir: "Data folder", sVersion: "Version",
+  sDataDir: "Data folder", sVersion: "Version", kbd: "Ctrl K",
   csvHead: ["Site", "Domain", "Vault", "Issues", "Risk", "Last touched"],
   err: {
     not_installed: "1Password CLI (op) wasn't found. Install it by following the setup steps.",
@@ -539,6 +539,26 @@ const en: Dict = {
 };
 
 export const DICTS: Record<Lang, Dict> = { ja, en };
+
+/** Mac で動いているときだけ差し替える言い回し（Windows Hello → Touch ID など） */
+export const MAC: Record<Lang, Partial<Dict>> = {
+  ja: {
+    firstSteps: ["1Password アプリを開いてロックを解除し、Touch ID をオンにしておく", "1Password の設定 →「開発者」→「1Password CLI と連携」をオンにする", "下の「今すぐ診断」を押す（確認の画面が出たら許可）"],
+    sConnCap: "診断のたびに、この方法で 1Password を読みに行きます（中身は保存しません）。ロック中なら Touch ID の確認が出ます。",
+    sConnInstall: "1Password CLI が入っていなければ、公式の op.pkg を入れる（Homebrew なら brew install 1password-cli）",
+    sAutoCap: "決めた時刻に裏で診断します（Mac の launchd を使います）。スリープ中に時刻を過ぎたら、起きたあとに1回診断します。",
+    sSchedErr: (e: string) => `予定を作れませんでした：${e}`,
+    kbd: "⌘K",
+  },
+  en: {
+    firstSteps: ["Open and unlock the 1Password app, and turn on Touch ID", "In 1Password Settings → Developer, turn on “Integrate with 1Password CLI”", "Press “Scan now” below (allow it if asked)"],
+    sConnCap: "Each scan reads 1Password this way (nothing is saved). If it's locked, Touch ID will ask you to confirm.",
+    sConnInstall: "If 1Password CLI isn't installed, install the official op.pkg (or brew install 1password-cli with Homebrew)",
+    sAutoCap: "Scans in the background at the set time (uses macOS launchd). If your Mac was asleep at that time, it scans once after it wakes.",
+    sSchedErr: (e) => `Couldn't create the schedule: ${e}`,
+    kbd: "⌘K",
+  },
+};
 
 export function issueText(i: Issue, t: Dict): string {
   switch (i.kind) {

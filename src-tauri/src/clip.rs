@@ -1,4 +1,5 @@
 //! クリップボード。Windows では「クリップボードの履歴」と「ほかの端末との同期」に残らない印を付ける。
+//! Mac では「秘密」「一時的」の印（nspasteboard.org の取り決め）を付け、履歴アプリや Spotlight の履歴に残りにくくする。
 //! 30秒たって、まだ自分が入れた値のままなら消す。
 
 use sha2::{Digest, Sha256};
@@ -42,9 +43,48 @@ mod imp {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "macos")]
 mod imp {
-    // Windows 以外（開発用）。tauri のプラグインを使う。
+    use objc2::rc::autoreleasepool;
+    use objc2_app_kit::{NSPasteboard, NSPasteboardTypeString};
+    use objc2_foundation::{NSData, NSString};
+    use zeroize::Zeroizing;
+
+    pub fn write(value: &str) -> Result<(), String> {
+        autoreleasepool(|_| {
+            let pb = NSPasteboard::generalPasteboard();
+            pb.clearContents();
+            let ok = pb.setString_forType(&NSString::from_str(value), unsafe { NSPasteboardTypeString });
+            if !ok {
+                return Err("pasteboard".to_string());
+            }
+            // 中身は空でよい。印があることが大事
+            let empty = NSData::new();
+            for ty in ["org.nspasteboard.ConcealedType", "org.nspasteboard.TransientType"] {
+                pb.setData_forType(Some(&empty), &NSString::from_str(ty));
+            }
+            Ok(())
+        })
+    }
+
+    pub fn read() -> Option<Zeroizing<String>> {
+        autoreleasepool(|_| {
+            let pb = NSPasteboard::generalPasteboard();
+            let s = pb.stringForType(unsafe { NSPasteboardTypeString })?;
+            Some(Zeroizing::new(s.to_string()))
+        })
+    }
+
+    pub fn clear() {
+        autoreleasepool(|_| {
+            NSPasteboard::generalPasteboard().clearContents();
+        });
+    }
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
+mod imp {
+    // Windows・Mac 以外（開発用）。tauri のプラグインを使う。
     use std::sync::OnceLock;
     use tauri_plugin_clipboard_manager::ClipboardExt;
     use zeroize::Zeroizing;
@@ -64,11 +104,11 @@ mod imp {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "macos")))]
 pub fn init(app: &tauri::AppHandle) {
     let _ = imp::APP.set(app.clone());
 }
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "macos"))]
 pub fn init(_app: &tauri::AppHandle) {}
 
 pub const CLEAR_SECS: u64 = 30;

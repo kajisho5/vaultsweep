@@ -73,7 +73,7 @@ function Topbar() {
             if (view !== "issues" && !(await go("issues"))) return;
             setQuery(v); setListFilter(null);
           }} />
-        <kbd>Ctrl K</kbd>
+        <kbd>{t.kbd}</kbd>
       </label>
       <button type="button" className={`chipbtn${pend ? " alert" : ""}`} onClick={() => go("settings")}>{pend ? t.aiRequests(pend) : t.mcpChip}</button>
       <button type="button" className="btn" onClick={() => void scan()} disabled={scanning} aria-busy={scanning}>
