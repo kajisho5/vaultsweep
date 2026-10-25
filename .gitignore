@@ -5,3 +5,4 @@ src-tauri/gen/
 src-tauri/binaries/
 *.log
 .DS_Store
+.hallmark/
