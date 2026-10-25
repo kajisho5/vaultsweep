@@ -7,8 +7,8 @@ import { siteUrl } from "../lib/api";
 
 export function PendingBar() {
   const { state, t, api, setState, setReport, toast, fail, startChange, item } = useApp();
-  if (!state.pending.length) return null;
   const [busy, setBusy] = useState<string | null>(null);
+  if (!state.pending.length) return null;
   const resolve = async (p: Pending, approve: boolean) => {
     if (busy) return;
     setBusy(p.id);
@@ -27,7 +27,7 @@ export function PendingBar() {
           <span><b>{t.pendingTitle}</b>{t.colon}{p.kind === "archive" ? t.pendingArchive(p.title) : t.pendingChange(p.title)}</span>
           <span style={{ display: "flex", gap: 8 }}>
             <button type="button" className="btn small" disabled={!!busy} onClick={() => resolve(p, false)}>{t.deny}</button>
-            <button type="button" className="btn small" disabled={!!busy} onClick={() => resolve(p, true)}>{t.approve}</button>
+            <button type="button" className={`btn small ${p.kind === "archive" ? "coral" : "primary"}`} disabled={!!busy} onClick={() => resolve(p, true)}>{t.approve}</button>
           </span>
         </div>
       ))}
@@ -91,7 +91,8 @@ export function Overview() {
   const simReuse = flaggedItems.filter((i) => i.issues.some((x) => x.kind === "reuse" || x.kind === "similar")).length;
   const max = Math.max(1, ...KINDS.map((k) => report.counts[k] ?? 0));
   const todos = todoIds.map((e) => ({ ...e, it: item(e.id) }));
-  const scanned = fmtDate(report.scanned_at, (d) => `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`);
+  const scanned = fmtDate(report.scanned_at, t.shortTime);
+  const lastNew = hist.length ? hist[hist.length - 1].new_issues : 0;
 
   return (
     <>
@@ -105,7 +106,7 @@ export function Overview() {
 
       <div className="reading-row">
         <section className="reading" aria-label={t.k1}>
-          <div className="head"><span>{t.rdLabel}</span>{prev != null && <span className="was" aria-label={String(prev)}>{prev}</span>}</div>
+          <div className="head"><span>{t.rdLabel}</span>{prev != null && <s className="was"><span className="visually-hidden">{t.prevScore} </span>{prev}</s>}</div>
           <div className="value"><span className="big"><CountUp value={report.score} /></span><span className="of">/ 100</span></div>
           <div className="meta">
             {delta != null && <span className={delta >= 0 ? "okc" : "badc"}>{t.k1d(delta)}</span>}
@@ -113,7 +114,7 @@ export function Overview() {
           </div>
         </section>
         <div className="figs">
-          <div className="fig"><span>{t.k2}</span><div><strong><CountUp value={flagged} /></strong><small className="m">/ {total}</small></div></div>
+          <div className="fig"><span>{t.k2}</span><div><strong><CountUp value={flagged} /></strong><small className="m">/ {total}</small></div>{lastNew > 0 && <small className="mutedc">{t.k2d(lastNew)}</small>}</div>
           <div className="fig"><span>{t.k4}</span><div><strong><CountUp value={fixedWeek} /></strong><small>{t.k4d(streak)}</small></div></div>
           <div className="fig"><span>{t.k3}</span><div><strong><CountUp value={cancelOpen} /></strong><small>{t.k3d(cancelLeft)}</small></div></div>
           <div className="fig"><span>{t.kSim}</span><div><strong><CountUp value={simReuse} /></strong></div></div>

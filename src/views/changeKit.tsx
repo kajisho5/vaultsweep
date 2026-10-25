@@ -111,7 +111,7 @@ export function SiteActions({ ch }: { ch: ReturnType<typeof useChanger> }) {
         <button type="button" className="btn small" aria-label={t.copyOld} onClick={() => ch.doCopy("old")}>{t.copy}</button>
       </div>
       <div className="secret">
-        <div><div className="k">{t.newPw}</div><span className="v" aria-hidden="true">{t.masked8}</span><span className="note">{t.savedNote}</span></div>
+        <div><div className="k">{t.newPw}</div><span className="v" aria-hidden="true">{t.masked8}</span><span className="saved-note">{t.savedNote}</span></div>
         <button type="button" className="btn small" aria-label={t.copyNew} onClick={() => ch.doCopy("new")}>{t.copy}</button>
       </div>
       <CopyTimer what={ch.copy.what} seconds={ch.copy.seconds} stamp={ch.copy.stamp} />

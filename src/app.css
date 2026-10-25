@@ -49,7 +49,7 @@
   h1.title { font-size: var(--text-3xl); max-width: none; margin: 0 0 var(--space-xs); color: var(--color-ink); }
   .lead { color: var(--color-muted); margin: 0 0 var(--space-lg); font-size: var(--text-md); max-width: 70ch; }
   .grid2 { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, 1fr); gap: var(--space-xl); align-items: start; }
-  .card { background: var(--color-paper-2); color: var(--color-ink); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); padding: var(--space-lg); }
+  .card { min-width: 0; background: var(--color-paper-2); color: var(--color-ink); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); padding: var(--space-lg); }
   .card h2, .sec h2 { font-size: var(--text-lg); max-width: none; margin: 0 0 var(--space-2xs); }
   .cap { color: var(--color-muted); font-size: var(--text-sm); margin: 0 0 var(--space-md); line-height: 1.55; }
   .sec { min-width: 0; }
@@ -71,6 +71,7 @@
   .btn.primary:hover { background: color-mix(in oklab, var(--color-accent) 88%, var(--color-ink)); }
   .btn.primary:disabled { background: var(--color-paper-3); border-color: var(--color-rule-2); color: var(--color-muted); }
   .btn.coral { color: var(--color-bad); }
+  .btn.coral:disabled { color: var(--color-muted); }
   .btn.coral:hover { border-color: var(--color-bad); }
   .btn.small { min-height: var(--control-h-s); padding: 0 var(--space-sm); }
   .linkbtn { background: none; border: 0; padding: 0; color: var(--color-ink-2); font-weight: 500; text-decoration: underline; text-decoration-color: var(--color-rule-2); text-underline-offset: 0.2em; cursor: pointer; text-align: left; transition: color var(--dur-micro) var(--ease-out); }
@@ -102,6 +103,7 @@
   .fig span { color: var(--color-muted); font-size: var(--text-sm); font-weight: 500; }
   .fig strong { font-family: var(--font-outlier); font-weight: 400; font-size: var(--text-3xl); line-height: 1; font-variant-numeric: tabular-nums slashed-zero; }
   .fig small { font-size: var(--text-sm); color: var(--color-muted); margin-left: var(--space-xs); }
+  .fig > small { margin-left: 0; font-size: var(--text-xs); }
 
   /* 進み具合（伸び縮みで動かす） */
   .prog-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-sm); }
@@ -190,7 +192,7 @@
   .secret { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2xs) var(--space-md); align-items: center; padding: var(--space-sm) 0; border-top: var(--rule-hair) solid var(--color-rule); }
   .secret .k { font-size: var(--text-sm); color: var(--color-muted); font-weight: 500; }
   .secret .v { font-family: var(--font-outlier); color: var(--color-ink-2); letter-spacing: 0.1em; }
-  .secret .note { font-size: var(--text-xs); color: var(--color-muted); letter-spacing: 0; font-family: var(--font-body); margin-left: var(--space-sm); }
+  .secret .saved-note { font-size: var(--text-xs); color: var(--color-muted); letter-spacing: 0; font-family: var(--font-body); margin-left: var(--space-sm); }
   .timer { display: grid; grid-template-columns: 1fr auto; gap: var(--space-2xs) var(--space-md); align-items: baseline; font-size: var(--text-sm); margin-top: var(--space-sm); min-height: 38px; color: var(--color-ink-2); }
   .timer .left { font-family: var(--font-outlier); color: var(--color-cool); }
   .timer .meter { grid-column: 1 / -1; margin: 0; }
@@ -279,9 +281,9 @@
 @keyframes pop { 0% { transform: scale(0.4); } 100% { transform: scale(1); } }
 
 @media (max-width: 1150px) {
-  .grid2 { grid-template-columns: 1fr !important; }
+  .grid2 { grid-template-columns: minmax(0, 1fr) !important; }
   .grid2.keep2 { grid-template-columns: minmax(0, 1fr) 300px !important; }
-  .reading-row { grid-template-columns: 1fr; }
+  .reading-row { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 60rem) {
   .flow { grid-template-columns: 1fr; }
@@ -292,7 +294,7 @@
   .nav { flex-direction: row; flex-wrap: wrap; }
   .tsearch, .chipbtn { display: none; }
   .wrap { padding: var(--space-lg) var(--space-md); } .top { padding: 0 var(--space-md); }
-  .grid2, .grid2.keep2, .settings, .kanban { grid-template-columns: 1fr !important; }
+  .grid2, .grid2.keep2, .settings, .kanban { grid-template-columns: minmax(0, 1fr) !important; }
   .todo-item { grid-template-columns: 32px minmax(0, 1fr); } .todo-item > .btn, .todo-item > .done-label { grid-column: 2; }
   .figs { grid-template-columns: 1fr 1fr; }
   .steps { grid-template-columns: 1fr; }

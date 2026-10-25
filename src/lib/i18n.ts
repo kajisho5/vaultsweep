@@ -44,7 +44,7 @@ const ja = {
   firstLead: "1Password の中を読んで、漏洩・使い回し・弱いパスワードなどを探します。パスワードは画面に出さず、外にも送りません。",
   firstSteps: ["1Password アプリを開いてロックを解除し、Windows Hello をオンにしておく", "1Password の設定 →「開発者」→「1Password CLI と連携」をオンにする", "下の「今すぐ診断」を押す（確認の画面が出たら許可）"],
   rdLabel: "安全度", rdAt: (d: string) => `${d} の診断`, kSim: "使い回しと似ている", unit: (k: number) => `${k}件`, masked8: "••••••••••••••••",
-  stStatus: { done: "済み", now: "いまここ" },
+  stStatus: { done: "済み", now: "いまここ" }, prevScore: "前回",
   k1: "安全度（100点満点）", k1d: (d: number | null) => (d == null ? "初めての診断" : `前回より ${d >= 0 ? "+" : ""}${d}`),
   k2: "問題のある項目", k2d: (x: number) => `今回の新規 ${x}`,
   k3: "解約リスト", k3d: (x: number) => `退会済み ${x}`,
@@ -256,6 +256,7 @@ const ja = {
   demoDir: "（デモ）", demoExport: "デモのため保存しません",
   emailTitle: "漏洩したメールアドレス",
   date: (d: Date) => `${d.getMonth() + 1}月${d.getDate()}日（${"日月火水木金土"[d.getDay()]}）`,
+  shortTime: (d: Date) => `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`,
   dateTime: (d: Date) => `${d.getMonth() + 1}月${d.getDate()}日（${"日月火水木金土"[d.getDay()]}）${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`,
   ymd: (d: Date) => `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`,
 };
@@ -300,7 +301,7 @@ const en: Dict = {
   firstLead: "vaultsweep reads your 1Password logins and looks for leaked, reused and weak passwords. Passwords are never shown on screen or sent anywhere.",
   firstSteps: ["Open and unlock the 1Password app, and turn on Windows Hello", "In 1Password Settings → Developer, turn on “Integrate with 1Password CLI”", "Press “Scan now” below (allow it if asked)"],
   rdLabel: "Safety score", rdAt: (d) => `scanned ${d}`, kSim: "Reused or similar", unit: (k) => `${k}`, masked8: "••••••••••••••••",
-  stStatus: { done: "Done", now: "Current" },
+  stStatus: { done: "Done", now: "Current" }, prevScore: "Previous",
   k1: "Safety score (of 100)", k1d: (d) => (d == null ? "First scan" : `${d >= 0 ? "+" : ""}${d} vs last scan`),
   k2: "Logins with issues", k2d: (x) => `${x} new this scan`,
   k3: "Cancel list", k3d: (x) => `${x} cancelled`,
@@ -504,6 +505,7 @@ const en: Dict = {
   demoDir: "(demo)", demoExport: "Not saved in demo mode",
   emailTitle: "Breached email addresses",
   date: (d) => d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+  shortTime: (d) => d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
   dateTime: (d) => d.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
   ymd: (d) => d.toLocaleDateString("en-CA"),
 };
