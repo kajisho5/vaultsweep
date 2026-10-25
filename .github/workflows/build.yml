@@ -21,6 +21,7 @@ jobs:
     outputs:
       tag: ${{ steps.v.outputs.tag }}
       release: ${{ steps.v.outputs.release }}
+      version: ${{ steps.v.outputs.version }}
     steps:
       - uses: actions/checkout@v7
       - id: v
@@ -30,6 +31,7 @@ jobs:
         run: |
           tag="v$(jq -r .version package.json)"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
             echo "release=false" >> "$GITHUB_OUTPUT"
           elif gh release view "$tag" >/dev/null 2>&1; then
@@ -140,6 +142,7 @@ jobs:
       package: dmg
       app_link: true
       source_ref: ${{ github.sha }}
+      version: ${{ needs.plan.outputs.version }}
       build: >-
         rustup toolchain install stable --profile minimal && rustup default stable
         && rustup target add aarch64-apple-darwin x86_64-apple-darwin
