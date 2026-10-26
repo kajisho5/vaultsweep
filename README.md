@@ -1,79 +1,97 @@
 # vaultsweep
 
-1Password の中を診断して、パスワードの変更や使っていないサービスの解約を手伝う Windows アプリです。
-（English summary is at the bottom.）
+**English** · [日本語](README.ja.md)
 
-- **見つけるもの**：漏洩したパスワード、事故があったサイト、使い回し、似ているパスワード（1〜2文字や数字だけの違い）、弱いパスワード、2段階認証が未設定、長い間さわっていない項目、重複
-- **手伝うこと**：パスワード変更（1件ずつ・まとめて）、解約（個人情報をダミーに置き換えてから退会 → 記録を残す → 1Password の保管庫へ移す）
-- **そのほか**：自動診断と通知、安全度の移り変わり、MCP（AI アプリから質問できる）、日本語／英語、ライト／ダーク
+vaultsweep scans your 1Password vault, ranks risky logins, and walks you through changing passwords and closing accounts you no longer use. Free and open source, for Windows and Mac.
 
-## 安全のための決まり
+[Website](https://kajisho5.github.io/vaultsweep/) · [Download](https://github.com/kajisho5/vaultsweep/releases/latest) · [Sponsor](https://github.com/sponsors/kajisho5)
 
-- パスワード・ユーザー名・メモ欄は、画面にも、保存ファイルにも、AI（MCP）にも出しません。
-- パスワードは `op`（1Password CLI）に作らせます。元に戻すときも、値はコマンドの引数ではなく標準入力で渡します。
-- 漏洩の確認は、パスワードの SHA-1 の先頭5文字だけを送る方式（Have I Been Pwned の k-匿名性）です。件数も隠す設定（Add-Padding）を付けています。
-- コピーしたパスワードは30秒で消します。Windows のクリップボード履歴とクラウド同期には残らない印を付けます。
-- 削除はしません。片付けは 1Password の「保管庫（アーカイブ）」への移動だけで、いつでも戻せます。
-- AI からの「変更」「片付け」は依頼として置くだけです。アプリの画面で承認するまで何も起きません。
-- 外部に問い合わせるのは決めた5か所だけです（下の「データの出典」）。オフライン診断にもできます。
+> vaultsweep is not made by 1Password. It runs on your own computer through the official 1Password CLI.
 
-## 使い始める
+## What it does
 
-1. 1Password アプリを開いてロックを解除し、Windows Hello をオンにする
-2. 1Password の「設定」→「開発者」→「1Password CLI と連携（Integrate with 1Password CLI）」をオンにする
-3. 1Password CLI を入れる：PowerShell で `winget install 1password-cli`
-   （公式の手順：https://www.1password.dev/cli/get-started ）
-4. このリポジトリの「Releases」から `vaultsweep_..._x64-setup.exe` をダウンロードして実行する
-5. アプリの「今すぐ診断」を押す（1Password の確認が出たら許可）
+- **Finds 8 kinds of problems**: leaked passwords, logins on breached sites, reused passwords, near duplicates (one or two characters apart), weak passwords, 2FA available but off, logins untouched for a long time, and duplicate items. Everything is ranked with leaks first.
+- **Helps you change passwords**, one at a time or in a batch. The new password is generated and saved inside 1Password. If the site rejects it, one click restores the old one.
+- **Follows each site's password rules.** Rules such as "no symbols", "20 characters max" or "digits only" come from Apple's public data (about 430 sites). The new password is checked against them, and you can set your own rules per site.
+- **Helps you close accounts**: replace personal details with dummies, cancel, keep a record, then move the item to the 1Password Archive.
+- **Scans on a schedule** (daily, weekly or monthly) and notifies you only about new problems.
+- **Works with AI apps over MCP.** Ask Claude "which of my passwords leaked?" The AI gets scores, counts and site names, never passwords.
+- **Updates itself.** New versions are checked against our signature before installing.
+- English and Japanese, light and dark themes.
 
-署名をしていないため、初回は Windows の SmartScreen が「PC を保護しました」と出ることがあります。「詳細情報」→「実行」で進めます。
+## Safety rules
 
-## MCP（AI アプリから使う）
+- Passwords, usernames and notes are never shown, stored or sent to AI tools.
+- New passwords are created by `op` (1Password CLI) inside 1Password. When a password is restored, the value goes through standard input, never as a command argument.
+- The leak check sends only the first 5 characters of a password's SHA-1 hash (Have I Been Pwned k-anonymity), with Add-Padding so the response size reveals nothing.
+- Copied passwords clear after 30 seconds and are kept out of clipboard history and cloud clipboard (Windows) and marked as concealed (Mac).
+- Nothing is permanently deleted. Cleanup only moves items to the 1Password Archive, so you can always restore them.
+- AI apps can only *request* a change or a cleanup. Nothing happens until you approve it in the app.
+- The app only contacts the sources listed under [Data sources](#data-sources), plus GitHub for update checks. Offline mode turns all of that off.
 
-設定画面に、AI アプリへ貼り付ける設定が出ます。形は次のとおりです（`command` は実際の場所に置き換わります）。
+## Getting started
+
+1. Open the 1Password app, unlock it, and turn on Windows Hello or Touch ID.
+2. In 1Password, go to Settings → Developer and turn on **Integrate with 1Password CLI**.
+3. Install the 1Password CLI ([official guide](https://www.1password.dev/cli/get-started)):
+   - Windows (PowerShell): `winget install 1password-cli`
+   - Mac (Homebrew): `brew install 1password-cli`
+4. Download vaultsweep from [Releases](https://github.com/kajisho5/vaultsweep/releases/latest):
+   - Windows 10 and 11: `vaultsweep_<version>_x64-setup.exe`
+   - Mac (Apple silicon and Intel, macOS 11 or later): `vaultsweep-<version>.dmg`. It is signed with a Developer ID and notarized by Apple.
+5. Press **Scan now** and approve the 1Password prompt.
+
+The Windows installer is not code signed yet, so SmartScreen may show "Windows protected your PC" the first time. Choose **More info** → **Run anyway**.
+
+## Using it from AI apps (MCP)
+
+Settings shows the exact snippet to paste into your AI app. It looks like this (`command` is replaced with the real path):
 
 ```json
 { "mcpServers": { "vaultsweep": { "command": "C:\\...\\vaultsweep-mcp.exe", "args": ["--mcp"] } } }
 ```
 
-使える道具：`get_summary` `list_issues` `get_item_issues` `run_scan` `mark_in_use` `add_to_cancel_list` `request_password_change` `request_archive`。
-MCP の新しい版（2026-07-28、`server/discover`）と、古い版（`initialize` から始まるもの）の両方に答えます。
+On a Mac the command is inside the app: `/Applications/vaultsweep.app/Contents/MacOS/vaultsweep-mcp`.
 
-## データの出典
+Tools: `get_summary` `list_issues` `get_item_issues` `run_scan` `mark_in_use` `add_to_cancel_list` `request_password_change` `request_archive`. The server answers both the 2026-07-28 protocol (`server/discover`) and older clients that start with `initialize`.
 
-| 出典 | 使い道 | ライセンス |
+## Data sources
+
+| Source | Used for | License |
 | --- | --- | --- |
-| [Have I Been Pwned](https://haveibeenpwned.com/) | 漏洩パスワード・事故サイト（メールの確認は有料キー） | CC BY 4.0 |
-| [JustDeleteMe](https://github.com/jdm-contrib/jdm) | 退会ページと難しさ | MIT |
-| [2FA Directory](https://2fa.directory/) | 2段階認証に対応しているサイト | MIT |
-| [Passkeys Directory](https://passkeys.2fa.directory/) | パスキーに対応しているサイト | CC BY 4.0 |
+| [Have I Been Pwned](https://haveibeenpwned.com/) | Leaked passwords, breached sites (email check needs a paid key) | CC BY 4.0 |
+| [JustDeleteMe](https://github.com/jdm-contrib/jdm) | Account deletion pages and difficulty | MIT |
+| [2FA Directory](https://2fa.directory/) | Sites that support two factor sign in | MIT |
+| [Passkeys Directory](https://passkeys.2fa.directory/) | Sites that support passkeys | CC BY 4.0 |
+| [Apple Password Manager Resources](https://github.com/apple/password-manager-resources) | Each site's password rules (a copy ships with the app) | MIT |
 
 Data sourced from 2FA Directory by 2factorauth.
 
-## 作り
+## How it is built
 
-| 部分 | 中身 |
+| Part | What it is |
 | --- | --- |
-| `crates/core` | 中身（Rust）：1Password CLI 連携、判定、HIBP、一覧データ、保存、MCP サーバー、`vaultsweep-mcp` |
-| `src-tauri` | アプリの枠（Tauri 2）：画面とのやりとり、クリップボード、通知、自動診断（タスク スケジューラ） |
-| `src` | 画面（React + TypeScript + Tailwind CSS）。アプリの外で開くと、架空のデータで動くデモになります |
+| `crates/core` | The core (Rust): 1Password CLI, checks, HIBP, public lists, password rules, storage, MCP server, `vaultsweep-mcp` |
+| `src-tauri` | The app shell (Tauri 2): clipboard, notifications, scheduled scans (Task Scheduler / launchd), updates |
+| `src` | The UI (React, TypeScript, Tailwind CSS). Opened outside the app, it runs as a demo with fictional data |
+| `site` | The website (Astro), published to GitHub Pages |
 
-保存場所：`%APPDATA%\vaultsweep`（設定・解約リスト・履歴・最後の診断結果。秘密の値は入りません）
+Where data is kept: `%APPDATA%\vaultsweep` on Windows, `~/Library/Application Support/vaultsweep` on Mac. Settings, the cancel list, history and the last scan result only. No secret values.
 
-### 開発
+### Development
 
 ```sh
 npm ci
-cargo test -p vaultsweep-core     # 中身の試験
-npm run dev                        # 画面だけ（デモ）を http://localhost:5173 で開く
+cargo test -p vaultsweep-core     # core tests
+npm run dev                        # UI only (demo) at http://localhost:5173
 ```
 
-アプリ全体のビルドは GitHub Actions（`.github/workflows/build.yml`）の Windows ランナーで行います。
+Builds run on GitHub Actions (`.github/workflows/build.yml`). When `package.json` has a version with no release yet, a push to `main` builds Windows and Mac, signs and notarizes the Mac app, and publishes the release with update files.
 
----
+## Support
 
-## English
+vaultsweep has no ads and no paid plan. If it helped you, you can [sponsor it on GitHub](https://github.com/sponsors/kajisho5). Every feature stays free either way.
 
-vaultsweep is a Windows app that audits your 1Password logins (leaked, breached-site, reused, weak, no 2FA, likely unused, duplicates), walks you through password changes one by one or in bulk, and helps you cancel accounts: replace personal details with dummies, leave, keep a record, then move the item to the 1Password Archive. Passwords, usernames and notes are never shown, stored or sent to AI tools. Leak checks use HIBP k-anonymity with padding. Copied passwords are cleared after 30 seconds and excluded from Windows clipboard history. The MCP server (`vaultsweep-mcp.exe --mcp`) answers both the 2026-07-28 protocol and legacy clients, and only *requests* changes, which you approve in the app. Switch language (Japanese/English) and theme (light/dark/system) in Settings.
+## License
 
-License: MIT
+MIT. 1Password is a trademark of AgileBits Inc.
